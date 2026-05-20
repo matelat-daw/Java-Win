@@ -1,0 +1,231 @@
+/* ═══ VARIABLES GLOBALES ═══════════════════════════════════════════ */
+:root {
+    --verde-oscuro: #1B5E20;
+    --verde-medio: #2E7D32;
+    --verde-claro: #E8F5E9;
+    --texto-oscuro: #1A1A1A;
+    --texto-gris: #666666;
+    --blanco: #FFFFFF;
+    --borde: #C8E6C9;
+    --sombra: rgba(0, 0, 0, 0.08);
+}
+
+/* ═══ RESET Y BASE ══════════════════════════════════════════════════ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--verde-claro);
+    color: var(--texto-oscuro);
+    min-height: 100vh;
+}
+
+/* ═══ CABECERA ═══════════════════════════════════════════════════════ */
+header {
+    background-color: var(--verde-oscuro);
+    color: var(--blanco);
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 6px var(--sombra);
+}
+
+header h1 {
+    font-size: 1.4rem;
+    letter-spacing: 1px;
+}
+
+nav a {
+    color: var(--blanco);
+    text-decoration: none;
+    margin-left: 24px;
+    font-size: 0.95rem;
+    opacity: 0.85;
+    transition: opacity 0.2s;
+}
+
+nav a:hover {
+    opacity: 1;
+}
+
+/* ═══ CONTENIDO PRINCIPAL ════════════════════════════════════════════ */
+main {
+    max-width: 960px;
+    margin: 40px auto;
+    padding: 0 24px;
+}
+
+h2 {
+    color: var(--verde-oscuro);
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+/* ═══ TARJETA (CARD) ═════════════════════════════════════════════════ */
+.card {
+    background: var(--blanco);
+    border-radius: 8px;
+    padding: 28px 32px;
+    box-shadow: 0 2px 8px var(--sombra);
+    margin-bottom: 24px;
+}
+
+/* ═══ TABLA ══════════════════════════════════════════════════════════ */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+}
+
+th {
+    background-color: var(--verde-oscuro);
+    color: var(--blanco);
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+}
+
+td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--borde);
+    font-size: 0.95rem;
+}
+
+tr:hover td {
+    /* TODO 1: cuando el ratón pase por una fila, cambia el fondo */
+    /* Usa var(--verde-claro) como color de fondo */
+    background-color: var(--verde-claro);
+}
+
+/* ═══ FORMULARIO ════════════════════════════════════════════════════ */
+.campo {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+    color: var(--verde-oscuro);
+    font-size: 0.9rem;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--borde);
+    border-radius: 6px;
+    font-size: 1rem;
+    /* TODO 2: añade una transición suave de 0.2s en la propiedad border-color */
+    transition: border-color 0.2s;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: var(--verde-medio);
+}
+
+/* ═══ BOTONES ════════════════════════════════════════════════════════ */
+.btn {
+    display: inline-block;
+    padding: 11px 28px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.btn-primario {
+    background-color: var(--verde-oscuro);
+    color: var(--blanco);
+}
+
+.btn-primario:hover {
+    /* TODO 3: oscurece el botón al pasar el ratón — usa background-color: #0a3d12 */
+    background-color: #0a3d12;
+}
+
+.btn-secundario {
+    background-color: var(--blanco);
+    color: var(--verde-oscuro);
+    border: 1px solid var(--verde-oscuro);
+}
+
+/* ═══ MENSAJES ═══════════════════════════════════════════════════════ */
+.mensaje-exito {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    display: none;
+}
+
+.mensaje-error {
+    /* TODO 4: crea los estilos del mensaje de error (fondo rojo claro) */
+    /* Usa background: #f8d7da, color: #721c24, border: 1px solid #f5c6cb */
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    display: none;
+}
+
+/* ═══ ESTADO VACÍO ═══════════════════════════════════════════════════ */
+.vacio {
+    text-align: center;
+    color: var(--texto-gris);
+    padding: 40px;
+    font-style: italic;
+}
+
+/* ═══ STAT CARDS ════════════════════════════════════════════════════ */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.stat {
+    background: var(--blanco);
+    border-radius: 8px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 2px 8px var(--sombra);
+    border-top: 4px solid var(--verde-oscuro);
+}
+
+.stat-numero {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--verde-oscuro);
+}
+
+.stat-label {
+    color: var(--texto-gris);
+    font-size: 0.9rem;
+    margin-top: 4px;
+}
+
+/* ═══ FOOTER ═════════════════════════════════════════════════════════ */
+footer {
+    text-align: center;
+    padding: 24px;
+    color: var(--texto-gris);
+    font-size: 0.85rem;
+    margin-top: 40px;
+}

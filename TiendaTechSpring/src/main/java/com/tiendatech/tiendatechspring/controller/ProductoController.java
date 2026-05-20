@@ -30,11 +30,12 @@ public class ProductoController {
     public String añadir(
             @RequestParam String nombre,
             @RequestParam double precio,
-            @RequestParam String categoria) {
+            @RequestParam String categoria,
+            @RequestParam int stock) {
         // TODO 15: llama a service.añadir() con los tres parámetros
         // y devuelve un mensaje de confirmación.
         // Pista:
-        service.añadir(nombre, precio, categoria);
+        service.añadir(nombre, precio, categoria, stock);
         return "Producto añadido: " + nombre;
     }
 

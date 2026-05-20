@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda Tech - Home</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <header>
+        <h1>🌱 TiendaTechSpring</h1>
+        <nav>
+            <a href="index.html">Inicio</a>
+            <a href="productos.html">Catálogo</a>
+            <a href="anadir.html">Añadir producto</a>
+            <a href="panel.html">Panel</a>
+        </nav>
+    </header>
+    <main>
+        <div class="card">
+            <!-- TODO 10: escribe un h2 con el texto "Bienvenido a TiendaTechSpring" -->
+            <h2>Bienvenido a TiendaTechSpring</h2>
+            <!-- TODO 11: escribe un párrafo (<p>) explicando qué es esta aplicación. Debe mencionar Spring Boot, la API REST y que los datos están en memoria. -->
+            <p>Esta aplicación es una tienda online de tecnología creada con Spring Boot. Utiliza una API REST para gestionar productos, y todos los datos se almacenan en memoria, lo que significa que se perderán al reiniciar el servidor.</p>
+            <div style="margin-top: 32px; display: flex; gap: 16px; flex-wrap:wrap;">
+                <a href="productos.html" class="btn btn-primario">Ver catálogo</a>
+                <a href="anadir.html" class="btn btn-secundario">Añadir
+                    producto</a>
+                <a href="panel.html" class="btn btn-secundario">Ver panel</a>
+            </div>
+        </div>
+        <div class="card">
+            <h2>Estado de la API</h2>
+            <p id="estado-api">Comprobando conexión con Spring Boot...</p>
+        </div>
+    </main>
+    <footer>
+        <p>TiendaTechSpring · IFCD0182 · Módulo 2</p>
+    </footer>
+    <script src="app.js"></script>
+    <script>
+        // Al cargar la página, comprobamos que la API responde.
+        document.addEventListener("DOMContentLoaded", async () => {
+            const el = document.getElementById("estado-api");
+            try {
+                // TODO 12: llama a obtenerInfo() y muestra el resultado en el elemento "estado-api".
+                // Si funciona, añade el texto al elemento. Si falla, muestra un mensaje de error.
+                // Pista:
+                // const info = await obtenerInfo();
+                const info = await obtenerInfo();
+                el.textContent = info;
+            } catch (error) {
+                el.textContent = "Error al cargar información";
+            }
+        });
+    </script>
+</body>
+</html>

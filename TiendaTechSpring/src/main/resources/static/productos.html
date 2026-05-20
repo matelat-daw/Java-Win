@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo — TiendaTechSpring</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+
+<body>
+    <header>
+        <h1>🌱 TiendaTechSpring</h1>
+        <nav>
+            <a href="index.html">Inicio</a>
+            <a href="productos.html">Catálogo</a>
+            <a href="anadir.html">Añadir producto</a>
+            <a href="panel.html">Panel</a>
+        </nav>
+    </header>
+    <main>
+        <div class="card">
+            <h2>Catálogo de productos</h2>
+            <div id="mensaje" class="mensaje-exito"></div>
+            <button class="btn btn-primario" onclick="cargarProductos()">
+                🔄 Actualizar
+            </button>
+            <a href="anadir.html" class="btn btn-secundario">+ Añadir producto</a>
+            <div id="contenedor-tabla">
+                <p>Cargando productos...</p>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>TiendaTechSpring · IFCD0182 · Módulo 2</p>
+    </footer>
+    <script src="app.js"></script>
+    <script>
+        async function cargarProductos() {
+            const contenedor = document.getElementById("contenedor-tabla");
+            contenedor.innerHTML = "<p>Cargando...</p>";
+            try {
+                // TODO 13: llama a obtenerProductos() y guarda el resultado.
+                // Pista: const productos = await obtenerProductos();
+                const productos = await obtenerProductos();
+                // TODO 14: comprueba si el array está vacío.
+                // Si está vacío, muestra un párrafo con class="vacio" y el texto
+                // "No hay productos en el catálogo. Añade el primero."
+                // Pista: if (productos.length === 0) { contenedor.innerHTML = ... }
+                if (productos.length === 0) {
+                    contenedor.innerHTML =
+                        "<p class='vacio'>No hay productos en el catálogo. Añade el primero.</p>";
+                    return;
+                }
+                // TODO 15: si hay productos, construye la tabla HTML.
+                // La tabla debe tener estas columnas: Nombre, Precio, Categoría.
+                // Usa productos.map() para generar las filas.
+                // Pista para construir la tabla:
+                const filas = productos.map(p =>
+                `<tr>
+                <td>${p.nombre}</td>
+                <td>${p.precio} €</td>
+                <td>${p.categoria}</td>
+                </tr>`
+                ).join("");
+                
+                contenedor.innerHTML = `
+                <table>
+                <thead>
+                
+                <tr><th>Nombre</th><th>Precio</th><th>Categoría</th></tr>
+                </thead>
+                <tbody>${filas}</tbody>
+                </table>`,
+            } catch (error) {
+                contenedor.innerHTML =
+                    "<p style='color:red'>Error al conectar con la API. ¿Está arrancado Spring Boot?</p>";
+            }
+        }
+        // Cargar productos al abrir la página
+        document.addEventListener("DOMContentLoaded", cargarProductos);
+    </script>
+</body>
+</html>

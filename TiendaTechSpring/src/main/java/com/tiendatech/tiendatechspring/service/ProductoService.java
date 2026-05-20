@@ -18,11 +18,11 @@ public class ProductoService {
         return repository.findAll();
     }
 
-    public void añadir(String nombre, double precio, String categoria) {
+    public void añadir(String nombre, double precio, String categoria, int stock) {
         // TODO 10: crea un objeto Producto con los tres parámetros
         // y guárdalo llamando a repository.save()
         // Pista:
-        Producto p = new Producto(nombre, precio, categoria);
+        Producto p = new Producto(nombre, precio, categoria, stock);
         repository.save(p);
     }
 
