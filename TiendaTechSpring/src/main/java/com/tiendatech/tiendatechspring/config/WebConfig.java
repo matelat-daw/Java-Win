@@ -33,7 +33,9 @@ public class WebConfig {
         configuration.setAllowCredentials(false);
         
         // Tiempo en segundos que el navegador recordará esta respuesta CORS (mejora rendimiento)
-        configuration.setMaxAge(3600L); 
+        configuration.setMaxAge(3600L);
+
+        // configuration.setAllowedOrigins(List.of("null")); // OJO con esta línea, es un parche para evitar errores de CORS en algunos navegadores. En producción, asegúrate de configurar allowedOrigins correctamente.
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
