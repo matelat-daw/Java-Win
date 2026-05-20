@@ -3,7 +3,6 @@ package com.tiendatech.tiendatechspring.service;
 import com.tiendatech.tiendatechspring.model.Producto;
 import com.tiendatech.tiendatechspring.repository.ProductoRepository;
 import com.tiendatech.tiendatechspring.dto.ResumenDTO;
-import com.tiendatech.tiendatechspring.dto.ProductoSimplifadoDTO;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;

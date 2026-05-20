@@ -9,10 +9,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import java.util.List;
 
 // TODO 11: añade la anotación @RestController encima de la clase
 @RestController
+@CrossOrigin(origins = {
+    "http://localhost:8085",
+    "http://127.0.0.1:8085"
+})
 @RequestMapping("/api")
 public class ProductoController {
     // TODO 12: declara el atributo final del servicio

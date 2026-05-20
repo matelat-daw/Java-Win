@@ -3,8 +3,6 @@ package com.tiendatech.tiendatechspring;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import com.tiendatech.tiendatechspring.model.Producto;
-
 @SpringBootApplication
 public class TiendatechspringApplication {
 

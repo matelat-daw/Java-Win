@@ -9,5 +9,4 @@ class TiendatechspringApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }
