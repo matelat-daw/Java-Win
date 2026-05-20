@@ -6,185 +6,357 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo — TiendaTechSpring</title>
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .filtros-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto auto auto;
+            gap: 12px;
+            margin-bottom: 20px;
+            align-items: end;
+        }
+
+        .filtro-grupo {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filtro-grupo label {
+            margin-bottom: 6px;
+        }
+
+        .filtro-grupo input,
+        .filtro-grupo select {
+            padding: 10px;
+            border: 1px solid var(--borde);
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+
+        .filtro-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filtro-checkbox input[type="checkbox"] {
+            width: auto;
+            padding: 0;
+        }
+
+        .mensaje-accion {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .tabla-contenedor {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        th {
+            background-color: var(--verde-oscuro);
+            color: var(--blanco);
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--borde);
+            font-size: 0.9rem;
+        }
+
+        tr:hover td {
+            background-color: var(--verde-claro);
+        }
+
+        .estado-disponible {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .estado-stock-bajo {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .estado-sin-stock {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .acciones-botones {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .btn-vender {
+            background-color: var(--verde-oscuro);
+            color: var(--blanco);
+            border: 1px solid var(--verde-oscuro);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn-vender:hover {
+            background-color: #0a3d12;
+        }
+
+        .btn-stock {
+            background-color: var(--blanco);
+            color: var(--verde-oscuro);
+            border: 1px solid var(--verde-oscuro);
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            min-width: 32px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-stock:hover {
+            background-color: var(--verde-claro);
+        }
+
+        @media (max-width: 768px) {
+            .filtros-container {
+                grid-template-columns: 1fr;
+            }
+
+            .acciones-botones {
+                flex-direction: column;
+                gap: 4px;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <header>
-        <h1>🌱 TiendaTechSpring</h1>
-        <nav>
-            <a href="index.html">Inicio</a>
-            <a href="productos.html">Catálogo</a>
-            <a href="anadir.html">Añadir producto</a>
-            <a href="panel.html">Panel</a>
-        </nav>
+    <header class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <span class="logo-icon">TT</span>
+                <span class="logo-text">TiendaTechSpring<br><small>Pro</small></span>
+            </div>
+            <nav class="navbar-nav">
+                <a href="index.html" class="nav-link">Inicio</a>
+                <a href="productos.html" class="nav-link active">Catálogo</a>
+                <a href="anadir.html" class="nav-link">Gestión</a>
+                <a href="panel.html" class="nav-link">Panel</a>
+            </nav>
+        </div>
     </header>
-    <main>
+    <main class="container">
         <div class="card">
             <h2>Catálogo de productos</h2>
-            <div id="mensaje" class="mensaje-exito"></div>
-            <button class="btn btn-primario" onclick="cargarProductos()">
-                🔄 Actualizar
-            </button>
-            <a href="anadir.html" class="btn btn-secundario">+ Añadir producto</a>
-            <div style="margin: 15px 0;">
-                <input type="text" id="buscar-producto" placeholder="🔍 Buscar producto..." 
-                       style="width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px;"
-                       oninput="filtrarProductos()">
+            <p style="color: var(--texto-gris); margin-bottom: 16px;">Consulta, combina filtros y simula operaciones de stock desde la tabla.</p>
+
+            <!-- Mensaje de última acción -->
+            <div id="mensaje-accion" class="mensaje-accion"></div>
+
+            <!-- Filtros -->
+            <div class="filtros-container">
+                <div class="filtro-grupo">
+                    <label for="buscar-nombre">Buscar por nombre:</label>
+                    <input type="text" id="buscar-nombre" placeholder="teclado, monitor, usb...">
+                </div>
+                <div class="filtro-grupo">
+                    <label for="filtro-categoria">Todas las categorías</label>
+                    <select id="filtro-categoria">
+                        <option value="">Todas las categorías</option>
+                        <option value="Periféricos">Periféricos</option>
+                        <option value="Pantallas">Pantallas</option>
+                        <option value="Audio">Audio</option>
+                        <option value="Almacenamiento">Almacenamiento</option>
+                    </select>
+                </div>
+                <div class="filtro-grupo filtro-checkbox">
+                    <input type="checkbox" id="solo-destacados">
+                    <label for="solo-destacados" style="margin-bottom: 0;">Solo destacados</label>
+                </div>
+                <button class="btn btn-primario" onclick="aplicarFiltros()">Aplicar filtros</button>
+                <a href="anadir.html" class="btn btn-primario" style="text-align: center; display: flex; align-items: center; justify-content: center; text-decoration: none;">+ Nuevo</a>
             </div>
-            <div id="contenedor-tabla">
-                <p>Cargando productos...</p>
+
+            <!-- Tabla de productos -->
+            <div class="tabla-contenedor">
+                <table id="tabla-productos">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Precio</th>
+                            <th>Categoría</th>
+                            <th>Stock</th>
+                            <th>Estado</th>
+                            <th>Destacado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-productos-body">
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 24px;">Cargando productos...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
+            <p style="color: var(--texto-gris); font-size: 0.85rem; margin-top: 12px;">
+                La tabla se genera con JavaScript desde /api/productos o /api/productos/filtrar.
+            </p>
         </div>
     </main>
     <footer>
         <p>TiendaTechSpring · IFCD0182 · Módulo 2</p>
     </footer>
-    <script src="js/app.js"></script>
+    <script src="/js/app.js"></script>
     <script>
-        let productosGlobal = []; // Guardar productos para búsqueda
-        let ordenActual = { campo: null, direccion: 'asc' }; // Guardar estado de ordenamiento
-        
+        let productosGlobal = [];
+
         async function cargarProductos() {
-            const contenedor = document.getElementById("contenedor-tabla");
-            contenedor.innerHTML = "<p>Cargando...</p>";
-            document.getElementById("buscar-producto").value = ""; // Limpiar búsqueda
-            ordenActual = { campo: null, direccion: 'asc' }; // Resetear ordenamiento
             try {
-                // TODO 13: llama a obtenerProductos() y guarda el resultado.
-                // Pista: const productos = await obtenerProductos();
                 const productos = await obtenerProductos();
-                productosGlobal = productos; // Guardar globalmente
-                
-                // TODO 14: comprueba si el array está vacío.
-                // Si está vacío, muestra un párrafo con class="vacio" y el texto
-                // "No hay productos en el catálogo. Añade el primero."
-                // Pista: if (productos.length === 0) { contenedor.innerHTML = ... }
-                if (productos.length === 0) {
-                    contenedor.innerHTML =
-                        "<p class='vacio'>No hay productos en el catálogo. Añade el primero.</p>";
-                    return;
-                }
+                productosGlobal = productos;
                 mostrarTabla(productos);
             } catch (error) {
-                contenedor.innerHTML = "<p style='color:red'>Error al conectar con la API. ¿Está arrancado Spring Boot?</p>";
+                mostrarError("Error al cargar productos. ¿Está arrancado Spring Boot?");
             }
         }
-        
+
+        async function aplicarFiltros() {
+            try {
+                const nombre = document.getElementById("buscar-nombre").value.trim();
+                const categoria = document.getElementById("filtro-categoria").value;
+                const soloDestacados = document.getElementById("solo-destacados").checked;
+
+                let url = `${API_BASE}/api/productos/filtrar?`;
+                if (nombre) url += `nombre=${encodeURIComponent(nombre)}&`;
+                if (categoria) url += `categoria=${encodeURIComponent(categoria)}&`;
+                if (soloDestacados) url += `destacado=true&`;
+
+                const respuesta = await fetch(url);
+                if (!respuesta.ok) throw new Error("Error al filtrar");
+                const productos = await respuesta.json();
+                productosGlobal = productos;
+                mostrarTabla(productos);
+            } catch (error) {
+                mostrarError("Error al aplicar filtros");
+            }
+        }
+
         function mostrarTabla(productos) {
-            const contenedor = document.getElementById("contenedor-tabla");
-            // TODO 15: si hay productos, construye la tabla HTML.
-            // La tabla debe tener estas columnas: Nombre, Precio, Categoría.
-            // Usa productos.map() para generar las filas.
-            // Pista para construir la tabla:
-            const filas = productos.map(p =>
-            `<tr>
-                <td>${p.id}</td>
-                <td>${p.nombre}</td>
-                <td>${formatearPrecio(p.precio)}</td>
-                <td>${p.categoria}</td>
-                <td>${p.stock}</td>
-                <td style="text-align: center; font-size: 18px;">${p.disponible ? "✅" : "❌"}</td>
-                <td style="text-align: center; font-size: 18px;">${p.destacado ? "⭐" : "☆"}</td>
-            </tr>`
-            ).join("");
-            const indicadorId = ordenActual.campo === 'id' ? (ordenActual.direccion === 'asc' ? ' ↑' : ' ↓') : '';
-            const indicadorNombre = ordenActual.campo === 'nombre' ? (ordenActual.direccion === 'asc' ? ' ↑' : ' ↓') : '';
-            const indicadorPrecio = ordenActual.campo === 'precio' ? (ordenActual.direccion === 'asc' ? ' ↑' : ' ↓') : '';
-            const indicadorCategoria = ordenActual.campo === 'categoria' ? (ordenActual.direccion === 'asc' ? ' ↑' : ' ↓') : '';
-            const indicadorStock = ordenActual.campo === 'stock' ? (ordenActual.direccion === 'asc' ? ' ↑' : ' ↓') : '';
-            const indicadorDisponible = ordenActual.campo === 'disponible' ? (ordenActual.direccion === 'asc' ? ' ↑' : ' ↓') : '';
-            const indicadorDestacado = ordenActual.campo === 'destacado' ? (ordenActual.direccion === 'asc' ? ' ↑' : ' ↓') : '';
-            contenedor.innerHTML = `
-            <table>
-            <thead>
-            <tr>
-                <th style="cursor: pointer; user-select: none;" onclick="ordenarPor('id')">ID${indicadorId}</th>
-                <th style="cursor: pointer; user-select: none;" onclick="ordenarPor('nombre')">Nombre${indicadorNombre}</th>
-                <th style="cursor: pointer; user-select: none;" onclick="ordenarPor('precio')">Precio${indicadorPrecio}</th>
-                <th style="cursor: pointer; user-select: none;" onclick="ordenarPor('categoria')">Categoría${indicadorCategoria}</th>
-                <th style="cursor: pointer; user-select: none;" onclick="ordenarPor('stock')">Stock${indicadorStock}</th>
-                <th style="cursor: pointer; user-select: none; text-align: center;" onclick="ordenarPor('disponible')">Disponible${indicadorDisponible}</th>
-                <th style="cursor: pointer; user-select: none; text-align: center;" onclick="ordenarPor('destacado')">Destacado${indicadorDestacado}</th>
-            </tr>
-            </thead>
-            <tbody>${filas}</tbody>
-            </table>`;
-        }
-        
-        function ordenarPor(campo) {
-            let productosAOrdenar = productosGlobal;
-            const termino = document.getElementById("buscar-producto").value.toLowerCase();
-            
-            // Si hay un filtro de búsqueda activo, ordenar solo los filtrados
-            if (termino !== "") {
-                productosAOrdenar = productosGlobal.filter(p => 
-                    p.nombre.toLowerCase().includes(termino) ||
-                    p.categoria.toLowerCase().includes(termino) ||
-                    p.disponible.toString().includes(termino) ||
-                    p.id.toString().includes(termino) ||
-                    p.destacado.toString().includes(termino)
-                );
-            }
-            
-            // Si es el mismo campo, cambiar dirección; si es otro campo, empezar en ascendente
-            if (ordenActual.campo === campo) {
-                ordenActual.direccion = ordenActual.direccion === 'asc' ? 'desc' : 'asc';
-            } else {
-                ordenActual.campo = campo;
-                ordenActual.direccion = 'asc';
-            }
-            
-            // Ordenar según el campo
-            productosAOrdenar.sort((a, b) => {
-                let valorA = a[campo];
-                let valorB = b[campo];
-                
-                // Convertir a minúsculas para strings
-                if (typeof valorA === 'string') {
-                    valorA = valorA.toLowerCase();
-                }
-                if (typeof valorB === 'string') {
-                    valorB = valorB.toLowerCase();
-                }
-                
-                // Comparar
-                if (valorA < valorB) {
-                    return ordenActual.direccion === 'asc' ? -1 : 1;
-                }
-                if (valorA > valorB) {
-                    return ordenActual.direccion === 'asc' ? 1 : -1;
-                }
-                return 0;
-            });
-            
-            mostrarTabla(productosAOrdenar);
-        }
-        
-        function filtrarProductos() {
-            const termino = document.getElementById("buscar-producto").value.toLowerCase();
-            
-            if (termino === "") {
-                mostrarTabla(productosGlobal);
-                ordenActual = { campo: null, direccion: 'asc' }; // Resetear ordenamiento
+            const tbody = document.getElementById("tabla-productos-body");
+
+            if (productos.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 24px; color: var(--texto-gris);">No hay productos que coincidan con los filtros.</td></tr>`;
                 return;
             }
-            
-            const productosFiltrados = productosGlobal.filter(p => 
-                p.nombre.toLowerCase().includes(termino) ||
-                p.categoria.toLowerCase().includes(termino) ||
-                p.disponible.toString().includes(termino) ||
-                p.id.toString().includes(termino) ||
-                p.destacado.toString().includes(termino)
-            );
-            
-            if (productosFiltrados.length === 0) {
-                document.getElementById("contenedor-tabla").innerHTML = 
-                    "<p class='vacio'>No hay productos que coincidan con la búsqueda.</p>";
+
+            tbody.innerHTML = productos.map(p => `
+                <tr>
+                    <td>${p.id}</td>
+                    <td>${p.nombre}</td>
+                    <td>${formatearPrecio(p.precio)}</td>
+                    <td>${p.categoria}</td>
+                    <td>${p.stock}</td>
+                    <td>${obtenerEstado(p)}</td>
+                    <td style="text-align: center;">${p.destacado ? '✅ Sí' : '❌ No'}</td>
+                    <td>
+                        <div class="acciones-botones">
+                            <button class="btn-vender" onclick="venderProducto(${p.id})">Vender 1</button>
+                            <button class="btn-stock" onclick="disminuirStock(${p.id})">−</button>
+                            <button class="btn-stock" onclick="aumentarStock(${p.id})">+</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join("");
+        }
+
+        function obtenerEstado(producto) {
+            if (producto.stock === 0) {
+                return '<span class="estado-sin-stock">Sin stock</span>';
+            } else if (producto.stock < 5) {
+                return '<span class="estado-stock-bajo">Stock bajo</span>';
             } else {
-                mostrarTabla(productosFiltrados);
+                return '<span class="estado-disponible">Disponible</span>';
             }
         }
-        
+
+        async function venderProducto(idProducto) {
+            try {
+                const mensaje = await venderProductoAPI(idProducto);
+                mostrarMensajeAccion(mensaje);
+                await cargarProductos();
+            } catch (error) {
+                mostrarMensajeAccion("Error al vender producto", true);
+            }
+        }
+
+        async function disminuirStock(idProducto) {
+            try {
+                const mensaje = await disminuirStockAPI(idProducto);
+                mostrarMensajeAccion(mensaje);
+                await cargarProductos();
+            } catch (error) {
+                mostrarMensajeAccion("Error al disminuir stock", true);
+            }
+        }
+
+        async function aumentarStock(idProducto) {
+            try {
+                const mensaje = await aumentarStockAPI(idProducto);
+                mostrarMensajeAccion(mensaje);
+                await cargarProductos();
+            } catch (error) {
+                mostrarMensajeAccion("Error al aumentar stock", true);
+            }
+        }
+
+        function mostrarMensajeAccion(texto, esError = false) {
+            const el = document.getElementById("mensaje-accion");
+            el.textContent = texto;
+            el.style.display = "block";
+            if (esError) {
+                el.style.backgroundColor = "#f8d7da";
+                el.style.color = "#721c24";
+                el.style.borderColor = "#f5c6cb";
+            } else {
+                el.style.backgroundColor = "#d4edda";
+                el.style.color = "#155724";
+                el.style.borderColor = "#c3e6cb";
+            }
+            setTimeout(() => { el.style.display = "none"; }, 5000);
+        }
+
+        function mostrarError(mensaje) {
+            const tbody = document.getElementById("tabla-productos-body");
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 24px; color: red;">${mensaje}</td></tr>`;
+        }
+
         // Cargar productos al abrir la página
         document.addEventListener("DOMContentLoaded", cargarProductos);
     </script>

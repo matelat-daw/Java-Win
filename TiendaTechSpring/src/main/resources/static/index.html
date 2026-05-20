@@ -4,59 +4,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tienda Tech - Home</title>
+    <title>TiendaTechSpring Pro - Panel de Gestión</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
-    <header>
-        <h1>🌱 TiendaTechSpring</h1>
-        <nav>
-            <a href="index.html">Inicio</a>
-            <a href="productos.html">Catálogo</a>
-            <a href="anadir.html">Añadir producto</a>
-            <a href="panel.html">Panel</a>
-        </nav>
-    </header>
-    <main>
-        <div class="card">
-            <!-- TODO 10: escribe un h2 con el texto "Bienvenido a TiendaTechSpring" -->
-            <h2>Bienvenido a TiendaTechSpring</h2>
-            <!-- TODO 11: escribe un párrafo (<p>) explicando qué es esta aplicación. Debe mencionar Spring Boot, la API REST y que los datos están en memoria. -->
-            <p>Esta aplicación es una tienda online de tecnología creada con Spring Boot. Utiliza una API REST para gestionar productos, y todos los datos se almacenan en memoria, lo que significa que se perderán al reiniciar el servidor.</p>
-            <div style="margin-top: 32px; display: flex; gap: 16px; flex-wrap:wrap;">
-                <a href="productos.html" class="btn btn-primario">Ver catálogo</a>
-                <a href="anadir.html" class="btn btn-secundario">Añadir
-                    producto</a>
-                <a href="panel.html" class="btn btn-secundario">Ver panel</a>
+    <!-- Header/Navbar -->
+    <header class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <span class="logo-icon">TT</span>
+                <span class="logo-text">TiendaTechSpring<br><small>Pro</small></span>
             </div>
+            <nav class="navbar-nav">
+                <a href="index.html" class="nav-link active">Inicio</a>
+                <a href="productos.html" class="nav-link">Catálogo</a>
+                <a href="anadir.html" class="nav-link">Gestión</a>
+                <a href="panel.html" class="nav-link">Panel</a>
+            </nav>
         </div>
-        <div class="card">
-            <h2>Estado de la API</h2>
-            <p id="estado-api">Comprobando conexión con Spring Boot...</p>
-        </div>
+    </header>
+
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <div class="tech-badge">Spring Boot + HTML/CSS/JS sin Thymeleaf</div>
+                <h1>Panel de gestión de tienda tecnológica</h1>
+                <p class="hero-description">
+                    Aplicación retadora: alta de productos, filtros combinados, control de stock, 
+                    venta simulada, stock bajo y panel resumen conectado con fetch().
+                </p>
+            </div>
+
+            <!-- Cards Grid -->
+            <div class="cards-grid">
+                <a href="productos.html" class="card-link">
+                    <div class="card">
+                        <h3>Catálogo</h3>
+                        <p>Buscar, filtrar, vender y ajustar stock.</p>
+                    </div>
+                </a>
+
+                <a href="anadir.html" class="card-link">
+                    <div class="card">
+                        <h3>Gestión</h3>
+                        <p>Registrar producto con precio, categoría y stock.</p>
+                    </div>
+                </a>
+
+                <a href="panel.html" class="card-link">
+                    <div class="card">
+                        <h3>Panel</h3>
+                        <p>Ver estadísticas, producto más caro y ale.</p>
+                    </div>
+                </a>
+
+                <div class="card">
+                    <h3>API directa</h3>
+                    <p>Probar endpoints antes del frontend.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Objetivo técnico y Reto obligatorio -->
+        <section class="footer-section">
+            <div class="objective-box">
+                <h2>Objetivo técnico</h2>
+                <p><strong>Separar responsabilidades:</strong></p>
+                <ul>
+                    <li>Controller recibe peticiones.</li>
+                    <li>Service valida y decide.</li>
+                    <li>Repository guarda y busca en memoria.</li>
+                </ul>
+            </div>
+
+            <div class="challenge-box">
+                <h2>Reto obligatorio</h2>
+                <p>Completar búsqueda combinada, stock bajo y operaciones de stock sin recibir el código final.</p>
+            </div>
+        </section>
     </main>
+
     <footer>
         <p>TiendaTechSpring · IFCD0182 · Módulo 2</p>
     </footer>
+
     <script src="js/app.js"></script>
-    <script>
-        // Al cargar la página, comprobamos que la API responde.
-        document.addEventListener("DOMContentLoaded", async () => {
-            const el = document.getElementById("estado-api");
-            try {
-                // TODO 12: llama a obtenerInfo() y muestra el resultado en el elemento "estado-api".
-                // Si funciona, añade el texto al elemento. Si falla, muestra un mensaje de error.
-                // Pista:
-                // const info = await obtenerInfo();
-                const info = await obtenerInfo();
-                el.textContent = info;
-                el.style.color = "green";
-            } catch (error) {
-                el.textContent = "Error al cargar información";
-                el.style.color = "red";
-            }
-        });
-    </script>
 </body>
 </html>

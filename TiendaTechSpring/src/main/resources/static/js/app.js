@@ -65,6 +65,29 @@ async function obtenerInfo() {
     const mensaje = await respuesta.text();
     return mensaje;
 }
+
+/* ───────────────────────────────────────────────────────────────────
+ obtenerResumen()
+ Llama a GET /api/resumen y devuelve un objeto JSON con el resumen completo.
+ Espera recibir: {
+   totalProductos: number,
+   totalUnidades: number,
+   valorStock: number,
+   productosStockBajo: number,
+   productosDestacados: number,
+   productoMasCaro: { nombre: string, precio: number },
+   productoMenosStock: { nombre: string, stock: number },
+   resumenPorCategoria: { [categoría]: number }
+ }
+─────────────────────────────────────────────────────────────────── */
+async function obtenerResumen() {
+    const respuesta = await fetch(`${API_BASE}/api/resumen`);
+    if (!respuesta.ok) {
+        throw new Error("Error al obtener resumen");
+    }
+    const datos = await respuesta.json();
+    return datos;
+}
 /* ───────────────────────────────────────────────────────────────────
  mostrarMensaje(elementoId, texto, esError)
  Muestra un mensaje en el elemento indicado.
@@ -90,4 +113,64 @@ function formatearPrecio(precio) {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     }) + ' €';
+}
+
+/* ───────────────────────────────────────────────────────────────────
+ venderProductoAPI(idProducto)
+ Llama a PUT /api/productos/{id}/vender para simular una venta.
+ Devuelve el mensaje de confirmación.
+─────────────────────────────────────────────────────────────────── */
+async function venderProductoAPI(idProducto, cantidad = 1) {
+    const respuesta = await fetch(`${API_BASE}/api/productos/${idProducto}/vender`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ cantidad })
+    });
+    if (!respuesta.ok) {
+        throw new Error("Error al vender producto");
+    }
+    const mensaje = await respuesta.text();
+    return mensaje;
+}
+
+/* ───────────────────────────────────────────────────────────────────
+ disminuirStockAPI(idProducto)
+ Llama a PUT /api/productos/{id}/disminuir para reducir el stock en 1.
+ Devuelve el mensaje de confirmación.
+─────────────────────────────────────────────────────────────────── */
+async function disminuirStockAPI(idProducto, cantidad = 1) {
+    const respuesta = await fetch(`${API_BASE}/api/productos/${idProducto}/disminuir`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ cantidad })
+    });
+    if (!respuesta.ok) {
+        throw new Error("Error al disminuir stock");
+    }
+    const mensaje = await respuesta.text();
+    return mensaje;
+}
+
+/* ───────────────────────────────────────────────────────────────────
+ aumentarStockAPI(idProducto)
+ Llama a PUT /api/productos/{id}/aumentar para incrementar el stock en 1.
+ Devuelve el mensaje de confirmación.
+─────────────────────────────────────────────────────────────────── */
+async function aumentarStockAPI(idProducto, cantidad = 1) {
+    const respuesta = await fetch(`${API_BASE}/api/productos/${idProducto}/aumentar`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ cantidad })
+    });
+    if (!respuesta.ok) {
+        throw new Error("Error al aumentar stock");
+    }
+    const mensaje = await respuesta.text();
+    return mensaje;
 }

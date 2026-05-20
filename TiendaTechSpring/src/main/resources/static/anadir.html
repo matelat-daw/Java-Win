@@ -5,134 +5,372 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Añadir producto — TiendaTechSpring</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .container-form {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .form-section {
+            background: var(--blanco);
+            border-radius: 8px;
+            padding: 28px 32px;
+            box-shadow: 0 2px 8px var(--sombra);
+        }
+
+        .form-section h2 {
+            color: var(--verde-oscuro);
+            margin-bottom: 12px;
+            font-size: 1.5rem;
+        }
+
+        .form-description {
+            color: var(--texto-gris);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+        }
+
+        .campo {
+            margin-bottom: 16px;
+        }
+
+        .campo label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: var(--verde-oscuro);
+            font-size: 0.9rem;
+        }
+
+        .campo input,
+        .campo select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--borde);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .campo input:focus,
+        .campo select:focus {
+            outline: none;
+            border-color: var(--verde-medio);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn-group {
+            flex: 1;
+        }
+
+        .btn-group .btn {
+            width: 100%;
+        }
+
+        .preview-section {
+            background: var(--blanco);
+            border-radius: 8px;
+            padding: 28px 32px;
+            box-shadow: 0 2px 8px var(--sombra);
+        }
+
+        .preview-section h2 {
+            color: var(--verde-oscuro);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .preview-card {
+            background-color: var(--verde-claro);
+            border: 2px solid var(--borde);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .preview-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--verde-oscuro);
+            margin-bottom: 12px;
+        }
+
+        .preview-info {
+            color: var(--texto-gris);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .preview-badges {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .badge-destacado {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-stock-bajo {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .rule-box {
+            background-color: #fffde7;
+            border: 2px solid #fdd835;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .rule-title {
+            font-weight: bold;
+            color: #f57f17;
+            margin-bottom: 8px;
+        }
+
+        .rule-text {
+            color: #f57f17;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .container-form {
+                grid-template-columns: 1fr;
+            }
+
+            .form-buttons {
+                flex-direction: column;
+            }
+
+            .btn-group {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <header>
-        <h1>🌱 TiendaTechSpring</h1>
-        <nav>
-            <a href="index.html">Inicio</a>
-            <a href="productos.html">Catálogo</a>
-            <a href="anadir.html">Añadir producto</a>
-            <a href="panel.html">Panel</a>
-        </nav>
+    <header class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <span class="logo-icon">TT</span>
+                <span class="logo-text">TiendaTechSpring<br><small>Pro</small></span>
+            </div>
+            <nav class="navbar-nav">
+                <a href="index.html" class="nav-link">Inicio</a>
+                <a href="productos.html" class="nav-link">Catálogo</a>
+                <a href="anadir.html" class="nav-link active">Gestión</a>
+                <a href="panel.html" class="nav-link">Panel</a>
+            </nav>
+        </div>
     </header>
-    <main>
-        <div class="card">
-            <h2>Añadir producto</h2>
-            <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
-                📦 Productos en el catálogo: <strong id="contador-productos">0</strong>
-            </p>
-            <div id="mensaje" class="mensaje-exito"></div>
+
+    <div class="container-form">
+        <!-- Formulario -->
+        <div class="form-section">
+            <h2>Registrar producto</h2>
+            <p class="form-description">El formulario valida antes de llamar a la API. El Service vuelve a validar.</p>
+
+            <div id="mensaje-confirmacion" class="alert-success" style="display: none;">
+                ✓ Producto registrado correctamente
+            </div>
+
             <form id="formulario" onsubmit="enviarFormulario(event)">
                 <div class="campo">
-                    <label for="id">ID del producto</label>
-                    <input type="text" id="id" placeholder="Ej: prod-001" required minlength="3" maxlength="50">
+                    <label for="nombre">Nombre</label>
+                    <input type="text" id="nombre" placeholder="Tarjeta gráfica RTX" required minlength="3" maxlength="100"
+                           oninput="actualizarPreview()">
                 </div>
-                <div class="campo">
-                    <label for="nombre">Nombre del producto</label>
-                    <input type="text" id="nombre" placeholder="Ej: Teclado
-mecánico" required minlength="3" maxlength="100">
-                </div>
+
                 <div class="campo">
                     <label for="precio">Precio (€)</label>
-                    <!-- TODO 16: crea el input de preciTipo: number. Mínimo: 0.01. Paso decimal: 0.01.
-Placeholder: "Ej: 29.99". Obligatorio. -->
-                    <input type="number" id="precio" placeholder="Ej: 29.99" required min="0.01" step="0.01">
+                    <input type="number" id="precio" placeholder="549.99" required min="0.01" step="0.01"
+                           oninput="actualizarPreview()">
                 </div>
+
                 <div class="campo">
                     <label for="categoria">Categoría</label>
-                    <!-- TODO 17: crea un select con id="categoria" y required.
- Opciones: (vacía) -- Selecciona una categoría --,
- Periféricos, Pantallas, Audio, Componentes, Otros -->
-                    <select id="categoria" required>
+                    <select id="categoria" required onchange="actualizarPreview()">
                         <option value="">-- Selecciona una categoría --</option>
                         <option value="Periféricos">Periféricos</option>
                         <option value="Pantallas">Pantallas</option>
                         <option value="Audio">Audio</option>
                         <option value="Componentes">Componentes</option>
-                        <option value="Otros">Otros</option>
+                        <option value="Almacenamiento">Almacenamiento</option>
                     </select>
                 </div>
+
                 <div class="campo">
-                    <label for="stock">Stock</label>
-                    <!-- TODO 25: crea un input de tipo number para el stock. Mínimo: 0. Paso: 1. Placeholder: "Ej: 10". Obligatorio. -->
-                    <input type="number" id="stock" placeholder="Ej: 10" required min="0" step="1">
+                    <label for="stock">Stock inicial</label>
+                    <input type="number" id="stock" placeholder="4" required min="0" step="1"
+                           oninput="actualizarPreview()">
                 </div>
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                    <!-- TODO 26: crea un checkbox para indicar si el producto está disponible. -->
-                    <input type="checkbox" id="disponible" style="width: 20px; height: 20px; cursor: pointer;">
-                    <label for="disponible" style="margin: 0; cursor: pointer; font-weight: normal;">Disponible</label>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="disponible" checked onchange="actualizarPreview()">
+                    <label for="disponible">Disponible</label>
                 </div>
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                    <!-- TODO 27: crea un checkbox para indicar si el producto es destacado. -->
-                    <input type="checkbox" id="destacado" style="width: 20px; height: 20px; cursor: pointer;">
-                    <label for="destacado" style="margin: 0; cursor: pointer; font-weight: normal;">Destacado</label>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="destacado" onchange="actualizarPreview()">
+                    <label for="destacado">Marcar como producto destacado</label>
                 </div>
-                <div style="display: flex; gap: 12px; margin-top: 8px;">
-                    <button type="submit" class="btn btn-primario">Guardar
-                        producto</button>
-                    <button type="reset" class="btn btnsecundario">Limpiar</button>
-                    <a href="productos.html" class="btn btn-secundario">Ver
-                        catálogo</a>
+
+                <div class="form-buttons">
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primario">Guardar producto</button>
+                    </div>
+                    <div class="btn-group">
+                        <button type="reset" class="btn btn-secundario">Limpiar</button>
+                    </div>
+                    <div class="btn-group">
+                        <a href="productos.html" class="btn btn-secundario" style="text-align: center; display: flex; align-items: center; justify-content: center; text-decoration: none;">Ver catálogo</a>
+                    </div>
                 </div>
             </form>
         </div>
-    </main>
+
+        <!-- Vista previa -->
+        <div class="preview-section">
+            <h2>Vista previa</h2>
+
+            <div class="preview-card">
+                <div class="preview-title" id="preview-nombre">Sin nombre</div>
+                <div class="preview-info">
+                    <p id="preview-precio">Precio: No especificado</p>
+                    <p id="preview-categoria">Categoría: No especificada</p>
+                    <p id="preview-stock">Stock: 0 unidades</p>
+                </div>
+                <div class="preview-badges" id="preview-badges"></div>
+            </div>
+
+            <div class="rule-box">
+                <div class="rule-title">Regla clave</div>
+                <div class="rule-text">
+                    El backend debe rechazar nombre vacío, precio menor o igual a 0 y stock negativo.
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <p>TiendaTechSpring · IFCD0182 · Módulo 2</p>
     </footer>
-    <script src="js/app.js"></script>
+
+    <script src="/js/app.js"></script>
     <script>
-        async function actualizarContador() {
-            try {
-                const productos = await obtenerProductos();
-                document.getElementById("contador-productos").textContent = productos.length;
-            } catch (error) {
-                console.error("Error al obtener el contador de productos:", error);
+        function actualizarPreview() {
+            const nombre = document.getElementById("nombre").value || "Sin nombre";
+            const precio = document.getElementById("precio").value || "No especificado";
+            const categoria = document.getElementById("categoria").value || "No especificada";
+            const stock = document.getElementById("stock").value || "0";
+            const destacado = document.getElementById("destacado").checked;
+
+            document.getElementById("preview-nombre").textContent = nombre;
+            document.getElementById("preview-precio").textContent = `Precio: ${precio ? formatearPrecio(parseFloat(precio)) : "No especificado"}`;
+            document.getElementById("preview-categoria").textContent = `Categoría: ${categoria}`;
+            document.getElementById("preview-stock").textContent = `Stock: ${stock} unidades`;
+
+            // Actualizar badges
+            const badges = document.getElementById("preview-badges");
+            badges.innerHTML = "";
+
+            if (destacado) {
+                badges.innerHTML += '<span class="badge badge-destacado">Destacado</span>';
+            }
+
+            if (parseInt(stock) > 0 && parseInt(stock) < 5) {
+                badges.innerHTML += '<span class="badge badge-stock-bajo">Stock bajo</span>';
             }
         }
 
         async function enviarFormulario(event) {
-            event.preventDefault(); // Evita que el formulario recargue la página
-            // TODO 18: lee los valores de los tres campos del formulario.
-            // Pista:
-            const id = document.getElementById("id").value.trim();
+            event.preventDefault();
+
             const nombre = document.getElementById("nombre").value.trim();
             const precio = document.getElementById("precio").value;
             const categoria = document.getElementById("categoria").value;
             const stock = document.getElementById("stock").value;
             const disponible = document.getElementById("disponible").checked;
             const destacado = document.getElementById("destacado").checked;
-            // TODO 19: valida que ningún campo esté vacío.
-            // Si alguno está vacío, muestra un mensaje de error con
-            // y usa return para no continuar.
-            // Pista: if (!nombre || !precio || !categoria) {
-            // mostrarMensaje("mensaje", "Rellena todos los campos.", true);
-            // return;
-            // }
-            if (!nombre || !precio || !categoria || !id) {
-                mostrarMensaje("mensaje", "Rellena todos los campos.", true);
+
+            if (!nombre || !precio || !categoria || stock === "") {
                 return;
             }
-            mostrarMensaje("mensaje", "Producto añadido con éxito.", false);
+
             try {
-                // TODO 20: llama a anadirProducto() con los tres valores
-                // y guarda el mensaje de respuesta.
-                // Pista: const respuesta = await anadirProducto(nombre, precio, categoria);
-                const respuesta = await anadirProducto(id, nombre, precio, categoria, stock, disponible, destacado);
-                // TODO 21: muestra el mensaje de éxito con mostrarMensaje()
-                // y limpia el formulario con
+                const respuesta = await anadirProducto(nombre, precio, categoria, stock, disponible, destacado);
+                
+                // Mostrar mensaje de confirmación
+                const mensajeDiv = document.getElementById("mensaje-confirmacion");
+                mensajeDiv.style.display = "block";
+                
+                // Limpiar el formulario y preview
                 document.getElementById("formulario").reset();
-                actualizarContador(); // Actualizar el contador después de añadir
+                actualizarPreview();
+                
+                // Ocultar el mensaje después de 3 segundos
+                setTimeout(() => {
+                    mensajeDiv.style.display = "none";
+                }, 3000);
             } catch (error) {
-                mostrarMensaje("mensaje", "Error al añadir el producto. Inténtalo denuevo.", true);
+                // Error silencioso
             }
         }
 
-        // Cargar el contador de productos al abrir la página
-        document.addEventListener("DOMContentLoaded", actualizarContador);
+        // Inicializar preview al cargar
+        document.addEventListener("DOMContentLoaded", actualizarPreview);
     </script>
 </body>
+
 </html>

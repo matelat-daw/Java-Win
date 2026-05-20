@@ -2,8 +2,12 @@ package com.tiendatech.tiendatechspring.service;
 
 import com.tiendatech.tiendatechspring.model.Producto;
 import com.tiendatech.tiendatechspring.repository.ProductoRepository;
+import com.tiendatech.tiendatechspring.dto.ResumenDTO;
+import com.tiendatech.tiendatechspring.dto.ProductoSimplifadoDTO;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 // TODO 7: añade la anotación @Service encima de la clase
 @Service
@@ -17,10 +21,10 @@ public class ProductoService {
         this.repository = repository;
     }
 
-    public void añadir(String nombre, double precio, String categoria, int stock, boolean disponible) {
+    public void añadir(String nombre, double precio, String categoria, int stock, boolean disponible, boolean destacado) {
         // TODO 10: crea un objeto Producto con los parámetros
-        // La ID se asigna automáticamente
-        Producto p = new Producto(proximaId, nombre, precio, categoria, stock, disponible, false);
+        // La ID se asigna automáticamente sin pasar desde el frontend
+        Producto p = new Producto(proximaId, nombre, precio, categoria, stock, disponible, destacado);
         proximaId++; // Incrementar para el siguiente producto
         repository.save(p);
     }
@@ -42,8 +46,31 @@ public class ProductoService {
         return cantidad >= 0;
     }
 
-    public Producto filtrarProducto(String nombre, String categoria, boolean soloDestacados) {
-        return repository.findByNombreIgnoreCase(nombre);
+    public List<Producto> filtrarProductos(String nombre, String categoria, boolean destacado) {
+        List<Producto> todos = repository.findAll();
+        
+        // Filtrar por nombre si se proporciona
+        if (nombre != null && !nombre.isEmpty()) {
+            todos = todos.stream()
+                    .filter(p -> p.getNombre().toLowerCase().contains(nombre.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+        
+        // Filtrar por categoría si se proporciona
+        if (categoria != null && !categoria.isEmpty()) {
+            todos = todos.stream()
+                    .filter(p -> p.getCategoria().equalsIgnoreCase(categoria))
+                    .collect(Collectors.toList());
+        }
+        
+        // Filtrar solo destacados si está marcado
+        if (destacado) {
+            todos = todos.stream()
+                    .filter(Producto::isDestacado)
+                    .collect(Collectors.toList());
+        }
+        
+        return todos;
     }
 
     public Producto obtenerStockBajo(int umbral) {
@@ -86,10 +113,48 @@ public class ProductoService {
         return null; // No se pudo restar stock (producto no encontrado o stock insuficiente)
     }
 
-    public Producto obtenerResumen() {
-        String nombre = "Resumen";
-        int totalUnidades = repository.contarUnidadesStock();
-        double valorTotal = repository.calcularValorStock();
-        return new Producto(0, nombre, valorTotal, "N/A", totalUnidades, true, false);
+    public ResumenDTO obtenerResumen() {
+        List<Producto> todos = repository.findAll();
+        
+        if (todos.isEmpty()) {
+            return new ResumenDTO(0, 0, 0, 0, 0, Map.of());
+        }
+
+        // Total de productos
+        int totalProductos = todos.size();
+
+        // Total de unidades (suma de stock)
+        int totalUnidades = todos.stream().mapToInt(Producto::getStock).sum();
+
+        // Valor total del stock (suma de precio * stock)
+        double valorStock = todos.stream()
+                .mapToDouble(p -> p.getPrecio() * p.getStock())
+                .sum();
+
+        // Productos con stock bajo (stock < 5)
+        int productosStockBajo = (int) todos.stream()
+                .filter(p -> p.getStock() > 0 && p.getStock() < 5)
+                .count();
+
+        // Productos destacados
+        int productosDestacados = (int) todos.stream()
+                .filter(Producto::isDestacado)
+                .count();
+
+        // Resumen por categoría (cantidad total de unidades)
+        Map<String, Integer> resumenPorCategoria = todos.stream()
+                .collect(Collectors.groupingBy(
+                        Producto::getCategoria,
+                        Collectors.summingInt(Producto::getStock)
+                ));
+
+        return new ResumenDTO(
+                totalProductos,
+                totalUnidades,
+                valorStock,
+                productosStockBajo,
+                productosDestacados,
+                resumenPorCategoria
+        );
     }
 }

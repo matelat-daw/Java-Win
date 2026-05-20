@@ -5,78 +5,299 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel — TiendaTechSpring</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .container-panel {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 24px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--blanco);
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 2px 8px var(--sombra);
+            border-top: 4px solid var(--verde-oscuro);
+        }
+
+        .stat-card.warning {
+            border-top-color: #ff9800;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--verde-oscuro);
+            margin-bottom: 8px;
+        }
+
+        .stat-card.warning .stat-number {
+            color: #ff9800;
+        }
+
+        .stat-label {
+            color: var(--texto-gris);
+            font-size: 0.9rem;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--blanco);
+            border-radius: 8px;
+            padding: 28px 32px;
+            box-shadow: 0 2px 8px var(--sombra);
+        }
+
+        .card h3 {
+            color: var(--verde-oscuro);
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .info-item {
+            background-color: var(--verde-claro);
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .info-label {
+            color: var(--texto-gris);
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            color: var(--verde-oscuro);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .categoria-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .categoria-nombre {
+            min-width: 120px;
+            color: var(--verde-oscuro);
+            font-weight: 500;
+        }
+
+        .categoria-barra {
+            flex: 1;
+            height: 24px;
+            background-color: var(--borde);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .categoria-barra-fill {
+            height: 100%;
+            background-color: var(--verde-oscuro);
+            transition: width 0.3s ease;
+        }
+
+        .categoria-cantidad {
+            min-width: 40px;
+            text-align: right;
+            color: var(--texto-gris);
+            font-weight: 500;
+        }
+
+        .btn-actualizar {
+            background-color: var(--verde-oscuro);
+            color: var(--blanco);
+            border: none;
+            padding: 11px 28px;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 16px;
+        }
+
+        .btn-actualizar:hover {
+            background-color: #0a3d12;
+        }
+
+        .respuesta-box {
+            background-color: #1e1e1e;
+            color: #00ff00;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            margin-bottom: 16px;
+        }
+
+        .regla-box {
+            background-color: #fffde7;
+            border: 2px solid #fdd835;
+            border-radius: 8px;
+            padding: 16px;
+            color: #f57f17;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <header>
-        <h1>🌱 TiendaTechSpring</h1>
-        <nav>
-            <a href="index.html">Inicio</a>
-            <a href="productos.html">Catálogo</a>
-            <a href="anadir.html">Añadir producto</a>
-            <a href="panel.html">Panel</a>
-        </nav>
+    <header class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <span class="logo-icon">TT</span>
+                <span class="logo-text">TiendaTechSpring<br><small>Pro</small></span>
+            </div>
+            <nav class="navbar-nav">
+                <a href="index.html" class="nav-link">Inicio</a>
+                <a href="productos.html" class="nav-link">Catálogo</a>
+                <a href="anadir.html" class="nav-link">Gestión</a>
+                <a href="panel.html" class="nav-link active">Panel</a>
+            </nav>
+        </div>
     </header>
-    <main>
-        <h2>Panel de control</h2>
-        <!-- Tarjetas de estadísticas -->
-        <div class="stats">
-            <div class="stat">
-                <div class="stat-numero" id="total-productos">—</div>
-                <div class="stat-label">Productos en catálogo</div>
+
+    <div class="container-panel">
+        <h2 style="color: var(--verde-oscuro); margin-bottom: 12px;">Panel de tienda</h2>
+        <p style="color: var(--texto-gris); margin-bottom: 24px;">Resumen calculado por el Service y mostrado por JavaScript con fetch().</p>
+
+        <!-- Stat Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="total-productos">—</div>
+                <div class="stat-label">Productos</div>
             </div>
-            <div class="stat">
-                <div class="stat-numero" id="estado-conexion">—</div>
-                <div class="stat-label">Estado de la API</div>
+            <div class="stat-card">
+                <div class="stat-number" id="total-unidades">—</div>
+                <div class="stat-label">Unidades</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="valor-stock">—</div>
+                <div class="stat-label">Valor stock</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-number" id="stock-bajo">—</div>
+                <div class="stat-label">Stock bajo</div>
             </div>
         </div>
-        <div class="card">
-            <h2>Información de la API</h2>
-            <p id="info-api">Cargando...</p>
-            <br>
-            <button class="btn btn-primario" onclick="cargarPanel()">🔄
-                Actualizar</button>
+
+        <!-- Resumen Operativo + Respuesta Esperada -->
+        <div class="content-grid">
+            <!-- Resumen Operativo -->
+            <div class="card">
+                <h3>Resumen operativo</h3>
+
+                <h4 style="color: var(--verde-oscuro); margin: 0 0 16px; font-size: 1rem;">Stock por categoría</h4>
+                <div id="categorias-container"></div>
+
+                <button class="btn-actualizar" onclick="cargarResumen()">Actualizar panel</button>
+            </div>
+
+            <!-- Respuesta Esperada -->
+            <div class="card">
+                <h3>Respuesta esperada</h3>
+
+                <div class="respuesta-box" id="respuesta-json">
+GET /api/resumen
+Productos: 7
+Unidades: 52
+Valor total: 8420,33 €
+Destacados: 3
+Stock bajo: 2
+Más caro: Portátil Lenovo Pro
+Menos stock: Disco SSD 1TB
+                </div>
+
+                <div class="regla-box">
+                    El panel pide el resumen al backend.
+                </div>
+            </div>
         </div>
-        <div class="card">
-            <h2>Accesos directos a la API</h2>
-            <p>Puedes abrir estos endpoints directamente en el navegador:</p>
-            <ul style="margin-top: 12px; line-height: 2;">
-                <li><a href="http://localhost:8085/productos" target="_blank">
-                        http://localhost:8085/productos</a> — Lista de productos en
-                    JSON</li>
-                <li><a href="http://localhost:8085/info" target="_blank">
-                        http://localhost:8085/info</a> — Información general</li>
-            </ul>
-        </div>
-    </main>
+    </div>
+
     <footer>
         <p>TiendaTechSpring · IFCD0182 · Módulo 2</p>
     </footer>
-    <script src="js/app.js"></script>
+
+    <script src="/js/app.js"></script>
     <script>
-        async function cargarPanel() {
+        async function cargarResumen() {
             try {
-                // TODO 22: llama a obtenerProductos() y muestra el total
-                // en el elemento con id "total-productos".
-                // Pista: document.getElementById("total-productos").textContent = productos.length;
-                const productos = await obtenerProductos();
-                document.getElementById("total-productos").textContent = productos.length;
-                // TODO 23: llama a obtenerInfo() y muestra el resultado
-                // en el elemento con id "info-api".
-                // Pista: const info = await obtenerInfo();
-                const info = await obtenerInfo();
-                document.getElementById("info-api").textContent = info;
-                // TODO 24: actualiza el elemento "estado-conexion".
-                // Si llegamos hasta aquí sin error, muestra "✅ OK".
-                document.getElementById("estado-conexion").textContent = "✅ OK";
+                const resumen = await obtenerResumen();
+
+                // Actualizar stat cards
+                document.getElementById("total-productos").textContent = resumen.totalProductos;
+                document.getElementById("total-unidades").textContent = resumen.totalUnidades;
+                document.getElementById("valor-stock").textContent = formatearPrecio(resumen.valorStock);
+                document.getElementById("stock-bajo").textContent = resumen.productosStockBajo;
+
+                // Actualizar categorías con barras
+                const categoriasContainer = document.getElementById("categorias-container");
+                categoriasContainer.innerHTML = "";
+
+                // Encontrar el máximo para escalar las barras
+                const maxStock = Math.max(...Object.values(resumen.resumenPorCategoria));
+
+                for (const [categoria, cantidad] of Object.entries(resumen.resumenPorCategoria)) {
+                    const porcentaje = (cantidad / maxStock) * 100;
+                    categoriasContainer.innerHTML += `
+                        <div class="categoria-item">
+                            <div class="categoria-nombre">${categoria}</div>
+                            <div class="categoria-barra">
+                                <div class="categoria-barra-fill" style="width: ${porcentaje}%"></div>
+                            </div>
+                            <div class="categoria-cantidad">${cantidad}</div>
+                        </div>
+                    `;
+                }
+
+                // Actualizar respuesta esperada en formato JSON
+                const jsonFormatted = `GET /api/resumen
+Productos: ${resumen.totalProductos}
+Unidades: ${resumen.totalUnidades}
+Valor total: ${formatearPrecio(resumen.valorStock)}
+Destacados: ${resumen.productosDestacados}
+Stock bajo: ${resumen.productosStockBajo}`;
+
+                document.getElementById("respuesta-json").textContent = jsonFormatted;
+
             } catch (error) {
-                document.getElementById("estado-conexion").textContent = "❌ Error";
-                document.getElementById("info-api").textContent =
-                    "No se puede conectar con la API. ¿Está arrancado Spring Boot?";
+                console.error("Error al cargar resumen:", error);
             }
         }
-        document.addEventListener("DOMContentLoaded", cargarPanel);
+
+        // Cargar al abrir la página
+        document.addEventListener("DOMContentLoaded", cargarResumen);
     </script>
 </body>
+
 </html>
