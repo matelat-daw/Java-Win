@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Añadir producto — TiendaTechSpring</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <header>
+        <h1>🌱 TiendaTechSpring</h1>
+        <nav>
+            <a href="index.html">Inicio</a>
+            <a href="productos.html">Catálogo</a>
+            <a href="anadir.html">Añadir producto</a>
+            <a href="panel.html">Panel</a>
+        </nav>
+    </header>
+    <main>
+        <div class="card">
+            <h2>Añadir producto</h2>
+            <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
+                📦 Productos en el catálogo: <strong id="contador-productos">0</strong>
+            </p>
+            <div id="mensaje" class="mensaje-exito"></div>
+            <form id="formulario" onsubmit="enviarFormulario(event)">
+                <div class="campo">
+                    <label for="id">ID del producto</label>
+                    <input type="text" id="id" placeholder="Ej: prod-001" required minlength="3" maxlength="50">
+                </div>
+                <div class="campo">
+                    <label for="nombre">Nombre del producto</label>
+                    <input type="text" id="nombre" placeholder="Ej: Teclado
+mecánico" required minlength="3" maxlength="100">
+                </div>
+                <div class="campo">
+                    <label for="precio">Precio (€)</label>
+                    <!-- TODO 16: crea el input de preciTipo: number. Mínimo: 0.01. Paso decimal: 0.01.
+Placeholder: "Ej: 29.99". Obligatorio. -->
+                    <input type="number" id="precio" placeholder="Ej: 29.99" required min="0.01" step="0.01">
+                </div>
+                <div class="campo">
+                    <label for="categoria">Categoría</label>
+                    <!-- TODO 17: crea un select con id="categoria" y required.
+ Opciones: (vacía) -- Selecciona una categoría --,
+ Periféricos, Pantallas, Audio, Componentes, Otros -->
+                    <select id="categoria" required>
+                        <option value="">-- Selecciona una categoría --</option>
+                        <option value="Periféricos">Periféricos</option>
+                        <option value="Pantallas">Pantallas</option>
+                        <option value="Audio">Audio</option>
+                        <option value="Componentes">Componentes</option>
+                        <option value="Otros">Otros</option>
+                    </select>
+                </div>
+                <div class="campo">
+                    <label for="stock">Stock</label>
+                    <!-- TODO 25: crea un input de tipo number para el stock. Mínimo: 0. Paso: 1. Placeholder: "Ej: 10". Obligatorio. -->
+                    <input type="number" id="stock" placeholder="Ej: 10" required min="0" step="1">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                    <!-- TODO 26: crea un checkbox para indicar si el producto está disponible. -->
+                    <input type="checkbox" id="disponible" style="width: 20px; height: 20px; cursor: pointer;">
+                    <label for="disponible" style="margin: 0; cursor: pointer; font-weight: normal;">Disponible</label>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                    <!-- TODO 27: crea un checkbox para indicar si el producto es destacado. -->
+                    <input type="checkbox" id="destacado" style="width: 20px; height: 20px; cursor: pointer;">
+                    <label for="destacado" style="margin: 0; cursor: pointer; font-weight: normal;">Destacado</label>
+                </div>
+                <div style="display: flex; gap: 12px; margin-top: 8px;">
+                    <button type="submit" class="btn btn-primario">Guardar
+                        producto</button>
+                    <button type="reset" class="btn btnsecundario">Limpiar</button>
+                    <a href="productos.html" class="btn btn-secundario">Ver
+                        catálogo</a>
+                </div>
+            </form>
+        </div>
+    </main>
+    <footer>
+        <p>TiendaTechSpring · IFCD0182 · Módulo 2</p>
+    </footer>
+    <script src="js/app.js"></script>
+    <script>
+        async function actualizarContador() {
+            try {
+                const productos = await obtenerProductos();
+                document.getElementById("contador-productos").textContent = productos.length;
+            } catch (error) {
+                console.error("Error al obtener el contador de productos:", error);
+            }
+        }
+
+        async function enviarFormulario(event) {
+            event.preventDefault(); // Evita que el formulario recargue la página
+            // TODO 18: lee los valores de los tres campos del formulario.
+            // Pista:
+            const id = document.getElementById("id").value.trim();
+            const nombre = document.getElementById("nombre").value.trim();
+            const precio = document.getElementById("precio").value;
+            const categoria = document.getElementById("categoria").value;
+            const stock = document.getElementById("stock").value;
+            const disponible = document.getElementById("disponible").checked;
+            const destacado = document.getElementById("destacado").checked;
+            // TODO 19: valida que ningún campo esté vacío.
+            // Si alguno está vacío, muestra un mensaje de error con
+            // y usa return para no continuar.
+            // Pista: if (!nombre || !precio || !categoria) {
+            // mostrarMensaje("mensaje", "Rellena todos los campos.", true);
+            // return;
+            // }
+            if (!nombre || !precio || !categoria || !id) {
+                mostrarMensaje("mensaje", "Rellena todos los campos.", true);
+                return;
+            }
+            mostrarMensaje("mensaje", "Producto añadido con éxito.", false);
+            try {
+                // TODO 20: llama a anadirProducto() con los tres valores
+                // y guarda el mensaje de respuesta.
+                // Pista: const respuesta = await anadirProducto(nombre, precio, categoria);
+                const respuesta = await anadirProducto(id, nombre, precio, categoria, stock, disponible, destacado);
+                // TODO 21: muestra el mensaje de éxito con mostrarMensaje()
+                // y limpia el formulario con
+                document.getElementById("formulario").reset();
+                actualizarContador(); // Actualizar el contador después de añadir
+            } catch (error) {
+                mostrarMensaje("mensaje", "Error al añadir el producto. Inténtalo denuevo.", true);
+            }
+        }
+
+        // Cargar el contador de productos al abrir la página
+        document.addEventListener("DOMContentLoaded", actualizarContador);
+    </script>
+</body>
+</html>

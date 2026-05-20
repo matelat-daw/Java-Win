@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo — TiendaTechSpring</title>
-    <link rel="stylesheet" href="estilos.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
@@ -26,6 +26,11 @@
                 🔄 Actualizar
             </button>
             <a href="anadir.html" class="btn btn-secundario">+ Añadir producto</a>
+            <div style="margin: 15px 0;">
+                <input type="text" id="buscar-producto" placeholder="🔍 Buscar producto..." 
+                       style="width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px;"
+                       oninput="filtrarProductos()">
+            </div>
             <div id="contenedor-tabla">
                 <p>Cargando productos...</p>
             </div>
@@ -34,15 +39,22 @@
     <footer>
         <p>TiendaTechSpring · IFCD0182 · Módulo 2</p>
     </footer>
-    <script src="app.js"></script>
+    <script src="js/app.js"></script>
     <script>
+        let productosGlobal = []; // Guardar productos para búsqueda
+        let ordenActual = { campo: null, direccion: 'asc' }; // Guardar estado de ordenamiento
+        
         async function cargarProductos() {
             const contenedor = document.getElementById("contenedor-tabla");
             contenedor.innerHTML = "<p>Cargando...</p>";
+            document.getElementById("buscar-producto").value = ""; // Limpiar búsqueda
+            ordenActual = { campo: null, direccion: 'asc' }; // Resetear ordenamiento
             try {
                 // TODO 13: llama a obtenerProductos() y guarda el resultado.
                 // Pista: const productos = await obtenerProductos();
                 const productos = await obtenerProductos();
+                productosGlobal = productos; // Guardar globalmente
+                
                 // TODO 14: comprueba si el array está vacío.
                 // Si está vacío, muestra un párrafo con class="vacio" y el texto
                 // "No hay productos en el catálogo. Añade el primero."
@@ -52,31 +64,127 @@
                         "<p class='vacio'>No hay productos en el catálogo. Añade el primero.</p>";
                     return;
                 }
-                // TODO 15: si hay productos, construye la tabla HTML.
-                // La tabla debe tener estas columnas: Nombre, Precio, Categoría.
-                // Usa productos.map() para generar las filas.
-                // Pista para construir la tabla:
-                const filas = productos.map(p =>
-                `<tr>
-                <td>${p.nombre}</td>
-                <td>${p.precio} €</td>
-                <td>${p.categoria}</td>
-                </tr>`
-                ).join("");
-                
-                contenedor.innerHTML = `
-                <table>
-                <thead>
-                
-                <tr><th>Nombre</th><th>Precio</th><th>Categoría</th></tr>
-                </thead>
-                <tbody>${filas}</tbody>
-                </table>`,
+                mostrarTabla(productos);
             } catch (error) {
-                contenedor.innerHTML =
-                    "<p style='color:red'>Error al conectar con la API. ¿Está arrancado Spring Boot?</p>";
+                contenedor.innerHTML = "<p style='color:red'>Error al conectar con la API. ¿Está arrancado Spring Boot?</p>";
             }
         }
+        
+        function mostrarTabla(productos) {
+            const contenedor = document.getElementById("contenedor-tabla");
+            // TODO 15: si hay productos, construye la tabla HTML.
+            // La tabla debe tener estas columnas: Nombre, Precio, Categoría.
+            // Usa productos.map() para generar las filas.
+            // Pista para construir la tabla:
+            const filas = productos.map(p =>
+            `<tr>
+                <td>${p.id}</td>
+                <td>${p.nombre}</td>
+                <td>${formatearPrecio(p.precio)}</td>
+                <td>${p.categoria}</td>
+                <td>${p.stock}</td>
+                <td style="text-align: center; font-size: 18px;">${p.disponible ? "✅" : "❌"}</td>
+                <td style="text-align: center; font-size: 18px;">${p.destacado ? "⭐" : "☆"}</td>
+            </tr>`
+            ).join("");
+            const indicadorId = ordenActual.campo === 'id' ? (ordenActual.direccion === 'asc' ? ' ↑' : ' ↓') : '';
+            const indicadorNombre = ordenActual.campo === 'nombre' ? (ordenActual.direccion === 'asc' ? ' ↑' : ' ↓') : '';
+            const indicadorPrecio = ordenActual.campo === 'precio' ? (ordenActual.direccion === 'asc' ? ' ↑' : ' ↓') : '';
+            const indicadorCategoria = ordenActual.campo === 'categoria' ? (ordenActual.direccion === 'asc' ? ' ↑' : ' ↓') : '';
+            const indicadorStock = ordenActual.campo === 'stock' ? (ordenActual.direccion === 'asc' ? ' ↑' : ' ↓') : '';
+            const indicadorDisponible = ordenActual.campo === 'disponible' ? (ordenActual.direccion === 'asc' ? ' ↑' : ' ↓') : '';
+            const indicadorDestacado = ordenActual.campo === 'destacado' ? (ordenActual.direccion === 'asc' ? ' ↑' : ' ↓') : '';
+            contenedor.innerHTML = `
+            <table>
+            <thead>
+            <tr>
+                <th style="cursor: pointer; user-select: none;" onclick="ordenarPor('id')">ID${indicadorId}</th>
+                <th style="cursor: pointer; user-select: none;" onclick="ordenarPor('nombre')">Nombre${indicadorNombre}</th>
+                <th style="cursor: pointer; user-select: none;" onclick="ordenarPor('precio')">Precio${indicadorPrecio}</th>
+                <th style="cursor: pointer; user-select: none;" onclick="ordenarPor('categoria')">Categoría${indicadorCategoria}</th>
+                <th style="cursor: pointer; user-select: none;" onclick="ordenarPor('stock')">Stock${indicadorStock}</th>
+                <th style="cursor: pointer; user-select: none; text-align: center;" onclick="ordenarPor('disponible')">Disponible${indicadorDisponible}</th>
+                <th style="cursor: pointer; user-select: none; text-align: center;" onclick="ordenarPor('destacado')">Destacado${indicadorDestacado}</th>
+            </tr>
+            </thead>
+            <tbody>${filas}</tbody>
+            </table>`;
+        }
+        
+        function ordenarPor(campo) {
+            let productosAOrdenar = productosGlobal;
+            const termino = document.getElementById("buscar-producto").value.toLowerCase();
+            
+            // Si hay un filtro de búsqueda activo, ordenar solo los filtrados
+            if (termino !== "") {
+                productosAOrdenar = productosGlobal.filter(p => 
+                    p.nombre.toLowerCase().includes(termino) ||
+                    p.categoria.toLowerCase().includes(termino) ||
+                    p.disponible.toString().includes(termino) ||
+                    p.id.toString().includes(termino) ||
+                    p.destacado.toString().includes(termino)
+                );
+            }
+            
+            // Si es el mismo campo, cambiar dirección; si es otro campo, empezar en ascendente
+            if (ordenActual.campo === campo) {
+                ordenActual.direccion = ordenActual.direccion === 'asc' ? 'desc' : 'asc';
+            } else {
+                ordenActual.campo = campo;
+                ordenActual.direccion = 'asc';
+            }
+            
+            // Ordenar según el campo
+            productosAOrdenar.sort((a, b) => {
+                let valorA = a[campo];
+                let valorB = b[campo];
+                
+                // Convertir a minúsculas para strings
+                if (typeof valorA === 'string') {
+                    valorA = valorA.toLowerCase();
+                }
+                if (typeof valorB === 'string') {
+                    valorB = valorB.toLowerCase();
+                }
+                
+                // Comparar
+                if (valorA < valorB) {
+                    return ordenActual.direccion === 'asc' ? -1 : 1;
+                }
+                if (valorA > valorB) {
+                    return ordenActual.direccion === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+            
+            mostrarTabla(productosAOrdenar);
+        }
+        
+        function filtrarProductos() {
+            const termino = document.getElementById("buscar-producto").value.toLowerCase();
+            
+            if (termino === "") {
+                mostrarTabla(productosGlobal);
+                ordenActual = { campo: null, direccion: 'asc' }; // Resetear ordenamiento
+                return;
+            }
+            
+            const productosFiltrados = productosGlobal.filter(p => 
+                p.nombre.toLowerCase().includes(termino) ||
+                p.categoria.toLowerCase().includes(termino) ||
+                p.disponible.toString().includes(termino) ||
+                p.id.toString().includes(termino) ||
+                p.destacado.toString().includes(termino)
+            );
+            
+            if (productosFiltrados.length === 0) {
+                document.getElementById("contenedor-tabla").innerHTML = 
+                    "<p class='vacio'>No hay productos que coincidan con la búsqueda.</p>";
+            } else {
+                mostrarTabla(productosFiltrados);
+            }
+        }
+        
         // Cargar productos al abrir la página
         document.addEventListener("DOMContentLoaded", cargarProductos);
     </script>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel — TiendaTechSpring</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <header>
+        <h1>🌱 TiendaTechSpring</h1>
+        <nav>
+            <a href="index.html">Inicio</a>
+            <a href="productos.html">Catálogo</a>
+            <a href="anadir.html">Añadir producto</a>
+            <a href="panel.html">Panel</a>
+        </nav>
+    </header>
+    <main>
+        <h2>Panel de control</h2>
+        <!-- Tarjetas de estadísticas -->
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-numero" id="total-productos">—</div>
+                <div class="stat-label">Productos en catálogo</div>
+            </div>
+            <div class="stat">
+                <div class="stat-numero" id="estado-conexion">—</div>
+                <div class="stat-label">Estado de la API</div>
+            </div>
+        </div>
+        <div class="card">
+            <h2>Información de la API</h2>
+            <p id="info-api">Cargando...</p>
+            <br>
+            <button class="btn btn-primario" onclick="cargarPanel()">🔄
+                Actualizar</button>
+        </div>
+        <div class="card">
+            <h2>Accesos directos a la API</h2>
+            <p>Puedes abrir estos endpoints directamente en el navegador:</p>
+            <ul style="margin-top: 12px; line-height: 2;">
+                <li><a href="http://localhost:8085/productos" target="_blank">
+                        http://localhost:8085/productos</a> — Lista de productos en
+                    JSON</li>
+                <li><a href="http://localhost:8085/info" target="_blank">
+                        http://localhost:8085/info</a> — Información general</li>
+            </ul>
+        </div>
+    </main>
+    <footer>
+        <p>TiendaTechSpring · IFCD0182 · Módulo 2</p>
+    </footer>
+    <script src="js/app.js"></script>
+    <script>
+        async function cargarPanel() {
+            try {
+                // TODO 22: llama a obtenerProductos() y muestra el total
+                // en el elemento con id "total-productos".
+                // Pista: document.getElementById("total-productos").textContent = productos.length;
+                const productos = await obtenerProductos();
+                document.getElementById("total-productos").textContent = productos.length;
+                // TODO 23: llama a obtenerInfo() y muestra el resultado
+                // en el elemento con id "info-api".
+                // Pista: const info = await obtenerInfo();
+                const info = await obtenerInfo();
+                document.getElementById("info-api").textContent = info;
+                // TODO 24: actualiza el elemento "estado-conexion".
+                // Si llegamos hasta aquí sin error, muestra "✅ OK".
+                document.getElementById("estado-conexion").textContent = "✅ OK";
+            } catch (error) {
+                document.getElementById("estado-conexion").textContent = "❌ Error";
+                document.getElementById("info-api").textContent =
+                    "No se puede conectar con la API. ¿Está arrancado Spring Boot?";
+            }
+        }
+        document.addEventListener("DOMContentLoaded", cargarPanel);
+    </script>
+</body>
+</html>
