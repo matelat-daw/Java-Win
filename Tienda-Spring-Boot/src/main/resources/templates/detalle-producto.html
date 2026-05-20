@@ -1,0 +1,58 @@
+<head th:replace="~{fragments/head :: head('Detalle Producto - Tienda Tech')}"></head>
+<body class="d-flex flex-column min-vh-100">
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+    <main>
+        <div class="container py-3 py-md-5">
+            <div class="row justify-content-center">
+                <div class="col-12 col-lg-10">
+                    <nav aria-label="breadcrumb" class="mb-4">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a th:href="@{/store/catalog}">Catálogo</a></li>
+                            <li class="breadcrumb-item active" aria-current="page" th:text="${producto.nombre}"></li>
+                        </ol>
+                    </nav>
+
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-3 p-md-5">
+                            <div class="row align-items-center">
+                                <div class="col-md-6 mb-4 mb-md-0">
+                                <div class="position-relative">
+                                    <img th:src="@{/imgs/{imagen}(imagen=${producto.imagen})}"
+                                         th:alt="${producto.nombre}"
+                                         class="img-fluid rounded shadow-sm"
+                                         style="width: 100%; height: auto; object-fit: cover;">
+                                    <span class="badge bg-info position-absolute top-0 end-0 m-3 p-2 px-3" th:text="${producto.categoria}"></span>
+                                </div>
+                            </div>
+                                <div class="col-md-6 ps-md-5">
+                                    <h1 class="mb-2 text-primary fw-bold" th:text="${producto.nombre}"></h1>
+                                    <p class="text-muted mb-4 small">ID Producto: <span th:text="${producto.id}"></span></p>
+                                    
+                                    <div class="mb-4">
+                                        <h2 class="text-success display-5 fw-bold" th:text="'$' + ${#numbers.formatDecimal(producto.precio, 1, 2)}"></h2>
+                                    </div>
+                                    
+                                    <hr class="my-4">
+                                    
+                                    <div class="mb-4">
+                                        <h5 class="fw-bold text-secondary text-uppercase small mb-3">Descripción</h5>
+                                        <p class="lead-sm" th:text="${producto.descripcion}"></p>
+                                    </div>
+
+                                    <div class="row g-2 mt-auto">
+                                        <div class="col-12 col-sm-6">
+                                            <a th:href="@{/store/edit/{id}(id=${producto.id})}" class="btn btn-warning btn-lg w-100">✏️ Editar</a>
+                                        </div>
+                                        <div class="col-12 col-sm-6">
+                                            <a th:href="@{/store/catalog}" class="btn btn-outline-primary btn-lg w-100">← Catálogo</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div th:replace="~{fragments/footer :: footer}"></div>

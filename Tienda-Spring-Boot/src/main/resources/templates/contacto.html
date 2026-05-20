@@ -1,0 +1,90 @@
+<head th:replace="~{fragments/head :: head('Contacto - Tienda Tech')}"></head>
+<body class="d-flex flex-column min-vh-100">
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+    <main>
+        <div class="container py-5">
+            <h1 class="mb-5 text-center text-primary">📧 Contacto</h1>
+
+            <div th:if="${mensajeExito}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${mensajeExito}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div class="row g-4 mb-5">
+                <div class="col-md-6">
+                    <h2 class="text-primary mb-4">Información de la Tienda</h2>
+
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title text-success">🏪 Empresa</h5>
+                            <p class="card-text">Tienda Tech</p>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title text-success">📱 Teléfono</h5>
+                            <p class="card-text">+34 123 456 789</p>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title text-success">📧 Correo Electrónico</h5>
+                            <p class="card-text">info@tiendatech.com</p>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title text-success">📍 Ubicación</h5>
+                            <p class="card-text">Calle Principal 123, Madrid, España</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title text-success">⏰ Horario de Atención</h5>
+                            <p class="card-text">Lunes a Viernes: 9:00 - 18:00<br>Sábados: 10:00 - 14:00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <h2 class="text-primary mb-4">Envíanos un Mensaje</h2>
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="@{/store/contact/send}" th:object="${contacto}" method="POST">
+                                <div class="mb-3">
+                                    <label for="nombre" class="form-label">Nombre:</label>
+                                    <input type="text" id="nombre" th:field="*{nombre}" class="form-control" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email:</label>
+                                    <input type="email" id="email" th:field="*{email}" class="form-control" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="asunto" class="form-label">Asunto:</label>
+                                    <input type="text" id="asunto" th:field="*{asunto}" class="form-control" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="mensaje" class="form-label">Mensaje:</label>
+                                    <textarea id="mensaje" th:field="*{mensaje}" class="form-control" rows="5" required></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100 py-3">📤 Enviar Mensaje</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="mt-4 text-center text-md-start">
+                <a th:href="@{/}" class="btn btn-outline-primary">← Volver al inicio</a>
+            </nav>
+        </div>
+    </main>
+    <div th:replace="~{fragments/footer :: footer}"></div>

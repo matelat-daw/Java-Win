@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+xmlns:h="jakarta.faces.html"
+xmlns:f="jakarta.faces.core">
+<h:head>
+    <title>Consulta de Producto</title>
+    <link rel="stylesheet" href="css/style.css" />
+</h:head>
+<h:body>
+    <div class="form-container">
+        <h1>Consulta de Producto</h1>
+        <p>Introduce tus datos y los del producto que te interesa.</p>
+
+        <h:messages globalOnly="true" styleClass="error-messages" />
+
+        <h:form>
+
+            <h:panelGroup layout="block" rendered="#{empty tiendaBean.productos}" style="margin-bottom: 20px;">
+                <div class="alert alert-warning" role="alert" style="padding: 12px 16px; border-radius: 8px; background: #fff4e5; color: #8a5a00; margin-bottom: 15px;">
+                    Aún no se han agregado productos.
+                </div>
+                <h:link outcome="alta-producto"
+                        value="Agregar producto"
+                        style="color: #667eea; text-decoration: none; font-weight: 600;" />
+            </h:panelGroup>
+
+            <div class="campo">
+                <h:outputLabel for="nombreCliente" value="Nombre del Cliente:" />
+                <h:inputText id="nombreCliente"
+                value="#{consultaBean.nombreCliente}"
+                required="true"
+                requiredMessage="El nombre es obligatorio."
+                styleClass="form-control" />
+                <h:message for="nombreCliente" styleClass="error" />
+            </div>
+
+            <div class="campo">
+                <h:outputLabel for="email" value="Correo Electrónico:" />
+                <h:inputText id="email"
+                value="#{consultaBean.email}"
+                required="true"
+                requiredMessage="El email es obligatorio."
+                styleClass="form-control">
+                    <f:validateRegex pattern="^[A-Za-z0-9+_.-]+@(.+)$" />
+                </h:inputText>
+                <h:message for="email" styleClass="error" />
+            </div>
+
+            <h:panelGroup layout="block" styleClass="campo" rendered="#{not empty tiendaBean.productos}">
+                <h:outputLabel for="producto" value="producto:" />
+
+                <h:selectOneMenu id="producto" value="#{consultaBean.producto}" required="true" requiredMessage="El Producto es obligatorio.">
+                    <f:selectItem itemValue="" itemLabel="-- Selecciona un Producto --" />
+                    <f:selectItems value="#{tiendaBean.productos}"
+                                   var="producto"
+                                   itemValue="#{producto.nombre}"
+                                   itemLabel="#{producto.nombre} - #{producto.categoria}" />
+                    <f:ajax execute="@this" render="disponibilidadPanel cantidadPanel accionesPanel" />
+                </h:selectOneMenu>
+                <h:message for="producto" styleClass="error" />
+            </h:panelGroup>
+
+            <h:panelGroup id="disponibilidadPanel" layout="block">
+                <h:panelGroup layout="block" rendered="#{consultaBean.mostrarMensajeNoDisponible}" style="margin-bottom: 20px;">
+                    <div class="alert alert-warning" role="alert" style="padding: 12px 16px; border-radius: 8px; background: #fff4e5; color: #8a5a00; margin-bottom: 15px;">
+                        Este producto no esta disponible.
+                    </div>
+                </h:panelGroup>
+            </h:panelGroup>
+
+            <h:panelGroup id="cantidadPanel" layout="block">
+                <h:panelGroup layout="block" styleClass="campo" rendered="#{consultaBean.mostrarCantidadSelector}">
+                    <h:outputLabel for="cantidad" value="Cantidad:" />
+                    <h:selectOneMenu id="cantidad"
+                                     value="#{consultaBean.cantidad}"
+                                     required="true"
+                                     requiredMessage="La cantidad es obligatoria."
+                                     styleClass="form-control">
+                        <f:selectItem itemValue="" itemLabel="-- Selecciona una cantidad --" />
+                        <f:selectItems value="#{consultaBean.cantidadesDisponibles}" />
+                    </h:selectOneMenu>
+                    <h:message for="cantidad" styleClass="error" />
+                </h:panelGroup>
+            </h:panelGroup>
+
+            <div class="campo">
+                <h:outputLabel for="urgente" value="¿Es urgente?" />
+                <div class="checkbox-wrapper">
+                    <h:selectBooleanCheckbox id="urgente" value="#{consultaBean.urgente}" />
+                    <label for="urgente" style="margin-bottom: 0; margin-left: 5px;">Marcar si la consulta es urgente</label>
+                </div>
+                <h:message for="urgente" styleClass="error" />
+            </div>
+
+            <h:panelGroup id="accionesPanel" layout="block">
+                <h:panelGroup layout="block" style="text-align: center;" rendered="#{consultaBean.mostrarCantidadSelector}">
+                    <h:commandButton value="Enviar Consulta" action="#{consultaBean.enviar}" styleClass="btn-guardar" />
+                </h:panelGroup>
+            </h:panelGroup>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <h:link outcome="listado-productos" value="← Volver al listado" style="color: #667eea; text-decoration: none; font-weight: 500; font-size: 1em;" />
+            </div>
+        </h:form>
+    </div>
+</h:body>
+</html>

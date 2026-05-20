@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+xmlns:h="jakarta.faces.html"
+xmlns:f="jakarta.faces.core">
+
+<h:head>
+    <title>Confirmación de Consulta</title>
+    <link rel="stylesheet" href="css/style.css" />
+</h:head>
+
+<h:body>
+    <div class="form-container">
+        <h1>✅ Consulta Recibida</h1>
+        <p>Gracias por tu consulta. Hemos recibido tu mensaje y nos pondremos en contacto contigo lo antes posible.</p>
+        
+        <div class="alert alert-success" role="alert">
+            <strong>Detalles de tu consulta:</strong>
+        </div>
+        
+        <ul style="list-style: none; padding: 0;">
+            <li style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">
+                <strong style="color: #2d3748;">Nombre del Cliente:</strong> 
+                <span style="color: #667eea;">
+                    <h:outputText value="#{consultaBean.nombreCliente}" />
+                </span>
+            </li>
+            <li style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">
+                <strong style="color: #2d3748;">Correo Electrónico:</strong> 
+                <span style="color: #667eea;">
+                    <h:outputText value="#{consultaBean.email}" />
+                </span>
+            </li>
+            <li style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">
+                <strong style="color: #2d3748;">Producto de Interés:</strong> 
+                <span style="color: #667eea;">
+                    <h:outputText value="#{consultaBean.producto}" />
+                </span>
+            </li>
+            <li style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">
+                <strong style="color: #2d3748;">Cantidad:</strong> 
+                <span style="color: #667eea;">
+                    <h:outputText value="#{consultaBean.cantidad}" />
+                </span>
+            </li>
+            <li style="padding: 10px 0;">
+                <strong style="color: #2d3748;">¿Es urgente?:</strong> 
+                <span style="color: #667eea;">
+                    <h:outputText value="#{consultaBean.urgente ? 'Sí ⚡' : 'No'}" />
+                </span>
+            </li>
+        </ul>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <h:link outcome="consulta" value="✉️ Hacer otra consulta" style="color: #667eea; text-decoration: none; font-weight: 500; font-size: 1em; margin-right: 15px;" />
+            <h:link outcome="listado-productos" value="← Volver al listado" style="color: #667eea; text-decoration: none; font-weight: 500; font-size: 1em;" />
+        </div>
+    </div>
+</h:body>
+
+</html>

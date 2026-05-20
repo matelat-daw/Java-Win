@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+xmlns:h="jakarta.faces.html"
+xmlns:f="jakarta.faces.core">
+
+<h:head>
+    <title>Listado de productos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #1F4E79;
+            color: white;
+        }
+    </style>
+</h:head>
+
+<h:body>
+
+    <h1>Listado de productos</h1>
+
+    <div style="margin-bottom: 18px; display: flex; gap: 16px; flex-wrap: wrap;">
+        <h:link outcome="alta-producto" value="Registrar producto" style="color: #667eea; text-decoration: none; font-weight: 600;" />
+        <h:link outcome="consulta" value="Ir a consulta" style="color: #667eea; text-decoration: none; font-weight: 600;" />
+    </div>
+
+    <p>Total de productos: #{tiendaBean.productos.size()}</p>
+
+    <h:dataTable value="#{tiendaBean.productos}" var="p">
+
+        <h:column>
+            <f:facet name="header">Nombre</f:facet>
+            <h:outputText value="#{p.nombre}" />
+        </h:column>
+
+        <h:column>
+            <f:facet name="header">Precio</f:facet>
+            <!-- TODO 12: muestra p.precio -->
+            <h:outputText value="#{p.precio}" />
+        </h:column>
+
+        <h:column>
+            <f:facet name="header">Categoría</f:facet>
+            <!-- TODO 13: muestra p.categoria -->
+            <h:outputText value="#{p.categoria}" />
+        </h:column>
+
+        <h:column>
+            <f:facet name="header">Disponible</f:facet>
+            <!-- TODO 14: muestra p.disponible -->
+            <h:outputText value="#{p.disponible ? 'Sí' : 'No'}" />
+        </h:column>
+
+        <h:column>
+            <f:facet name="header">Stock</f:facet>
+            <h:outputText value="#{p.stock}" />
+        </h:column>
+
+    </h:dataTable>
+
+    <br />
+    <h:form>
+        <h:commandButton value="Añadir otro producto"
+        action="#{tiendaBean.volverAlFormulario}" />
+    </h:form>
+
+    <div style="margin-top: 16px;">
+        <h:link outcome="consulta" value="Ir a consulta de producto" style="color: #667eea; text-decoration: none; font-weight: 600;" />
+    </div>
+
+</h:body>
+
+</html>

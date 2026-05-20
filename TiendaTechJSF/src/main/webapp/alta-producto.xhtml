@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+xmlns:h="jakarta.faces.html"
+xmlns:f="jakarta.faces.core">
+
+<h:head>
+    <title>Alta de producto</title>
+    <link rel="stylesheet" href="css/style.css" />
+</h:head>
+
+<h:body>
+
+    <div class="form-container">
+        <h1>Alta de producto</h1>
+        <p>Introduce varios productos. Después aparecerán en el listado.</p>
+
+        <h:messages globalOnly="true" styleClass="error-messages" />
+
+    <h:form>
+
+        <div class="campo">
+            <h:outputLabel for="nombre" value="Nombre del producto:" />
+            <h:inputText id="nombre"
+            value="#{tiendaBean.productoForm.nombre}"
+            required="true"
+            requiredMessage="El nombre es obligatorio." />
+            <h:message for="nombre" styleClass="error" />
+        </div>
+
+        <div class="campo">
+            <h:outputLabel for="precio" value="Precio:" />
+
+            <!-- TODO 8:
+ Crea un h:inputText conectado con tiendaBean.precio.
+Debe ser obligatorio.
+Añade f:validateDoubleRange con mínimo 0.01.
+ -->
+            <h:inputText id="precio" value="#{tiendaBean.productoForm.precio}" required="true"
+                requiredMessage="El precio es obligatorio"
+                validatorMessage="El precio debe ser mayor a 0,00"
+                styleClass="form-control">
+                <f:validateDoubleRange minimum="0.01" />
+            </h:inputText>
+
+            <h:message for="precio" styleClass="error" />
+        </div>
+
+        <div class="campo">
+            <h:outputLabel for="categoria" value="Categoría:" />
+
+            <!-- TODO 9:
+ Crea un h:selectOneMenu conectado con tiendaBean.categoria.
+ Debe tener estas opciones:
+Periféricos, Pantallas, Audio, Componentes.
+ -->
+<h:selectOneMenu id="categoria" value="#{tiendaBean.productoForm.categoria}" required="true" requiredMessage="La categoría es obligatoria.">
+    <f:selectItem itemValue="" itemLabel="-- Selecciona una categoría --" />
+    <f:selectItem itemValue="Periféricos" itemLabel="Periféricos" />
+    <f:selectItem itemValue="Pantallas" itemLabel="Pantallas" />
+    <f:selectItem itemValue="Audio" itemLabel="Audio" />
+    <f:selectItem itemValue="Componentes" itemLabel="Componentes" />
+</h:selectOneMenu>
+        <h:message for="categoria" styleClass="error" />
+
+        </div>
+
+        <div class="campo">
+            <h:outputLabel for="stock" value="Stock disponible:" />
+            <h:inputText id="stock"
+                         value="#{tiendaBean.productoForm.stock}"
+                         required="true"
+                         requiredMessage="El stock es obligatorio."
+                         styleClass="form-control">
+                <f:validateLongRange minimum="0" />
+            </h:inputText>
+            <h:message for="stock" styleClass="error" />
+        </div>
+
+        <div class="campo">
+            <h:outputLabel for="disponible" value="Disponible:" />
+
+            <!-- TODO 10:
+ Crea un h:selectBooleanCheckbox conectado con tiendaBean.disponible.
+ -->
+            <div class="checkbox-wrapper">
+                <h:selectBooleanCheckbox id="disponible" value="#{tiendaBean.productoForm.disponible}" />
+                <label for="disponible" style="margin-bottom: 0; margin-left: 5px;">Marcar si el producto está disponible</label>
+            </div>
+            <h:message for="disponible" styleClass="error" />
+        </div>
+
+        <!-- TODO 11:
+ Crea un h:commandButton con texto "Guardar producto".
+ Debe llamar a tiendaBean.guardarProducto.
+ -->
+        <h:commandButton value="Guardar producto" action="#{tiendaBean.guardarProducto}" styleClass="btn-guardar" />
+
+        <div style="text-align: center; margin-top: 20px;">
+            <h:link outcome="listado-productos" value="← Volver al listado" style="color: #667eea; text-decoration: none; font-weight: 500; font-size: 1em;" />
+        </div>
+
+    </h:form>
+
+    </div>
+
+</h:body>
+
+</html>

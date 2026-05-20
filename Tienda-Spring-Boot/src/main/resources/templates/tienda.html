@@ -1,0 +1,44 @@
+<head th:replace="~{fragments/head :: head('Tienda Tech')}"></head>
+<body class="d-flex flex-column min-vh-100">
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+    
+    <main>
+        <div class="container py-3 py-md-5">
+            <div class="row justify-content-center">
+                <div class="col-md-10 col-lg-8">
+                    <div class="text-center mb-4">
+                        <h1 class="mb-3 text-primary display-4 fw-bold" th:text="${nombreTienda}"></h1>
+                        <p class="lead mb-4" th:text="${mensaje}"></p>
+                        
+                        <div class="card bg-light border-0 p-4 mb-5 shadow-sm">
+                            <p class="mb-2 text-muted">Convertida a Spring Boot con Thymeleaf</p>
+                            <p class="mb-0 text-muted">Arquitectura moderna con Spring MVC, JPA y base de datos MariaDB</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-12 col-md-4">
+                            <a class="btn btn-primary btn-lg w-100 py-3" th:href="@{/store/catalog}">
+                                <div class="mb-1">📦</div>
+                                <div>Ver Catálogo</div>
+                            </a>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <a class="btn btn-success btn-lg w-100 py-3" th:href="@{/store/summary}">
+                                <div class="mb-1">📊</div>
+                                <div>Ver Resumen</div>
+                            </a>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <a class="btn btn-danger btn-lg w-100 py-3" th:href="@{/store/contact}">
+                                <div class="mb-1">📧</div>
+                                <div>Contacto</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div th:replace="~{fragments/footer :: footer}"></div>
