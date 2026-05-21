@@ -19,14 +19,26 @@
  
         <div class="card mb-4">
             <div class="card-body">
-                <form th:action="@{/reservas/buscar}" method="get" class="d-flex gap-2 mb-3">
-                    <!-- TODO 54: input name="matricula" y botón Buscar -->
-                    <input type="text" name="matricula" class="form-control" placeholder="Buscar por matrícula" required>
-                    <button type="submit" class="btn btn-secondary">Buscar</button>
+                <form th:action="@{/reservas/buscar}" method="get" class="row g-2 align-items-end mb-3">
+                    <div class="col-12 col-md-7">
+                        <label for="matricula" class="form-label">Matrícula</label>
+                        <input type="text" id="matricula" name="matricula" class="form-control" placeholder="Buscar por matrícula" th:value="${matriculaBuscada}">
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <div class="form-check mt-md-4 pt-md-2">
+                            <input class="form-check-input" type="checkbox" id="pendientes" name="pendientes" value="true" th:checked="${soloPendientes}">
+                            <label class="form-check-label" for="pendientes">
+                                Solo pendientes
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-2 d-grid">
+                        <button type="submit" class="btn btn-secondary">Buscar</button>
+                    </div>
                 </form> 
                 <!-- TODO 55: enlace para volver a /reservas y botón para nueva reserva --> 
                 <div class="d-flex gap-2">
-                    <a th:href="@{/reservas}" class="btn btn-secondary">Ver todas</a>
+                    <a th:href="@{/reservas}" class="btn btn-outline-secondary">Limpiar filtros</a>
                     <a th:href="@{/reservas/nueva}" class="btn btn-primary">Nueva Reserva</a>
                 </div>
             </div>

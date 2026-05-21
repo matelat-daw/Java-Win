@@ -67,6 +67,10 @@ public class ReservaService {
         // TODO 27: delegar en repository.findByMatricula(...). 
         return repository.findByMatricula(matricula); 
     } 
+
+    public List<ReservaLavado> buscarPorPendientes() {
+        return repository.findByEstado(EstadoReserva.PENDIENTE);
+    }
  
     public ReservaLavado buscarPorId(Long id) { 
         // TODO 28: buscar por id. 

@@ -33,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const matriculaEsp = document.getElementById('tipoMatriculaEsp');
     const matriculaExt = document.getElementById('tipoMatriculaExt');
     const fechaInput = document.getElementById('fecha');
-    const storageKey = 'autolavado.reserva.fecha';
     const nombreInput = document.getElementById('nombreCliente');
     const telefonoInput = document.getElementById('telefono');
     const errorTelefonoDiv = document.getElementById('error-telefono');
@@ -54,22 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Revalidar inmediatamente teléfono y matrícula al cambiar el tipo
         validarTelefono();
         validarMatricula();
-    };
-
-    const restaurarFecha = () => {
-        if (!fechaInput) return;
-        if (!fechaInput.value) {
-            const fechaGuardada = window.localStorage.getItem(storageKey);
-            if (fechaGuardada) {
-                fechaInput.value = fechaGuardada;
-            }
-        }
-    };
-
-    const guardarFecha = () => {
-        if (fechaInput && fechaInput.value && fechaInput.value.trim() !== "") {
-            window.localStorage.setItem(storageKey, fechaInput.value);
-        }
     };
 
     // Auxiliar para aplicar estilos visuales de Bootstrap
@@ -167,9 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (fechaInput) {
         fechaInput.addEventListener('change', () => {
             validarFecha();
-            guardarFecha();
         });
-        fechaInput.addEventListener('blur', guardarFecha);
     }
     
     telefonoInput?.addEventListener('input', validarTelefono);
@@ -181,8 +162,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 4. Validación global en el Submit
     form.addEventListener('submit', (event) => {
-        guardarFecha();
-
         // Ejecutamos todas las validaciones para forzar el feedback visual
         const vNombre = validarNombre();
         const vLavado = validarLavado();
@@ -202,5 +181,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 5. Ejecución inicial al cargar la página
     sincronizarMatricula();
-    restaurarFecha();
 });

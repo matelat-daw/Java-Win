@@ -1,6 +1,7 @@
 package com.autolavado.autolavadomvc.controller; 
  
 import com.autolavado.autolavadomvc.form.ReservaForm; 
+import com.autolavado.autolavadomvc.model.ReservaLavado;
 import com.autolavado.autolavadomvc.service.ReservaService; 
 import jakarta.validation.Valid; 
 import org.springframework.stereotype.Controller; 
@@ -8,6 +9,10 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult; 
 import org.springframework.web.bind.annotation.*; 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes; 
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
  
 @Controller
 public class ReservaController { 
@@ -29,6 +34,8 @@ public class ReservaController {
         // TODO 35: añadir reservas al Model. 
         // TODO 36: devolver reservas/lista. 
         model.addAttribute("reservas", service.listarReservas());
+        model.addAttribute("matriculaBuscada", "");
+        model.addAttribute("soloPendientes", false);
         return "reservas/lista";
     } 
  
@@ -65,9 +72,32 @@ public class ReservaController {
     } 
  
     @GetMapping("/reservas/buscar") 
-    public String buscar(@RequestParam String matricula, Model model) { 
+    public String buscar(
+            @RequestParam(required = false, defaultValue = "") String matricula,
+            @RequestParam(required = false, defaultValue = "false") boolean pendientes,
+            Model model) { 
         // TODO 42: buscar por matrícula y mostrar la misma vista de lista.
-        model.addAttribute("reservas", service.buscarPorMatricula(matricula));
+        List<ReservaLavado> reservasFiltradas = new ArrayList<>();
+        if (!matricula.isBlank()) {
+            reservasFiltradas.addAll(service.buscarPorMatricula(matricula));
+        }
+        if (pendientes) {
+            reservasFiltradas.addAll(service.buscarPorPendientes());
+        }
+
+        if (reservasFiltradas.isEmpty()) {
+            reservasFiltradas = service.listarReservas();
+        } else {
+            LinkedHashMap<Long, ReservaLavado> reservasUnicas = new LinkedHashMap<>();
+            for (ReservaLavado reserva : reservasFiltradas) {
+                reservasUnicas.put(reserva.getId(), reserva);
+            }
+            reservasFiltradas = new ArrayList<>(reservasUnicas.values());
+        }
+
+        model.addAttribute("reservas", reservasFiltradas);
+        model.addAttribute("matriculaBuscada", matricula);
+        model.addAttribute("soloPendientes", pendientes);
         return "reservas/lista";
     } 
  
