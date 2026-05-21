@@ -1,0 +1,11 @@
+<head th:replace="~{fragments/head :: head('Auto Lavado - Home')}"></head>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+<div class="container mt-4">
+    <div class="jumbotron text-center">
+        <h1 class="display-4">¡Bienvenido a Auto Lavado!</h1>
+        <p class="lead">Tu solución integral para el cuidado de tu vehículo.</p>
+        <hr class="my-4">
+        <p>Explora nuestros servicios, reserva tu cita y mantén tu auto impecable.</p>
+        <a class="btn btn-primary btn-lg" th:href="@{/reservas/formulario}" role="button">Reserva Ahora</a>
+    </div>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
