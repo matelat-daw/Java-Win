@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('Lista de Reservas')}"></head>
 <nav th:replace="~{fragments/navbar :: navbar}"></nav>
 <main class="flex-grow-1">
@@ -53,21 +55,21 @@
                                 <td th:text="${r.id}"></td>
                                 <td th:text="${r.nombreCliente}"></td>
                                 <td th:text="${r.matricula}"></td>
-                                <td th:text="${r.tipoLavado}"></td>
+                                <td th:text="${r.tipoLavado.descripcion}"></td>
                                 <td th:text="${r.fecha}"></td>
                                 <td th:text="${r.hora}"></td>
-                                <td th:text="${r.precio}"></td>
+                                <td th:text="${T(java.lang.String).format('%.2f', r.precio)}"></td>
                                 <td>
-                                    <span class="badge" th:classappend="${r.estado == 'PENDIENTE' ? 'bg-warning' : (r.estado == 'EN_PROCESO' ? 'bg-info' : 'bg-success')}" th:text="${r.estado}"></span>
+                                    <span class="badge" th:classappend="${r.estado == T(com.autolavado.autolavadomvc.model.EstadoReserva).PENDIENTE ? 'bg-warning' : (r.estado == T(com.autolavado.autolavadomvc.model.EstadoReserva).EN_PROCESO ? 'bg-info' : 'bg-success')}" th:text="${r.estado}"></span>
                                 </td>
                                 <td>
                                     <!-- TODO 59: enlace Ver detalle con th:href --> 
                                     <a th:href="@{/reservas/{id}(id=${r.id})}" class="btn btn-info btn-sm">Ver</a>
                                     <!-- TODO 60: formularios POST para iniciar/finalizar según estado -->
-                                    <form th:if="${r.estado == 'PENDIENTE'}" th:action="@{/reservas/{id}/iniciar(id=${r.id})}" method="post" style="display:inline">
+                                    <form th:if="${r.estado == T(com.autolavado.autolavadomvc.model.EstadoReserva).PENDIENTE}" th:action="@{/reservas/{id}/iniciar(id=${r.id})}" method="post" style="display:inline">
                                         <button type="submit" class="btn btn-warning btn-sm">Iniciar</button>
                                     </form>
-                                    <form th:if="${r.estado == 'EN_PROCESO'}" th:action="@{/reservas/{id}/finalizar(id=${r.id})}" method="post" style="display:inline">
+                                    <form th:if="${r.estado == T(com.autolavado.autolavadomvc.model.EstadoReserva).EN_PROCESO}" th:action="@{/reservas/{id}/finalizar(id=${r.id})}" method="post" style="display:inline">
                                         <button type="submit" class="btn btn-success btn-sm">Finalizar</button>
                                     </form>
                                 </td>

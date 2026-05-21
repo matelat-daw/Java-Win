@@ -1,6 +1,7 @@
 package com.autolavado.autolavadomvc.model;
  
 import java.time.LocalDate;
+import java.math.BigDecimal;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,10 +20,10 @@ public class ReservaLavado {
     private String matricula;
     private boolean tipoTelefono;
     private boolean tipoMatricula;
-    private String tipoLavado;
+    private TipoLavado tipoLavado;
     private LocalDate fecha;
     private String hora;
-    private Double precio;
-    private String estado;
+    private BigDecimal precio;
+    private EstadoReserva estado;
     private String observaciones;
 }

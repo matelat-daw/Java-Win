@@ -47,6 +47,12 @@ public class ReservaController {
             RedirectAttributes attr) { 
  
         // TODO 38: si hay errores, volver a reservas/formulario.
+        if (!service.esTelefonoValido(form.getTelefono(), form.isTipoTelefono())) {
+            resultado.rejectValue("telefono", "telefono.formato", "El teléfono no coincide con el tipo seleccionado");
+        }
+        if (!service.esMatriculaValida(form.getMatricula(), form.isTipoMatricula())) {
+            resultado.rejectValue("matricula", "matricula.formato", "La matrícula no coincide con el tipo seleccionado");
+        }
         if (resultado.hasErrors()) {
             return "reservas/formulario";
         }

@@ -1,5 +1,6 @@
 package com.autolavado.autolavadomvc.repository; 
  
+import com.autolavado.autolavadomvc.model.EstadoReserva;
 import com.autolavado.autolavadomvc.model.ReservaLavado; 
 import org.springframework.stereotype.Repository; 
 import java.util.ArrayList; 
@@ -48,10 +49,10 @@ public class ReservaRepository {
         return reservas.size();
     } 
  
-    public List<ReservaLavado> findByEstado(String estado) { 
+    public List<ReservaLavado> findByEstado(EstadoReserva estado) { 
         // TODO 19: reto. Devolver reservas con ese estado.
         return reservas.stream()
-                .filter(reserva -> reserva.getEstado().equalsIgnoreCase(estado))
+                .filter(reserva -> reserva.getEstado() == estado)
                 .toList();
     } 
 } 

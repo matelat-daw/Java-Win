@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('Detalle de Reserva')}"></head>
 <nav th:replace="~{fragments/navbar :: navbar}"></nav>
 <main class="flex-grow-1">
@@ -12,11 +14,11 @@
                         <li class="mb-3"><strong>Cliente:</strong> <span th:text="${reserva.nombreCliente}"></span></li>
                         <li class="mb-3"><strong>Teléfono:</strong> <span th:text="${reserva.telefono}"></span></li>
                         <li class="mb-3"><strong>Matrícula:</strong> <span th:text="${reserva.matricula}"></span></li>
-                        <li class="mb-3"><strong>Tipo de lavado:</strong> <span th:text="${reserva.tipoLavado}"></span></li>
+                        <li class="mb-3"><strong>Tipo de lavado:</strong> <span th:text="${reserva.tipoLavado.descripcion}"></span></li>
                         <li class="mb-3"><strong>Fecha:</strong> <span th:text="${reserva.fecha}"></span></li>
                         <li class="mb-3"><strong>Hora:</strong> <span th:text="${reserva.hora}"></span></li>
-                        <li class="mb-3"><strong>Precio:</strong> <span th:text="${reserva.precio}"></span></li>
-                        <li class="mb-3"><strong>Estado:</strong> <span class="badge bg-info" th:text="${reserva.estado}"></span></li>
+                        <li class="mb-3"><strong>Precio:</strong> <span th:text="${T(java.lang.String).format('%.2f', reserva.precio)}"></span></li>
+                        <li class="mb-3"><strong>Estado:</strong> <span class="badge" th:classappend="${reserva.estado == T(com.autolavado.autolavadomvc.model.EstadoReserva).PENDIENTE ? 'bg-warning' : (reserva.estado == T(com.autolavado.autolavadomvc.model.EstadoReserva).EN_PROCESO ? 'bg-info' : 'bg-success')}" th:text="${reserva.estado}"></span></li>
                         <!-- TODO 73: mostrar observaciones solo si no están vacías --> 
                         <li th:if="${not #strings.isEmpty(reserva.observaciones)}" class="mb-3">
                             <strong>Observaciones:</strong> <span th:text="${reserva.observaciones}"></span>
