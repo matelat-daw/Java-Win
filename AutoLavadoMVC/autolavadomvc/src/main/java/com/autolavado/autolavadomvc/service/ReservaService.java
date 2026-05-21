@@ -25,7 +25,9 @@ public class ReservaService {
             ReservaLavado reserva = new ReservaLavado();
             reserva.setNombreCliente(form.getNombreCliente());
             reserva.setTelefono(form.getTelefono());
+            reserva.setTipoTelefono(esTelefonoEspagnol(form.getTelefono()));
             reserva.setMatricula(form.getMatricula());
+            reserva.setTipoMatricula(esMatriculaNacional(form.getMatricula()));
             reserva.setTipoLavado(form.getTipoLavado());
             reserva.setFecha(form.getFecha());
             reserva.setHora(form.getHora());
@@ -42,8 +44,13 @@ public class ReservaService {
  
     private double calcularPrecio(String tipoLavado) { 
         // TODO 26: devolver 8.00, 15.00 o 25.00 según el tipo. 
-        // Si el tipo no es válido, devolver 0 o lanzar una excepción controlada. 
-        return 0; 
+        // Si el tipo no es válido, devolver 0 o lanzar una excepción controlada.
+        return switch (tipoLavado) {
+            case "BÁSICO" -> 8.00;
+            case "COMPLETO" -> 15.00;
+            case "PREMIUM" -> 25.00;
+            default -> 0.00;
+        };
     } 
  
     public List<ReservaLavado> buscarPorMatricula(String matricula) { 
@@ -91,6 +98,16 @@ public class ReservaService {
         // TODO 32: contar reservas con estado PENDIENTE. 
         return repository.findByEstado("PENDIENTE").size(); 
     } 
+
+    private boolean esTelefonoEspagnol(String telefono) {
+        String normalizado = telefono.replaceAll("[\\s-]", "");
+        return normalizado.matches("^(?:[67]\\d{8}|(?:\\+34|0034)[67]\\d{8})$");
+    }
+
+    private boolean esMatriculaNacional(String matricula) {
+        String normalizada = matricula.replaceAll("[\\s-]", "").toUpperCase();
+        return normalizada.matches("^\\d{4}[B-DF-HJ-NP-TV-Z]{3}$");
+    }
  
     public double calcularIngresosTotales() { 
         // TODO 33: sumar el precio de todas las reservas. 

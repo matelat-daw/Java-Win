@@ -18,15 +18,37 @@
                             <span th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}" class="text-danger small"></span>
                         </div>
                         <div class="mb-3">
+                            <label class="form-label d-block">Tipo de teléfono</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="telefonoEspana" th:field="*{tipoTelefono}" th:value="true">
+                                <label class="form-check-label" for="telefonoEspana">España</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="telefonoInternacional" th:field="*{tipoTelefono}" th:value="false">
+                                <label class="form-check-label" for="telefonoInternacional">Internacional</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
                             <label for="matricula" class="form-label">Matrícula</label>
                             <input type="text" class="form-control" id="matricula" th:field="*{matricula}" required>
                             <span th:if="${#fields.hasErrors('matricula')}" th:errors="*{matricula}" class="text-danger small"></span>
                         </div>
                         <div class="mb-3">
+                            <label class="form-label d-block">Tipo de matrícula</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="matriculaEspana" th:field="*{tipoMatricula}" th:value="true">
+                                <label class="form-check-label" for="matriculaEspana">España</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="matriculaInternacional" th:field="*{tipoMatricula}" th:value="false">
+                                <label class="form-check-label" for="matriculaInternacional">Internacional</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
                             <label for="tipoLavado" class="form-label">Tipo de lavado</label>
                             <select class="form-select" id="tipoLavado" th:field="*{tipoLavado}" required>
                                 <option value="">Selecciona un tipo de lavado</option>
-                                <option value="BASICO">Básico</option>
+                                <option value="BÁSICO">Básico</option>
                                 <option value="COMPLETO">Completo</option>
                                 <option value="PREMIUM">Premium</option>
                             </select>
@@ -57,4 +79,18 @@
         </div>
     </div>
 </main>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const telefonoInternacional = document.getElementById('telefonoInternacional');
+        const matriculaInternacional = document.getElementById('matriculaInternacional');
+
+        if (telefonoInternacional && matriculaInternacional) {
+            telefonoInternacional.addEventListener('change', function () {
+                if (this.checked) {
+                    matriculaInternacional.checked = true;
+                }
+            });
+        }
+    });
+</script>
 <footer th:replace="~{fragments/footer :: footer}"></footer>

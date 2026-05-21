@@ -6,7 +6,6 @@ import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 @Named("consultaBean")

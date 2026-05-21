@@ -58,7 +58,7 @@
                                 <td th:text="${r.hora}"></td>
                                 <td th:text="${r.precio}"></td>
                                 <td>
-                                    <span class="badge" th:classappend="${r.estado=='PENDIENTE'?'bg-warning':${r.estado=='EN_PROCESO'?'bg-info':'bg-success'}}" th:text="${r.estado}"></span>
+                                    <span class="badge" th:classappend="${r.estado == 'PENDIENTE' ? 'bg-warning' : (r.estado == 'EN_PROCESO' ? 'bg-info' : 'bg-success')}" th:text="${r.estado}"></span>
                                 </td>
                                 <td>
                                     <!-- TODO 59: enlace Ver detalle con th:href --> 

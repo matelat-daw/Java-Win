@@ -17,6 +17,8 @@ public class ReservaLavado {
     private String nombreCliente;
     private String telefono;
     private String matricula;
+    private boolean tipoTelefono;
+    private boolean tipoMatricula;
     private String tipoLavado;
     private LocalDate fecha;
     private String hora;

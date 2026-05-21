@@ -18,7 +18,7 @@ public class ReservaRepository {
  
     public void save(ReservaLavado reserva) { 
         // TODO 14: si la reserva no tiene id, asignar siguienteId y aumentar siguienteId.
-        if (reserva.getId() == 0) {
+        if (reserva.getId() == null) {
             reserva.setId(siguienteId);
             siguienteId++;
         }
