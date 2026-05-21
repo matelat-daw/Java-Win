@@ -1,9 +1,9 @@
 package com.autolavado.autolavadomvc.model;
  
 import java.time.LocalDate;
-
-import ch.qos.logback.core.joran.spi.NoAutoStart;
-import jakarta.annotation.sql.DataSourceDefinition;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 @Data
 @NoArgsConstructor

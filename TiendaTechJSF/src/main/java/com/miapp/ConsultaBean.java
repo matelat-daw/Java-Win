@@ -57,13 +57,10 @@ public class ConsultaBean implements Serializable {
         }
 
         List<Producto> productos = tiendaBean.getProductos();
-        for (Producto item : productos) {
-            if (producto.equals(item.getNombre())) {
-                return item;
-            }
-        }
-
-        return null;
+        return productos.stream()
+                .filter(item -> producto.equals(item.getNombre()))
+                .findFirst()
+                .orElse(null);
     }
 
     public Integer getCantidad() {
@@ -113,11 +110,9 @@ public class ConsultaBean implements Serializable {
 
     public List<Integer> getCantidadesDisponibles() {
         int limite = Math.min(5, getStockDisponible());
-        List<Integer> cantidades = new ArrayList<>();
-        for (int i = 1; i <= limite; i++) {
-            cantidades.add(i);
-        }
-        return cantidades;
+        return java.util.stream.IntStream.rangeClosed(1, limite)
+                .boxed()
+                .toList();
     }
 
     public String enviar() {

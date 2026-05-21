@@ -1,0 +1,60 @@
+<head th:replace="~{fragments/head :: head('Formulario de Reserva')}"></head>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+<main class="flex-grow-1">
+    <div class="container my-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card shadow p-4">
+                    <h2 class="mb-4">Nueva reserva</h2>
+                    <form th:action="@{/reservas/nueva}" th:object="${reservaForm}" method="post">
+                        <div class="mb-3">
+                            <label for="nombreCliente" class="form-label">Nombre del cliente</label>
+                            <input type="text" class="form-control" id="nombreCliente" th:field="*{nombreCliente}" required>
+                            <span th:if="${#fields.hasErrors('nombreCliente')}" th:errors="*{nombreCliente}" class="text-danger small"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label for="telefono" class="form-label">Teléfono</label>
+                            <input type="text" class="form-control" id="telefono" th:field="*{telefono}" required>
+                            <span th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}" class="text-danger small"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label for="matricula" class="form-label">Matrícula</label>
+                            <input type="text" class="form-control" id="matricula" th:field="*{matricula}" required>
+                            <span th:if="${#fields.hasErrors('matricula')}" th:errors="*{matricula}" class="text-danger small"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tipoLavado" class="form-label">Tipo de lavado</label>
+                            <select class="form-select" id="tipoLavado" th:field="*{tipoLavado}" required>
+                                <option value="">Selecciona un tipo de lavado</option>
+                                <option value="BASICO">Básico</option>
+                                <option value="COMPLETO">Completo</option>
+                                <option value="PREMIUM">Premium</option>
+                            </select>
+                            <span th:if="${#fields.hasErrors('tipoLavado')}" th:errors="*{tipoLavado}" class="text-danger small"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fecha" class="form-label">Fecha</label>
+                            <input type="date" class="form-control" id="fecha" th:field="*{fecha}" required>
+                            <span th:if="${#fields.hasErrors('fecha')}" th:errors="*{fecha}" class="text-danger small"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label for="hora" class="form-label">Hora</label>
+                            <input type="time" class="form-control" id="hora" th:field="*{hora}" required>
+                            <span th:if="${#fields.hasErrors('hora')}" th:errors="*{hora}" class="text-danger small"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label for="observaciones" class="form-label">Observaciones</label>
+                            <textarea class="form-control" id="observaciones" th:field="*{observaciones}" rows="3"></textarea>
+                            <span th:if="${#fields.hasErrors('observaciones')}" th:errors="*{observaciones}" class="text-danger small"></span>
+                        </div>
+                        <div class="d-grid gap-2 d-sm-flex">
+                            <button type="submit" class="btn btn-primary">Guardar reserva</button>
+                            <a th:href="@{/reservas}" class="btn btn-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/footer :: footer}"></footer>

@@ -19,12 +19,10 @@ public class ProductoRepository {
     }
 
     public Producto findByNombreIgnoreCase(String nombre) {
-        for (Producto p : productos) {
-            if (p.getNombre().equalsIgnoreCase(nombre)) {
-                return p;
-            }
-        }
-        return null;
+        return productos.stream()
+                .filter(p -> p.getNombre().equalsIgnoreCase(nombre))
+                .findFirst()
+                .orElse(null);
     }
 
     public Producto findByCategoriaIgnoreCase(String categoria) {

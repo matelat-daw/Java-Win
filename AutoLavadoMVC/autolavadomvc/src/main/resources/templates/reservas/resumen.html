@@ -1,0 +1,38 @@
+<head th:replace="~{fragments/head :: head('Resumen de Reservas')}"></head>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+<main class="flex-grow-1">
+    <div class="container my-4">
+        <h2 class="mb-4">Resumen del autolavado</h2>
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card text-center shadow">
+                    <div class="card-body">
+                        <h5 class="card-title">Reservas totales</h5>
+                        <p class="display-4 text-primary" th:text="${total}">0</p>
+                    </div>
+                </div>
+            </div>
+            <!-- TODO 76: tarjeta de reservas pendientes -->
+            <div class="col-md-4">
+                <div class="card text-center shadow">
+                    <div class="card-body">
+                        <h5 class="card-title">Reservas pendientes</h5>
+                        <p class="display-4 text-warning" th:text="${pendientes}">0</p>
+                    </div>
+                </div>
+            </div>
+            <!-- TODO 77: tarjeta de ingresos estimados -->
+            <div class="col-md-4">
+                <div class="card text-center shadow">
+                    <div class="card-body">
+                        <h5 class="card-title">Ingresos estimados</h5>
+                        <p class="display-4 text-success" th:text="${ingresos}">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- TODO 78: enlace para volver a /reservas -->
+        <a th:href="@{/reservas}" class="btn btn-secondary">Volver al listado</a>
+    </div>
+</main>
+<footer th:replace="~{fragments/footer :: footer}"></footer>

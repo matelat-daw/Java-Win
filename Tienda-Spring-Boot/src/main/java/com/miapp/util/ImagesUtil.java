@@ -73,12 +73,8 @@ public class ImagesUtil {
             return false;
         }
         String extension = getExtension(nombreImagen).toLowerCase();
-        for (String ext : ALLOWED_EXTENSIONS) {
-            if (ext.equals(extension)) {
-                return true;
-            }
-        }
-        return false;
+        return java.util.Arrays.stream(ALLOWED_EXTENSIONS)
+                .anyMatch(ext -> ext.equals(extension));
     }
     
     /**

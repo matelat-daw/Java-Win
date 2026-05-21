@@ -1,0 +1,32 @@
+<head th:replace="~{fragments/head :: head('Detalle de Reserva')}"></head>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+<main class="flex-grow-1">
+    <div class="container my-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card shadow p-4">
+                    <h2 class="mb-4">Detalle de reserva</h2>
+                    <!-- TODO 72: mostrar id, cliente, teléfono, matrícula, tipo, fecha, hora, precio y estado -->
+                    <ul class="list-unstyled">
+                        <li class="mb-3"><strong>ID:</strong> <span th:text="${reserva.id}"></span></li>
+                        <li class="mb-3"><strong>Cliente:</strong> <span th:text="${reserva.nombreCliente}"></span></li>
+                        <li class="mb-3"><strong>Teléfono:</strong> <span th:text="${reserva.telefono}"></span></li>
+                        <li class="mb-3"><strong>Matrícula:</strong> <span th:text="${reserva.matricula}"></span></li>
+                        <li class="mb-3"><strong>Tipo de lavado:</strong> <span th:text="${reserva.tipoLavado}"></span></li>
+                        <li class="mb-3"><strong>Fecha:</strong> <span th:text="${reserva.fecha}"></span></li>
+                        <li class="mb-3"><strong>Hora:</strong> <span th:text="${reserva.hora}"></span></li>
+                        <li class="mb-3"><strong>Precio:</strong> <span th:text="${reserva.precio}"></span></li>
+                        <li class="mb-3"><strong>Estado:</strong> <span class="badge bg-info" th:text="${reserva.estado}"></span></li>
+                        <!-- TODO 73: mostrar observaciones solo si no están vacías --> 
+                        <li th:if="${not #strings.isEmpty(reserva.observaciones)}" class="mb-3">
+                            <strong>Observaciones:</strong> <span th:text="${reserva.observaciones}"></span>
+                        </li>
+                    </ul>
+                    <!-- TODO 74: enlace para volver al listado -->
+                    <a th:href="@{/reservas}" class="btn btn-secondary mt-4">Volver al listado</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/footer :: footer}"></footer>

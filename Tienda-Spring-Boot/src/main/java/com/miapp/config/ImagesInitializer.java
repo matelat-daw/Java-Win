@@ -47,7 +47,7 @@ public class ImagesInitializer {
                 }
                 
                 // Copiar imágenes estáticas
-                for (String imageName : staticImages) {
+                java.util.Arrays.stream(staticImages).forEach(imageName -> {
                     try {
                         Resource resource = new ClassPathResource("static/imgs/" + imageName);
                         if (resource.exists()) {
@@ -66,7 +66,7 @@ public class ImagesInitializer {
                     } catch (Exception e) {
                         logger.warn("No se pudo copiar la imagen: {}", imageName, e);
                     }
-                }
+                });
                 
                 logger.info("Inicialización de imágenes completada. Directorio: {}", uploadDir);
                 
