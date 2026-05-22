@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Auto Lavado - Home')}"></head>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+<main class="flex-grow-1">
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <div class="card shadow-lg p-5">
+                    <h1 class="display-4 mb-3">¡Bienvenido a Auto Lavado!</h1>
+                    <p class="lead text-muted mb-4">Tu solución integral para el cuidado de tu vehículo.</p>
+                    <hr class="my-4">
+                    <p class="mb-4">Explora nuestros servicios, reserva tu cita y mantén tu auto impecable.</p>
+                    <a class="btn btn-primary btn-lg" th:href="@{/reservas/nueva}" role="button">Reserva Ahora</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
