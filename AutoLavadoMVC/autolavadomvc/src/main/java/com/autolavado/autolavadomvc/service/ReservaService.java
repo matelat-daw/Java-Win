@@ -35,16 +35,13 @@ public class ReservaService {
         ReservaServicio reserva = new ReservaServicio();
         reserva.setNombreCliente(form.getNombreCliente());
         reserva.setTelefono(form.getTelefono());
-        
         reserva.setMatricula(form.getMatricula().toUpperCase()); // Pasa a mayúsculas directamente
         reserva.setTipoServicio(form.getTipoServicio());
         reserva.setFecha(form.getFecha());
         reserva.setHora(form.getHora());
         reserva.setObservaciones(form.getObservaciones());
-
         reserva.setPrecio(calcularPrecio(reserva.getTipoServicio()));
         reserva.setEstado(EstadoReserva.PENDIENTE);
-
         repository.save(reserva);
     } 
  

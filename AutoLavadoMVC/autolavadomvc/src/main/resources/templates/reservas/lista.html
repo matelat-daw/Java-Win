@@ -5,7 +5,6 @@
 <main class="flex-grow-1">
     <div class="container my-4">
         <h2 class="mb-4">Reservas del Autolavado</h2>
- 
         <!-- TODO 52: mostrar mensaje de éxito si existe -->
         <div th:if="${mensajeExito}" class="alert alert-success alert-dismissible fade show" role="alert">
             <p th:text="${mensajeExito}" class="mb-0"></p>
@@ -16,7 +15,6 @@
             <p th:text="${mensajeError}" class="mb-0"></p>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
- 
         <div class="card mb-4">
             <div class="card-body">
                 <form th:action="@{/reservas/buscar}" method="get" class="row g-2 align-items-end mb-3">
@@ -35,22 +33,20 @@
                     <div class="col-12 col-md-2 d-grid">
                         <button type="submit" class="btn btn-secondary">Buscar</button>
                     </div>
-                </form> 
-                <!-- TODO 55: enlace para volver a /reservas y botón para nueva reserva --> 
+                </form>
+                <!-- TODO 55: enlace para volver a /reservas y botón para nueva reserva -->
                 <div class="d-flex gap-2">
                     <a th:href="@{/reservas}" class="btn btn-outline-secondary">Limpiar filtros</a>
                     <a th:href="@{/reservas/nueva}" class="btn btn-primary">Nueva Reserva</a>
                 </div>
             </div>
         </div>
-
         <div class="card">
             <div class="card-body">
-                <!-- TODO 56: si la lista está vacía, mostrar mensaje informativo con th:if --> 
+                <!-- TODO 56: si la lista está vacía, mostrar mensaje informativo con th:if -->
                 <div th:if="${#lists.isEmpty(reservas)}" class="alert alert-info mb-0">
                     <p class="mb-0">No hay reservas para mostrar.</p>
                 </div>
-
                 <div th:if="${!#lists.isEmpty(reservas)}" class="table-responsive">
                     <table class="table table-striped table-hover mb-0">
                         <thead class="table-dark">
@@ -61,7 +57,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- TODO 57: crear una fila con th:each="r : ${reservas}" --> 
+                            <!-- TODO 57: crear una fila con th:each="r : ${reservas}" -->
                             <tr th:each="r : ${reservas}">
                                 <!-- TODO 58: usar th:text para cada dato -->
                                 <td th:text="${r.id}"></td>
@@ -75,7 +71,7 @@
                                     <span class="badge" th:classappend="${r.estado == T(com.autolavado.autolavadomvc.model.EstadoReserva).PENDIENTE ? 'bg-warning' : (r.estado == T(com.autolavado.autolavadomvc.model.EstadoReserva).EN_PROCESO ? 'bg-info' : 'bg-success')}" th:text="${r.estado}"></span>
                                 </td>
                                 <td>
-                                    <!-- TODO 59: enlace Ver detalle con th:href --> 
+                                    <!-- TODO 59: enlace Ver detalle con th:href -->
                                     <a th:href="@{/reservas/{id}(id=${r.id})}" class="btn btn-info btn-sm">Ver</a>
                                     <!-- TODO 60: formularios POST para iniciar/finalizar según estado -->
                                     <form th:if="${r.estado == T(com.autolavado.autolavadomvc.model.EstadoReserva).PENDIENTE}" th:action="@{/reservas/{id}/iniciar(id=${r.id})}" method="post" style="display:inline">

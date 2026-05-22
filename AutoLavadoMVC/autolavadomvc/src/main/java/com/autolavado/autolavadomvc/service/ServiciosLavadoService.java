@@ -3,7 +3,6 @@ package com.autolavado.autolavadomvc.service;
 import com.autolavado.autolavadomvc.model.ServiciosLavado;
 import com.autolavado.autolavadomvc.model.TipoServicio;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.util.List;
 
