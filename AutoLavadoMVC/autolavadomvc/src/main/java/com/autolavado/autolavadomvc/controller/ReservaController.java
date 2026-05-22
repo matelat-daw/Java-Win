@@ -27,10 +27,16 @@ public class ReservaController {
     }
  
     @GetMapping("/reservas") 
-    public String listar(Model model) { 
-        model.addAttribute("reservas", service.listarReservas());
-        model.addAttribute("matriculaBuscada", "");
-        model.addAttribute("soloPendientes", false);
+    public String listar(Model model,
+                         @RequestParam(required = false, defaultValue = "") String matricula,
+                         @RequestParam(required = false, defaultValue = "false") boolean pendientes,
+                         @RequestParam(required = false) String sort,
+                         @RequestParam(required = false, defaultValue = "asc") String dir) {
+        model.addAttribute("reservas", service.buscarPorFiltros(matricula, pendientes, sort, dir));
+        model.addAttribute("matriculaBuscada", matricula);
+        model.addAttribute("soloPendientes", pendientes);
+        model.addAttribute("currentSort", sort);
+        model.addAttribute("currentDir", dir);
         return "reservas/lista";
     } 
  
@@ -78,15 +84,17 @@ public class ReservaController {
     public String buscar(
             @RequestParam(required = false, defaultValue = "") String matricula,
             @RequestParam(required = false, defaultValue = "false") boolean pendientes,
-            Model model) { 
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false, defaultValue = "asc") String dir,
+            Model model) {
         
-        // Optimización: delegamos los filtros combinados directamente al Service para que use la DB.
-        // Esto evita iteraciones pesadas de bucles for, duplicados y LinkedHashMap en memoria Java.
-        List<ReservaServicio> reservasFiltradas = service.buscarPorFiltros(matricula, pendientes);
+        List<ReservaServicio> reservasFiltradas = service.buscarPorFiltros(matricula, pendientes, sort, dir);
 
         model.addAttribute("reservas", reservasFiltradas);
         model.addAttribute("matriculaBuscada", matricula);
         model.addAttribute("soloPendientes", pendientes);
+        model.addAttribute("currentSort", sort);
+        model.addAttribute("currentDir", dir);
         return "reservas/lista";
     } 
  

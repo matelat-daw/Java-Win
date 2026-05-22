@@ -23,6 +23,17 @@
             .hero-cta {
                 box-shadow: 0 0.9rem 1.8rem rgba(0, 0, 0, 0.35);
             }
+
+            /* Subtle hover effect for sortable table headers */
+            .sortable {
+                cursor: pointer;
+                transition: color 120ms ease-in-out, transform 120ms ease-in-out;
+                opacity: 0.95;
+            }
+            .sortable:hover {
+                color: #cfe2ff; /* lighter white/blue hint */
+                transform: translateY(-2px);
+            }
         </style>
 </head>
 <body class="d-flex flex-column min-vh-100">

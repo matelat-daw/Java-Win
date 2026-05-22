@@ -8,6 +8,8 @@ import com.autolavado.autolavadomvc.model.TipoServicio;
 import com.autolavado.autolavadomvc.model.ReservaServicio; 
 import com.autolavado.autolavadomvc.repository.ReservaRepository; 
 import org.springframework.stereotype.Service; 
+import java.util.Comparator;
+import java.util.stream.Collectors;
 import java.util.List;
 import java.util.Optional;
  
@@ -23,6 +25,11 @@ public class ReservaService {
     public List<ReservaServicio> listarReservas() { 
         return repository.findAll();
     } 
+
+    public List<ReservaServicio> listarReservas(String sortField, String dir) {
+        List<ReservaServicio> list = repository.findAll();
+        return sortList(list, sortField, dir);
+    }
  
     public void crearReserva(ReservaForm form) { 
         if (!esTelefonoValido(form.getTelefono(), form.isTipoTelefono())) {
@@ -61,6 +68,37 @@ public class ReservaService {
             return repository.findByEstado(EstadoReserva.PENDIENTE);
         }
         return repository.findAll();
+    }
+
+    public List<ReservaServicio> buscarPorFiltros(String matricula, boolean soloPendientes, String sortField, String dir) {
+        List<ReservaServicio> list = buscarPorFiltros(matricula, soloPendientes);
+        return sortList(list, sortField, dir);
+    }
+
+    private List<ReservaServicio> sortList(List<ReservaServicio> list, String sortField, String dir) {
+        if (sortField == null || sortField.isBlank()) return list;
+        Comparator<ReservaServicio> cmp;
+        boolean desc = "desc".equalsIgnoreCase(dir);
+
+        switch (sortField) {
+            case "nombre":
+                cmp = Comparator.comparing(ReservaServicio::getNombreCliente, Comparator.nullsLast(String::compareToIgnoreCase));
+                break;
+            case "fecha":
+                cmp = Comparator.comparing(ReservaServicio::getFecha, Comparator.nullsLast(Comparator.naturalOrder()));
+                break;
+            case "precio":
+                cmp = Comparator.comparing(ReservaServicio::getPrecio, Comparator.nullsLast(Comparator.naturalOrder()));
+                break;
+            case "estado":
+                cmp = Comparator.comparing(r -> r.getEstado() != null ? r.getEstado().name() : "", Comparator.nullsLast(String::compareToIgnoreCase));
+                break;
+            default:
+                return list;
+        }
+
+        if (desc) cmp = cmp.reversed();
+        return list.stream().sorted(cmp).collect(Collectors.toList());
     }
 
     public List<ReservaServicio> buscarPorMatricula(String matricula) { 

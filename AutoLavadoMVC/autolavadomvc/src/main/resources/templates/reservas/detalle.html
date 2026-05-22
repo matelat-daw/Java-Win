@@ -15,7 +15,7 @@
                         <li class="mb-3"><strong>Teléfono:</strong> <span th:text="*{telefono}"></span></li>
                         <li class="mb-3"><strong>Matrícula:</strong> <span th:text="*{matricula}"></span></li>
                         <li class="mb-3"><strong>Tipo de Servicio:</strong> <span th:text="*{tipoServicio.descripcion}"></span></li>
-                        <li class="mb-3"><strong>Fecha:</strong> <span th:text="*{fecha}"></span></li>
+                        <li class="mb-3"><strong>Fecha:</strong> <span th:text="${#temporals.format(reserva.fecha, 'dd-MM-yyyy')}"></span></li>
                         <li class="mb-3"><strong>Hora:</strong> <span th:text="*{hora}"></span></li>
                         <li class="mb-3"><strong>Precio:</strong> <span th:text="*{precio}"></span></li>
                         <li class="mb-3"><strong>Estado:</strong> <span class="badge" th:classappend="${reserva.estado == T(com.autolavado.autolavadomvc.model.EstadoReserva).PENDIENTE ? 'bg-warning' : (reserva.estado == T(com.autolavado.autolavadomvc.model.EstadoReserva).EN_PROCESO ? 'bg-info' : 'bg-success')}" th:text="*{estado}"></span></li>
