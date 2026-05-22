@@ -6,9 +6,12 @@ import java.util.Optional;
 
 public enum TipoLavado {
 
-    BASICO("BÁSICO", new BigDecimal("8.00")),
-    COMPLETO("COMPLETO", new BigDecimal("15.00")),
-    PREMIUM("PREMIUM", new BigDecimal("25.00"));
+    BASICO("Lavado básico", new BigDecimal("8.00")),
+    COMPLETO("Lavado completo", new BigDecimal("15.00")),
+    PREMIUM("Lavado premium", new BigDecimal("25.00")),
+    INTERIOR("Limpieza interior", new BigDecimal("12.00")),
+    PULIDO_FAROS("Pulido de faros", new BigDecimal("18.00")),
+    ASPIRADO("Aspirado profesional", new BigDecimal("6.00"));
 
     private final String descripcion;
     private final BigDecimal precio;

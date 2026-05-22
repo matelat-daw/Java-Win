@@ -39,10 +39,19 @@ public class ReservaController {
     } 
  
     @GetMapping("/reservas/nueva") 
-    public String formulario(Model model) { 
-        // TODO 37: añadir al Model un objeto ReservaForm vacío. 
-        // El nombre debe coincidir con th:object en formulario.html. 
-        model.addAttribute("reservaForm", new ReservaForm());
+    public String formulario(Model model, @RequestParam(required = false) String tipoLavado) { 
+        // Añadir al Model un objeto ReservaForm vacío o con tipoLavado prefijado.
+        com.autolavado.autolavadomvc.form.ReservaForm form = new com.autolavado.autolavadomvc.form.ReservaForm();
+        if (tipoLavado != null && !tipoLavado.isBlank()) {
+            try {
+                com.autolavado.autolavadomvc.model.TipoLavado tipo = com.autolavado.autolavadomvc.model.TipoLavado.valueOf(tipoLavado);
+                form.setTipoLavado(tipo);
+            } catch (IllegalArgumentException ex) {
+                // Ignorar si el valor no coincide
+            }
+        }
+        model.addAttribute("reservaForm", form);
+        model.addAttribute("tipoLavadoLocked", form.getTipoLavado() != null);
         return "reservas/formulario";
     } 
  

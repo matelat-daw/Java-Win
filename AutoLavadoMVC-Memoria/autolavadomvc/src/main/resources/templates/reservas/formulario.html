@@ -23,7 +23,6 @@
                         <div class="mb-3">
                             <label for="telefono" class="form-label">Teléfono</label>
                             <input type="text" class="form-control" id="telefono" th:field="*{telefono}" required>
-                            <div id="error-telefono" class="invalid-feedback"></div>
                             <span th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}" class="text-danger small"></span>
                         </div>
                         
@@ -44,7 +43,6 @@
                         <div class="mb-3">
                             <label for="matricula" class="form-label">Matrícula</label>
                             <input type="text" class="form-control" id="matricula" th:field="*{matricula}" required>
-                            <div id="error-matricula" class="invalid-feedback"></div>
                             <span th:if="${#fields.hasErrors('matricula')}" th:errors="*{matricula}" class="text-danger small"></span>
                         </div>
                         
@@ -64,12 +62,13 @@
                         <!-- TIPO DE LAVADO -->
                         <div class="mb-3">
                             <label for="tipoLavado" class="form-label">Tipo de lavado</label>
-                            <select class="form-select" id="tipoLavado" th:field="*{tipoLavado}" required>
+                            <select class="form-select" id="tipoLavado" th:field="*{tipoLavado}" th:disabled="${tipoLavadoLocked}" required>
                                 <option value="">Selecciona un tipo de lavado</option>
                                 <option th:each="tipo : ${T(com.autolavado.autolavadomvc.model.TipoLavado).values()}"
-                                        th:value="${tipo.name()}"
-                                        th:text="${tipo.descripcion}"></option>
-                            </select>
+                                    th:value="${tipo.name()}"
+                                    th:text="${tipo.descripcion}"></option>
+                                </select>
+                                <input type="hidden" th:if="${tipoLavadoLocked}" th:field="*{tipoLavado}" />
                             <div class="invalid-feedback">Debes elegir un tipo de lavado.</div>
                             <span th:if="${#fields.hasErrors('tipoLavado')}" th:errors="*{tipoLavado}" class="text-danger small"></span>
                         </div>
