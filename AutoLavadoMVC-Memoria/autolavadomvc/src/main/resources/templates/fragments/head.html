@@ -7,6 +7,22 @@
             :root { --footer-height: 72px; }
             /* Reserve space at the bottom so a fixed footer doesn't cover page content */
             body { padding-bottom: calc(var(--footer-height) + 1rem); }
+
+            .hero-card-bg {
+                background-image: url('/imgs/logo.webp');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                min-height: 420px;
+            }
+
+            .hero-text-shadow {
+                text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95), 0 0 2px rgba(0, 0, 0, 0.95);
+            }
+
+            .hero-cta {
+                box-shadow: 0 0.9rem 1.8rem rgba(0, 0, 0, 0.35);
+            }
         </style>
 </head>
 <body class="d-flex flex-column min-vh-100">

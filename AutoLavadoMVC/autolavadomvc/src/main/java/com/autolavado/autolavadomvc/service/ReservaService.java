@@ -36,11 +36,6 @@ public class ReservaService {
         reserva.setNombreCliente(form.getNombreCliente());
         reserva.setTelefono(form.getTelefono());
         
-        // NOTA: Si dejas estas dos líneas, asegúrate de añadir las columnas en MariaDB (TINYINT(1))
-        // o bórralas si solo eran banderas temporales de validación del formulario.
-        // reserva.setTipoTelefono(form.isTipoTelefono());
-        // reserva.setTipoMatricula(form.isTipoMatricula());
-        
         reserva.setMatricula(form.getMatricula().toUpperCase()); // Pasa a mayúsculas directamente
         reserva.setTipoLavado(form.getTipoLavado());
         reserva.setFecha(form.getFecha());
@@ -53,16 +48,13 @@ public class ReservaService {
         repository.save(reserva);
     } 
  
-    private BigDecimal calcularPrecio(TipoLavado tipoLavado) { 
-        // Si tu enum no tiene un método interno getPrecio(), puedes cambiarlo por un switch manual:
-        // switch(tipoLavado) { case BÁSICO -> return new BigDecimal("8.00"); ... }
+    private BigDecimal calcularPrecio(TipoLavado tipoLavado) {
         return tipoLavado != null ? tipoLavado.getPrecio() : BigDecimal.ZERO;
     } 
  
     // Filtro optimizado para el método "buscar" del controlador
     public List<ReservaLavado> buscarPorFiltros(String matricula, boolean soloPendientes) {
         if (!matricula.isBlank() && soloPendientes) {
-            // Si busca por matrícula y además quiere solo pendientes
             return repository.findByMatriculaContainingIgnoreCase(matricula).stream()
                     .filter(r -> r.getEstado() == EstadoReserva.PENDIENTE)
                     .toList();
@@ -82,12 +74,10 @@ public class ReservaService {
         return repository.findByEstado(EstadoReserva.PENDIENTE);
     }
  
-    // Cambiado Long a BigInteger. JpaRepository devuelve Optional<T>
     public ReservaLavado buscarPorId(Long id) { 
         return repository.findById(id).orElse(null); 
     } 
  
-    // Cambiado Long a BigInteger y guardado persistente activado
     public boolean iniciarReserva(Long id) { 
         Optional<ReservaLavado> optionalReserva = repository.findById(id);
         if (optionalReserva.isPresent()) {
@@ -101,7 +91,6 @@ public class ReservaService {
         return false;
     }
 
-    // Cambiado Long a BigInteger y guardado persistente activado
     public boolean finalizarReserva(Long id) { 
         Optional<ReservaLavado> optionalReserva = repository.findById(id);
         if (optionalReserva.isPresent()) {
@@ -120,8 +109,6 @@ public class ReservaService {
     } 
  
     public long contarPendientes() { 
-        // Aunque se puede hacer con una query personalizada de conteo, esta forma 
-        // reutiliza tu método del repositorio manteniendo un rendimiento controlado
         return repository.findByEstado(EstadoReserva.PENDIENTE).size(); 
     } 
 
