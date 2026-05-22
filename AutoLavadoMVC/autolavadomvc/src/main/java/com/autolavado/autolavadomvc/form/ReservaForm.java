@@ -1,6 +1,8 @@
 package com.autolavado.autolavadomvc.form; 
  
 import java.time.LocalDate;
+import java.time.LocalTime;
+import org.springframework.format.annotation.DateTimeFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -48,8 +50,9 @@ public class ReservaForm {
     private LocalDate fecha; 
  
     // TODO 10: hora debe ser obligatoria. 
-    @NotBlank(message = "La hora es obligatoria")
-    private String hora; 
+    @NotNull(message = "La hora es obligatoria")
+    @DateTimeFormat(pattern = "HH:mm") // <- Esto le dice a Spring cómo parsear el input del HTML
+    private LocalTime hora; 
  
     // TODO 11: observaciones puede estar vacío, pero no debe superar 200 caracteres. 
     @Size(max = 200, message = "Las observaciones no pueden superar 200 caracteres")

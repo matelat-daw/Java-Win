@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public enum TipoLavado {
 
-    BASICO("BÁSICO", new BigDecimal("8.00")),
+    BÁSICO("BÁSICO", new BigDecimal("8.00")),
     COMPLETO("COMPLETO", new BigDecimal("15.00")),
     PREMIUM("PREMIUM", new BigDecimal("25.00"));
 
