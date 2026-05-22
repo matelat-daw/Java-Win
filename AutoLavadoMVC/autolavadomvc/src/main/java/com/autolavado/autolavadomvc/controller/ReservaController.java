@@ -2,6 +2,7 @@ package com.autolavado.autolavadomvc.controller;
  
 import com.autolavado.autolavadomvc.form.ReservaForm; 
 import com.autolavado.autolavadomvc.model.ReservaServicio;
+import com.autolavado.autolavadomvc.model.TipoServicio;
 import com.autolavado.autolavadomvc.service.ReservaService; 
 import jakarta.validation.Valid; 
 import org.springframework.stereotype.Controller; 
@@ -34,8 +35,19 @@ public class ReservaController {
     } 
  
     @GetMapping("/reservas/nueva") 
-    public String formulario(Model model) { 
-        model.addAttribute("reservaForm", new ReservaForm());
+    public String formulario(Model model, @RequestParam(required = false) String tipoServicio) { 
+        ReservaForm form = new ReservaForm();
+
+        if (tipoServicio != null && !tipoServicio.isBlank()) {
+            try {
+                form.setTipoServicio(TipoServicio.valueOf(tipoServicio));
+            } catch (IllegalArgumentException ex) {
+                // Ignorar si el valor no coincide con el enum.
+            }
+        }
+
+        model.addAttribute("reservaForm", form);
+        model.addAttribute("tipoServicioLocked", form.getTipoServicio() != null);
         return "reservas/formulario";
     } 
  
@@ -43,6 +55,7 @@ public class ReservaController {
     public String guardar( 
             @Valid @ModelAttribute("reservaForm") ReservaForm form, 
             BindingResult resultado, 
+            Model model,
             RedirectAttributes attr) { 
  
         if (!service.esTelefonoValido(form.getTelefono(), form.isTipoTelefono())) {
@@ -52,6 +65,7 @@ public class ReservaController {
             resultado.rejectValue("matricula", "matricula.formato", "La matrícula no coincide con el tipo seleccionado");
         }
         if (resultado.hasErrors()) {
+            model.addAttribute("tipoServicioLocked", form.getTipoServicio() != null);
             return "reservas/formulario";
         }
 

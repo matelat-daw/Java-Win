@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const telefonoRadios = document.querySelectorAll('input[name="tipoTelefono"]');
     const matriculaEsp = document.getElementById('tipoMatriculaEsp');
     const matriculaExt = document.getElementById('tipoMatriculaExt');
+    const matriculaExtLabel = document.querySelector('label[for="tipoMatriculaExt"]');
     const fechaInput = document.getElementById('fecha');
     const nombreInput = document.getElementById('nombreCliente');
     const telefonoInput = document.getElementById('telefono');
@@ -39,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const matriculaInput = document.getElementById('matricula');
     const errorMatriculaDiv = document.getElementById('error-matricula');
     const errorFechaDiv = document.getElementById('error-fecha');
-    const tipoLavadoSelect = document.getElementById('tipoLavado');
+    const tipoServicioSelect = document.getElementById('tipoServicio');
     const horaInput = document.getElementById('hora');
     let fechaAntesDeValidar = '';
 
@@ -50,6 +51,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         matriculaExt.checked = Boolean(telefonoInternacional);
         matriculaEsp.checked = !telefonoInternacional;
+
+        if (matriculaExtLabel) {
+            matriculaExtLabel.textContent = telefonoInternacional
+                ? 'Matrícula internacional'
+                : 'Extranjera';
+        }
     };
 
     // Auxiliar para aplicar estilos visuales de Bootstrap
@@ -73,10 +80,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return valido;
     };
 
-    const validarLavado = () => {
-        if (!tipoLavadoSelect) return true;
-        const valido = tipoLavadoSelect.value !== "";
-        marcarInput(tipoLavadoSelect, valido);
+    const validarServicio = () => {
+        if (!tipoServicioSelect) return true;
+        const valido = tipoServicioSelect.value !== "";
+        marcarInput(tipoServicioSelect, valido);
         return valido;
     };
 
@@ -151,13 +158,13 @@ document.addEventListener('DOMContentLoaded', () => {
         fechaAntesDeValidar = fechaInput?.value ?? '';
 
         const vNombre = validarNombre();
-        const vLavado = validarLavado();
+        const vServicio = validarServicio();
         const vHora = validarHora();
         const vFecha = validarFecha();
         const vTelefono = validarTelefono();
         const vMatricula = validarMatricula();
 
-        const todoValido = vNombre && vLavado && vHora && vFecha && vTelefono && vMatricula;
+        const todoValido = vNombre && vServicio && vHora && vFecha && vTelefono && vMatricula;
 
         if (!todoValido) {
             event.preventDefault();  

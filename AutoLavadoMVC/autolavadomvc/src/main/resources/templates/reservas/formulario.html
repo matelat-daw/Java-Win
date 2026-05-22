@@ -63,14 +63,15 @@
                         
                         <!-- TIPO DE LAVADO -->
                         <div class="mb-3">
-                            <label for="tipoServicio" class="form-label">Tipo de lavado</label>
-                            <select class="form-select" id="tipoServicio" th:field="*{tipoServicio}" required>
-                                <option value="">Selecciona un tipo de lavado</option>
+                            <label for="tipoServicio" class="form-label">Tipo de Servicio</label>
+                            <select class="form-select" id="tipoServicio" th:field="*{tipoServicio}" th:disabled="${tipoServicioLocked}" required>
+                                <option value="">Selecciona un tipo de servicio</option>
                                 <option th:each="tipo : ${T(com.autolavado.autolavadomvc.model.TipoServicio).values()}"
                                         th:value="${tipo.name()}"
                                         th:text="${tipo.descripcion}"></option>
                             </select>
-                            <div class="invalid-feedback">Debes elegir un tipo de lavado.</div>
+                            <input type="hidden" th:if="${tipoServicioLocked}" th:field="*{tipoServicio}" />
+                            <div class="invalid-feedback">Debes elegir un tipo de servicio.</div>
                             <span th:if="${#fields.hasErrors('tipoServicio')}" th:errors="*{tipoServicio}" class="text-danger small"></span>
                         </div>
 
