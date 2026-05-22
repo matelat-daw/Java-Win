@@ -13,7 +13,7 @@ import lombok.Data;
 @AllArgsConstructor
 @Entity // 1. Indica que esta clase es una entidad de Base de Datos
 @Table(name = "reserva") // 2. REEMPLAZA por el nombre real de tu tabla en MariaDB
-public class ReservaLavado { 
+public class ReservaServicio { 
  
     @Id // 3. Define la Clave Primaria
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 4. Mapea el AUTO_INCREMENT de tu base de datos
@@ -38,8 +38,8 @@ public class ReservaLavado {
     
     // 7. Mapea el ENUM como String en la base de datos para que coincida con enum('BÁSICO'...)
     @Enumerated(EnumType.STRING)
-    @Column(name = "tipo_lavado", nullable = false)
-    private TipoLavado tipoLavado;
+    @Column(name = "tipo_servicio", nullable = false)
+    private TipoServicio tipoServicio;
     
     @Column(name = "fecha", nullable = false)
     private LocalDate fecha;

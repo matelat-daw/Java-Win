@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const telefonoRadios = document.querySelectorAll('input[name="tipoTelefono"]');
     const matriculaEsp = document.getElementById('tipoMatriculaEsp');
     const matriculaExt = document.getElementById('tipoMatriculaExt');
+    const matriculaExtLabel = document.querySelector('label[for="tipoMatriculaExt"]');
     const fechaInput = document.getElementById('fecha');
     const nombreInput = document.getElementById('nombreCliente');
     const telefonoInput = document.getElementById('telefono');
@@ -41,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorFechaDiv = document.getElementById('error-fecha');
     const tipoLavadoSelect = document.getElementById('tipoLavado');
     const horaInput = document.getElementById('hora');
+    let fechaAntesDeValidar = '';
 
     // Sincronizar automáticamente los radios de matrícula con los de teléfono
     const sincronizarMatricula = () => {
@@ -49,10 +51,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         matriculaExt.checked = Boolean(telefonoInternacional);
         matriculaEsp.checked = !telefonoInternacional;
-        
-        // Revalidar inmediatamente teléfono y matrícula al cambiar el tipo
-        validarTelefono();
-        validarMatricula();
+
+        if (matriculaExtLabel) {
+            matriculaExtLabel.textContent = telefonoInternacional
+                ? 'Matrícula internacional'
+                : 'Extranjera';
+        }
     };
 
     // Auxiliar para aplicar estilos visuales de Bootstrap
@@ -67,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- FUNCIONES DE VALIDACIÓN INDIVIDUAL EN TIEMPO REAL ---
+    // --- FUNCIONES DE VALIDACIÓN SOLO AL ENVIAR ---
 
     const validarNombre = () => {
         if (!nombreInput) return true;
@@ -106,6 +110,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             if (errorFechaDiv) errorFechaDiv.textContent = "Selecciona una fecha válida.";
         }
+        if (valido && errorFechaDiv) {
+            errorFechaDiv.textContent = "";
+        }
         marcarInput(fechaInput, valido);
         return valido;
     };
@@ -142,27 +149,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return valido;
     };
 
-    // 3. Asignación de Eventos en tiempo real (`input` y `change`)
-    nombreInput?.addEventListener('input', validarNombre);
-    tipoLavadoSelect?.addEventListener('change', validarLavado);
-    horaInput?.addEventListener('input', validarHora);
-    
-    if (fechaInput) {
-        fechaInput.addEventListener('change', () => {
-            validarFecha();
-        });
-    }
-    
-    telefonoInput?.addEventListener('input', validarTelefono);
-    matriculaInput?.addEventListener('input', validarMatricula);
-
     telefonoRadios.forEach((radio) => {
         radio.addEventListener('change', sincronizarMatricula);
     });
 
-    // 4. Validación global en el Submit
+    // 3. Validación global en el Submit
     form.addEventListener('submit', (event) => {
-        // Ejecutamos todas las validaciones para forzar el feedback visual
+        fechaAntesDeValidar = fechaInput?.value ?? '';
+
         const vNombre = validarNombre();
         const vLavado = validarLavado();
         const vHora = validarHora();
@@ -175,10 +169,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!todoValido) {
             event.preventDefault();  
             event.stopPropagation(); 
+            if (fechaInput && fechaAntesDeValidar) {
+                fechaInput.value = fechaAntesDeValidar;
+            }
             return false;            
         }
     });
 
-    // 5. Ejecución inicial al cargar la página
+    // 4. Ejecución inicial al cargar la página
     sincronizarMatricula();
 });

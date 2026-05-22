@@ -1,7 +1,7 @@
 package com.autolavado.autolavadomvc.controller; 
  
 import com.autolavado.autolavadomvc.form.ReservaForm; 
-import com.autolavado.autolavadomvc.model.ReservaLavado;
+import com.autolavado.autolavadomvc.model.ReservaServicio;
 import com.autolavado.autolavadomvc.service.ReservaService; 
 import jakarta.validation.Valid; 
 import org.springframework.stereotype.Controller; 
@@ -68,7 +68,7 @@ public class ReservaController {
         
         // Optimización: delegamos los filtros combinados directamente al Service para que use la DB.
         // Esto evita iteraciones pesadas de bucles for, duplicados y LinkedHashMap en memoria Java.
-        List<ReservaLavado> reservasFiltradas = service.buscarPorFiltros(matricula, pendientes);
+        List<ReservaServicio> reservasFiltradas = service.buscarPorFiltros(matricula, pendientes);
 
         model.addAttribute("reservas", reservasFiltradas);
         model.addAttribute("matriculaBuscada", matricula);
@@ -79,7 +79,7 @@ public class ReservaController {
     // Cambiado de Long a BigInteger para coincidir con tu ID de MariaDB
     @GetMapping("/reservas/{id}") 
     public String detalle(@PathVariable Long id, Model model, RedirectAttributes attr) { 
-        ReservaLavado reserva = service.buscarPorId(id);
+        ReservaServicio reserva = service.buscarPorId(id);
         
         if (reserva == null) {
             attr.addFlashAttribute("error", "La reserva solicitada no existe.");

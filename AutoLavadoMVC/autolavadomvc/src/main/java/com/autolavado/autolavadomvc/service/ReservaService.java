@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import com.autolavado.autolavadomvc.form.ReservaForm; 
 import com.autolavado.autolavadomvc.model.EstadoReserva;
-import com.autolavado.autolavadomvc.model.TipoLavado;
-import com.autolavado.autolavadomvc.model.ReservaLavado; 
+import com.autolavado.autolavadomvc.model.TipoServicio;
+import com.autolavado.autolavadomvc.model.ReservaServicio; 
 import com.autolavado.autolavadomvc.repository.ReservaRepository; 
 import org.springframework.stereotype.Service; 
 import java.util.List;
@@ -20,7 +20,7 @@ public class ReservaService {
         this.repository = repository; 
     } 
  
-    public List<ReservaLavado> listarReservas() { 
+    public List<ReservaServicio> listarReservas() { 
         return repository.findAll();
     } 
  
@@ -32,28 +32,28 @@ public class ReservaService {
             throw new IllegalArgumentException("El formato de la matrícula es incorrecto para el tipo seleccionado.");
         }
 
-        ReservaLavado reserva = new ReservaLavado();
+        ReservaServicio reserva = new ReservaServicio();
         reserva.setNombreCliente(form.getNombreCliente());
         reserva.setTelefono(form.getTelefono());
         
         reserva.setMatricula(form.getMatricula().toUpperCase()); // Pasa a mayúsculas directamente
-        reserva.setTipoLavado(form.getTipoLavado());
+        reserva.setTipoServicio(form.getTipoServicio());
         reserva.setFecha(form.getFecha());
         reserva.setHora(form.getHora());
         reserva.setObservaciones(form.getObservaciones());
 
-        reserva.setPrecio(calcularPrecio(reserva.getTipoLavado()));
+        reserva.setPrecio(calcularPrecio(reserva.getTipoServicio()));
         reserva.setEstado(EstadoReserva.PENDIENTE);
 
         repository.save(reserva);
     } 
  
-    private BigDecimal calcularPrecio(TipoLavado tipoLavado) {
-        return tipoLavado != null ? tipoLavado.getPrecio() : BigDecimal.ZERO;
+    private BigDecimal calcularPrecio(TipoServicio tipoServicio) {
+        return tipoServicio != null ? tipoServicio.getPrecio() : BigDecimal.ZERO;
     } 
  
     // Filtro optimizado para el método "buscar" del controlador
-    public List<ReservaLavado> buscarPorFiltros(String matricula, boolean soloPendientes) {
+    public List<ReservaServicio> buscarPorFiltros(String matricula, boolean soloPendientes) {
         if (!matricula.isBlank() && soloPendientes) {
             return repository.findByMatriculaContainingIgnoreCase(matricula).stream()
                     .filter(r -> r.getEstado() == EstadoReserva.PENDIENTE)
@@ -66,22 +66,22 @@ public class ReservaService {
         return repository.findAll();
     }
 
-    public List<ReservaLavado> buscarPorMatricula(String matricula) { 
+    public List<ReservaServicio> buscarPorMatricula(String matricula) { 
         return repository.findByMatriculaContainingIgnoreCase(matricula); 
     } 
 
-    public List<ReservaLavado> buscarPorPendientes() {
+    public List<ReservaServicio> buscarPorPendientes() {
         return repository.findByEstado(EstadoReserva.PENDIENTE);
     }
  
-    public ReservaLavado buscarPorId(Long id) { 
+    public ReservaServicio buscarPorId(Long id) { 
         return repository.findById(id).orElse(null); 
     } 
  
     public boolean iniciarReserva(Long id) { 
-        Optional<ReservaLavado> optionalReserva = repository.findById(id);
+        Optional<ReservaServicio> optionalReserva = repository.findById(id);
         if (optionalReserva.isPresent()) {
-            ReservaLavado reserva = optionalReserva.get();
+            ReservaServicio reserva = optionalReserva.get();
             if (reserva.getEstado() == EstadoReserva.PENDIENTE) {
                 reserva.setEstado(EstadoReserva.EN_PROCESO);
                 repository.save(reserva); // Descomentado: Impacta directamente el cambio en MariaDB
@@ -92,9 +92,9 @@ public class ReservaService {
     }
 
     public boolean finalizarReserva(Long id) { 
-        Optional<ReservaLavado> optionalReserva = repository.findById(id);
+        Optional<ReservaServicio> optionalReserva = repository.findById(id);
         if (optionalReserva.isPresent()) {
-            ReservaLavado reserva = optionalReserva.get();
+            ReservaServicio reserva = optionalReserva.get();
             if (reserva.getEstado() == EstadoReserva.EN_PROCESO) {
                 reserva.setEstado(EstadoReserva.FINALIZADO);
                 repository.save(reserva); // Descomentado: Impacta directamente el cambio en MariaDB
@@ -136,7 +136,7 @@ public class ReservaService {
  
     public BigDecimal calcularIngresosTotales() { 
         return repository.findAll().stream()
-            .map(ReservaLavado::getPrecio)
+            .map(ReservaServicio::getPrecio)
             .filter(java.util.Objects::nonNull)
             .reduce(BigDecimal.ZERO, BigDecimal::add)
             .setScale(2, RoundingMode.HALF_UP);

@@ -23,6 +23,7 @@
                         <div class="mb-3">
                             <label for="telefono" class="form-label">Teléfono</label>
                             <input type="text" class="form-control" id="telefono" th:field="*{telefono}" required>
+                            <div id="error-telefono" class="invalid-feedback"></div>
                             <span th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}" class="text-danger small"></span>
                         </div>
                         
@@ -43,6 +44,7 @@
                         <div class="mb-3">
                             <label for="matricula" class="form-label">Matrícula</label>
                             <input type="text" class="form-control" id="matricula" th:field="*{matricula}" required>
+                            <div id="error-matricula" class="invalid-feedback"></div>
                             <span th:if="${#fields.hasErrors('matricula')}" th:errors="*{matricula}" class="text-danger small"></span>
                         </div>
                         
