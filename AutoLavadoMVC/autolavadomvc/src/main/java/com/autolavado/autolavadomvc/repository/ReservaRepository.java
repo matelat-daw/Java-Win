@@ -1,17 +1,12 @@
 package com.autolavado.autolavadomvc.repository;
- 
-import com.autolavado.autolavadomvc.model.EstadoReserva;
-import com.autolavado.autolavadomvc.model.ReservaServicio;
+
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import java.util.List;
+import com.autolavado.autolavadomvc.model.ReservaServicio;
 
-@Repository 
-// public class ReservaRepository {
+@Repository
 public interface ReservaRepository extends JpaRepository<ReservaServicio, Long> {
 
-    List<ReservaServicio> findByMatriculaContainingIgnoreCase(String texto); 
- 
-    // TODO 19: Devolver reservas con ese estado
-    List<ReservaServicio> findByEstado(EstadoReserva estado);
-} 
+    List<ReservaServicio> findByMatriculaContainingIgnoreCase(String texto);
+}

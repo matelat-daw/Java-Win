@@ -1,37 +1,35 @@
-package com.autolavado.autolavadomvc.service; 
- 
+package com.autolavado.autolavadomvc.service;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import com.autolavado.autolavadomvc.form.ReservaForm; 
-import com.autolavado.autolavadomvc.model.EstadoReserva;
-import com.autolavado.autolavadomvc.model.TipoServicio;
-import com.autolavado.autolavadomvc.model.ReservaServicio; 
-import com.autolavado.autolavadomvc.repository.ReservaRepository; 
-import org.springframework.stereotype.Service; 
 import java.util.Comparator;
-import java.util.stream.Collectors;
 import java.util.List;
 import java.util.Optional;
- 
-@Service 
-public class ReservaService { 
- 
-    private final ReservaRepository repository; 
- 
-    public ReservaService(ReservaRepository repository) { 
-        this.repository = repository; 
-    } 
- 
-    public List<ReservaServicio> listarReservas() { 
-        return repository.findAll();
-    } 
+import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
+import com.autolavado.autolavadomvc.form.ReservaForm;
+import com.autolavado.autolavadomvc.model.Estado;
+import com.autolavado.autolavadomvc.model.Facturacion;
+import com.autolavado.autolavadomvc.model.ReservaServicio;
+import com.autolavado.autolavadomvc.model.Servicio;
+import com.autolavado.autolavadomvc.repository.EstadoRepository;
+import com.autolavado.autolavadomvc.repository.ReservaRepository;
+import com.autolavado.autolavadomvc.repository.ServicioRepository;
 
-    public List<ReservaServicio> listarReservas(String sortField, String dir) {
-        List<ReservaServicio> list = repository.findAll();
-        return sortList(list, sortField, dir);
+@Service
+public class ReservaService {
+
+    private final ReservaRepository repository;
+    private final ServicioRepository servicioRepository;
+    private final EstadoRepository estadoRepository;
+
+    public ReservaService(ReservaRepository repository, ServicioRepository servicioRepository, EstadoRepository estadoRepository) {
+        this.repository = repository;
+        this.servicioRepository = servicioRepository;
+        this.estadoRepository = estadoRepository;
     }
- 
-    public void crearReserva(ReservaForm form) { 
+
+    public void crearReserva(ReservaForm form) {
         if (!esTelefonoValido(form.getTelefono(), form.isTipoTelefono())) {
             throw new IllegalArgumentException("El formato del teléfono es incorrecto para el tipo seleccionado.");
         }
@@ -39,35 +37,41 @@ public class ReservaService {
             throw new IllegalArgumentException("El formato de la matrícula es incorrecto para el tipo seleccionado.");
         }
 
+        Servicio servicio = servicioRepository.findById(form.getServicioId())
+                .orElseThrow(() -> new IllegalArgumentException("El servicio seleccionado no existe."));
+        Estado estadoPendiente = estadoRepository.findByEstadoIgnoreCase("PENDIENTE")
+                .orElseThrow(() -> new IllegalStateException("No existe el estado PENDIENTE en la base de datos."));
+
         ReservaServicio reserva = new ReservaServicio();
         reserva.setNombreCliente(form.getNombreCliente());
         reserva.setTelefono(form.getTelefono());
-        reserva.setMatricula(form.getMatricula().toUpperCase()); // Pasa a mayúsculas directamente
-        reserva.setTipoServicio(form.getTipoServicio());
+        reserva.setMatricula(form.getMatricula().toUpperCase());
         reserva.setFecha(form.getFecha());
         reserva.setHora(form.getHora());
         reserva.setObservaciones(form.getObservaciones());
-        reserva.setPrecio(calcularPrecio(reserva.getTipoServicio()));
-        reserva.setEstado(EstadoReserva.PENDIENTE);
+        reserva.setEstado(estadoPendiente);
+
+        Facturacion facturacion = new Facturacion();
+        facturacion.setServicio(servicio);
+        facturacion.setCantidad(1);
+        reserva.addFacturacion(facturacion);
+
         repository.save(reserva);
-    } 
- 
-    private BigDecimal calcularPrecio(TipoServicio tipoServicio) {
-        return tipoServicio != null ? tipoServicio.getPrecio() : BigDecimal.ZERO;
-    } 
- 
-    // Filtro optimizado para el método "buscar" del controlador
+    }
+
     public List<ReservaServicio> buscarPorFiltros(String matricula, boolean soloPendientes) {
-        if (!matricula.isBlank() && soloPendientes) {
-            return repository.findByMatriculaContainingIgnoreCase(matricula).stream()
-                    .filter(r -> r.getEstado() == EstadoReserva.PENDIENTE)
+        List<ReservaServicio> reservas = matricula != null && !matricula.isBlank()
+                ? repository.findByMatriculaContainingIgnoreCase(matricula)
+                : repository.findAll();
+
+        if (soloPendientes) {
+            return reservas.stream()
+                    .filter(reserva -> reserva.getEstado() != null
+                            && "PENDIENTE".equalsIgnoreCase(reserva.getEstado().getEstado()))
                     .toList();
-        } else if (!matricula.isBlank()) {
-            return repository.findByMatriculaContainingIgnoreCase(matricula);
-        } else if (soloPendientes) {
-            return repository.findByEstado(EstadoReserva.PENDIENTE);
         }
-        return repository.findAll();
+
+        return reservas;
     }
 
     public List<ReservaServicio> buscarPorFiltros(String matricula, boolean soloPendientes, String sortField, String dir) {
@@ -88,10 +92,10 @@ public class ReservaService {
                 cmp = Comparator.comparing(ReservaServicio::getFecha, Comparator.nullsLast(Comparator.naturalOrder()));
                 break;
             case "precio":
-                cmp = Comparator.comparing(ReservaServicio::getPrecio, Comparator.nullsLast(Comparator.naturalOrder()));
+                cmp = Comparator.comparing(ReservaServicio::getTotal, Comparator.nullsLast(Comparator.naturalOrder()));
                 break;
             case "estado":
-                cmp = Comparator.comparing(r -> r.getEstado() != null ? r.getEstado().name() : "", Comparator.nullsLast(String::compareToIgnoreCase));
+                cmp = Comparator.comparing(reserva -> reserva.getEstado() != null ? reserva.getEstado().getEstado() : "", Comparator.nullsLast(String::compareToIgnoreCase));
                 break;
             default:
                 return list;
@@ -101,51 +105,45 @@ public class ReservaService {
         return list.stream().sorted(cmp).collect(Collectors.toList());
     }
 
-    public List<ReservaServicio> buscarPorMatricula(String matricula) { 
-        return repository.findByMatriculaContainingIgnoreCase(matricula); 
-    } 
-
-    public List<ReservaServicio> buscarPorPendientes() {
-        return repository.findByEstado(EstadoReserva.PENDIENTE);
+    public ReservaServicio buscarPorId(Long id) {
+        return repository.findById(id).orElse(null);
     }
- 
-    public ReservaServicio buscarPorId(Long id) { 
-        return repository.findById(id).orElse(null); 
-    } 
- 
-    public boolean iniciarReserva(Long id) { 
+
+    public boolean iniciarReserva(Long id) {
         Optional<ReservaServicio> optionalReserva = repository.findById(id);
         if (optionalReserva.isPresent()) {
             ReservaServicio reserva = optionalReserva.get();
-            if (reserva.getEstado() == EstadoReserva.PENDIENTE) {
-                reserva.setEstado(EstadoReserva.EN_PROCESO);
-                repository.save(reserva); // Descomentado: Impacta directamente el cambio en MariaDB
+            if (reserva.getEstado() != null && "PENDIENTE".equalsIgnoreCase(reserva.getEstado().getEstado())) {
+                reserva.setEstado(obtenerEstado("EN_PROCESO"));
+                repository.save(reserva);
                 return true;
             }
         }
         return false;
     }
 
-    public boolean finalizarReserva(Long id) { 
+    public boolean finalizarReserva(Long id) {
         Optional<ReservaServicio> optionalReserva = repository.findById(id);
         if (optionalReserva.isPresent()) {
             ReservaServicio reserva = optionalReserva.get();
-            if (reserva.getEstado() == EstadoReserva.EN_PROCESO) {
-                reserva.setEstado(EstadoReserva.FINALIZADO);
-                repository.save(reserva); // Descomentado: Impacta directamente el cambio en MariaDB
+            if (reserva.getEstado() != null && "EN_PROCESO".equalsIgnoreCase(reserva.getEstado().getEstado())) {
+                reserva.setEstado(obtenerEstado("FINALIZADO"));
+                repository.save(reserva);
                 return true;
             }
         }
         return false;
     }
 
-    public long contarReservas() { 
-        return repository.count(); // count() de JPA devuelve un tipo primitivo long
-    } 
- 
-    public long contarPendientes() { 
-        return repository.findByEstado(EstadoReserva.PENDIENTE).size(); 
-    } 
+    public long contarReservas() {
+        return repository.count();
+    }
+
+    public long contarPendientes() {
+        return repository.findAll().stream()
+                .filter(reserva -> reserva.getEstado() != null && "PENDIENTE".equalsIgnoreCase(reserva.getEstado().getEstado()))
+                .count();
+    }
 
     public boolean esTelefonoValido(String telefono, boolean tipoTelefono) {
         if (telefono == null) return false;
@@ -169,11 +167,16 @@ public class ReservaService {
         return normalizada.matches("^[A-Z0-9]{5,12}$");
     }
  
-    public BigDecimal calcularIngresosTotales() { 
+    public BigDecimal calcularIngresosTotales() {
         return repository.findAll().stream()
-            .map(ReservaServicio::getPrecio)
-            .filter(java.util.Objects::nonNull)
-            .reduce(BigDecimal.ZERO, BigDecimal::add)
-            .setScale(2, RoundingMode.HALF_UP);
-    } 
+                .map(ReservaServicio::getTotal)
+                .filter(java.util.Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private Estado obtenerEstado(String nombreEstado) {
+        return estadoRepository.findByEstadoIgnoreCase(nombreEstado)
+                .orElseThrow(() -> new IllegalStateException("No existe el estado " + nombreEstado + " en la base de datos."));
+    }
 }

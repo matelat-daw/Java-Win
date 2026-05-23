@@ -2,8 +2,8 @@ package com.autolavado.autolavadomvc.controller;
  
 import com.autolavado.autolavadomvc.form.ReservaForm; 
 import com.autolavado.autolavadomvc.model.ReservaServicio;
-import com.autolavado.autolavadomvc.model.TipoServicio;
 import com.autolavado.autolavadomvc.service.ReservaService; 
+import com.autolavado.autolavadomvc.service.CatalogoServiciosService;
 import jakarta.validation.Valid; 
 import org.springframework.stereotype.Controller; 
 import org.springframework.ui.Model; 
@@ -16,9 +16,11 @@ import java.util.List;
 public class ReservaController { 
  
     private final ReservaService service; 
+    private final CatalogoServiciosService catalogoServiciosService;
  
-    public ReservaController(ReservaService service) { 
+    public ReservaController(ReservaService service, CatalogoServiciosService catalogoServiciosService) { 
         this.service = service; 
+        this.catalogoServiciosService = catalogoServiciosService;
     }
 
     @GetMapping("/") 
@@ -41,19 +43,16 @@ public class ReservaController {
     } 
  
     @GetMapping("/reservas/nueva") 
-    public String formulario(Model model, @RequestParam(required = false) String tipoServicio) { 
+    public String formulario(Model model, @RequestParam(required = false) Integer servicioId) { 
         ReservaForm form = new ReservaForm();
 
-        if (tipoServicio != null && !tipoServicio.isBlank()) {
-            try {
-                form.setTipoServicio(TipoServicio.valueOf(tipoServicio));
-            } catch (IllegalArgumentException ex) {
-                // Ignorar si el valor no coincide con el enum.
-            }
+        if (servicioId != null) {
+            form.setServicioId(servicioId);
         }
 
         model.addAttribute("reservaForm", form);
-        model.addAttribute("tipoServicioLocked", form.getTipoServicio() != null);
+        model.addAttribute("servicios", catalogoServiciosService.listarServicios());
+        model.addAttribute("servicioLocked", form.getServicioId() != null);
         return "reservas/formulario";
     } 
  
@@ -71,7 +70,8 @@ public class ReservaController {
             resultado.rejectValue("matricula", "matricula.formato", "La matrícula no coincide con el tipo seleccionado");
         }
         if (resultado.hasErrors()) {
-            model.addAttribute("tipoServicioLocked", form.getTipoServicio() != null);
+            model.addAttribute("servicios", catalogoServiciosService.listarServicios());
+            model.addAttribute("servicioLocked", form.getServicioId() != null);
             return "reservas/formulario";
         }
 
@@ -98,7 +98,6 @@ public class ReservaController {
         return "reservas/lista";
     } 
  
-    // Cambiado de Long a BigInteger para coincidir con tu ID de MariaDB
     @GetMapping("/reservas/{id}") 
     public String detalle(@PathVariable Long id, Model model, RedirectAttributes attr) { 
         ReservaServicio reserva = service.buscarPorId(id);
@@ -112,7 +111,6 @@ public class ReservaController {
         return "reservas/detalle";
     } 
  
-    // Cambiado de Long a BigInteger
     @PostMapping("/reservas/{id}/iniciar") 
     public String iniciar(@PathVariable Long id, RedirectAttributes attr) { 
         try {
@@ -124,7 +122,6 @@ public class ReservaController {
         return "redirect:/reservas"; 
     }
 
-    // Cambiado de Long a BigInteger
     @PostMapping("/reservas/{id}/finalizar")
     public String finalizar(@PathVariable Long id, RedirectAttributes attr) { 
         try {

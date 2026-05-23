@@ -8,7 +8,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.FutureOrPresent;
-import com.autolavado.autolavadomvc.model.TipoServicio;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -39,9 +38,9 @@ public class ReservaForm {
     @Size(min = 6, max = 12, message = "La matrícula debe tener entre 6 y 12 caracteres")
     private String matricula;
 
-    // TODO 8: tipoServicio debe ser obligatorio.
+    // Servicio seleccionado desde la base de datos.
     @NotNull(message = "El tipo de servicio es obligatorio")
-    private TipoServicio tipoServicio;
+    private Integer servicioId;
 
     // TODO 9: fecha debe ser obligatoria y no puede ser anterior a hoy.
     @NotNull(message = "La fecha es obligatoria")
