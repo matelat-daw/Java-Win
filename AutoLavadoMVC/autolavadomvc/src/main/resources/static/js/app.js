@@ -24,8 +24,35 @@ function esMatriculaValida(matricula, tipoMatricula) {
     return /^[A-Z0-9]{5,12}$/.test(normalizada);
 }
 
+function iniciarModalServicio() {
+    const servicioImagenModal = document.getElementById('servicioImagenModal');
+    if (!servicioImagenModal) return;
+
+    servicioImagenModal.addEventListener('show.bs.modal', function (event) {
+        const trigger = event.relatedTarget;
+        const imagen = trigger.getAttribute('data-imagen');
+        const titulo = trigger.getAttribute('data-titulo');
+        const modalImg = document.getElementById('servicioImagenModalImg');
+        const modalTitle = document.getElementById('servicioImagenModalLabel');
+        const basePath = window.APP_BASE || '/';
+
+        modalImg.src = `${basePath}imgs/${imagen}`;
+        modalImg.alt = titulo;
+        modalTitle.textContent = titulo;
+    });
+
+    servicioImagenModal.addEventListener('hidden.bs.modal', function () {
+        const modalImg = document.getElementById('servicioImagenModalImg');
+        modalImg.src = '';
+        modalImg.alt = 'Imagen del servicio';
+        document.getElementById('servicioImagenModalLabel').textContent = 'Imagen ampliada';
+    });
+}
+
 // 2. Inicialización del DOM
 document.addEventListener('DOMContentLoaded', () => {
+    iniciarModalServicio();
+
     const form = document.getElementById('reserva-form');
     if (!form) return;
 
