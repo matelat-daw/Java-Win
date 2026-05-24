@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head('Servicios Ofrecidos')}"></head>
-<link rel="stylesheet" th:href="@{/css/style.css}">
+<head th:replace="~{fragments/head :: head('Servicios Ofrecidos')}">
 <body class="d-flex flex-column min-vh-100">
 <nav th:replace="~{fragments/navbar :: navbar}"></nav>
-<main class="flex-grow-1">
+<main class="flex-grow-1 d-flex align-items-center py-5">
     <div class="container my-4">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
             <div>
@@ -70,3 +69,5 @@
     </div>
 </main>
 <footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

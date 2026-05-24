@@ -1,25 +1,30 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head('Auto Lavado - Home')}"></head>
+<html lang="es" xmlns:th="http://thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Auto Lavado - Home')}">
+<body class="d-flex flex-column min-vh-100">
 <nav th:replace="~{fragments/navbar :: navbar}"></nav>
-<main class="flex-grow-1">
-    <div class="container my-5">
+<main class="flex-grow-1 d-flex align-items-center py-5">
+    <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-8 text-center">
-                <div class="card shadow-lg border-0 overflow-hidden hero-card-bg">
-                    <div class="bg-dark bg-opacity-50 text-white p-4 p-md-5 d-flex flex-column justify-content-center h-100">
-                        <h1 class="display-4 mb-3 fw-semibold hero-text-shadow">¡Bienvenido a Auto Lavado!</h1>
-                        <p class="lead mb-4 hero-text-shadow">Tu solución integral para el cuidado de tu vehículo.</p>
+                <div class="card shadow-lg border-0 overflow-hidden min-vh-50" 
+                     th:style="'background-image: url(' + @{/imgs/logo.webp} + '); background-size: cover; background-position: center; background-repeat: no-repeat;'">
+                    <div class="bg-dark bg-opacity-50 text-white p-4 p-md-5 d-flex flex-column justify-content-center flex-grow-1">
+                        <h1 class="display-4 mb-3 fw-semibold" style="text-shadow: 0 2px 6px rgba(0,0,0,0.95);">¡Bienvenido a Auto Lavado!</h1>
+                        <p class="lead mb-4" style="text-shadow: 0 2px 6px rgba(0,0,0,0.95);">Tu solución integral para el cuidado de tu vehículo.</p>
                         <hr class="my-4 border-light opacity-75">
-                        <p class="mb-4 fs-5 hero-text-shadow">Explora nuestros servicios, reserva tu cita y mantén tu auto impecable.</p>
+                        <p class="mb-4 fs-5" style="text-shadow: 0 2px 6px rgba(0,0,0,0.95);">Explora nuestros servicios, reserva tu cita y mantén tu auto impecable.</p>
                         <div>
-                            <a class="btn btn-primary btn-lg fw-semibold px-4 py-3 rounded-3 hero-cta me-2" th:href="@{/reservas/nueva}" role="button">Reserva Ahora</a>
-                            <a class="btn btn-success btn-lg fw-semibold px-4 py-3 rounded-3 hero-cta" th:href="@{/reservas/servicios}" role="button">Ver servicios</a>
+                            <a class="btn btn-primary btn-lg fw-semibold px-4 py-3 rounded-3 shadow me-2" th:href="@{/reservas/nueva}" role="button">Reserva Ahora</a>
+                            <a class="btn btn-success btn-lg fw-semibold px-4 py-3 rounded-3 shadow" th:href="@{/reservas/servicios}" role="button">Ver servicios</a>
                         </div>
                     </div>
                 </div>
+                
             </div>
         </div>
     </div>
 </main>
 <footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

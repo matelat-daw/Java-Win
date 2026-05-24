@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head('Lista de Reservas')}"></head>
+<head th:replace="~{fragments/head :: head('Lista de Reservas')}">
+<body class="d-flex flex-column min-vh-100">
 <nav th:replace="~{fragments/navbar :: navbar}"></nav>
-<main class="flex-grow-1">
+<main class="flex-grow-1 d-flex align-items-center py-5">
     <div class="container my-4">
         <h2 class="mb-4">Reservas del Autolavado</h2>
         <!-- TODO 52: mostrar mensaje de éxito si existe -->
@@ -96,3 +97,5 @@
     </div>
 </main>
 <footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>
