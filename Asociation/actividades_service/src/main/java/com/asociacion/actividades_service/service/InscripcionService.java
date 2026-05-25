@@ -19,10 +19,14 @@ public class InscripcionService {
     }
 
     public Optional<Inscripcion> getInscripcionById(Integer id) {
-        return repository.findById(id).orElse(null);
+        return repository.findById(id);
     }
 
-    public void crearInscripcion(Inscripcion inscripcion) {
-        repository.save(inscripcion);
+    public Inscripcion inscribirSocio(Inscripcion inscripcion) {
+        return repository.save(inscripcion);
+    }
+
+    public Inscripcion crearInscripcion(Inscripcion inscripcion) {
+        return repository.save(inscripcion);
     }
 }

@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.ui.Model;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.RequestMapping;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/actividades")
@@ -25,14 +28,14 @@ public class ActividadesController {
         return ResponseEntity.ok(service.getAllActividades());
     }
 
-    @GetMapping("/actividades/{id}")
+    @GetMapping("{id}")
     public ResponseEntity<Actividad> getActividadesById(@PathVariable Integer id) {
         return service.getActividadesById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/actividades/nueva")
+    @PostMapping("nueva")
     public ResponseEntity<Actividad> createActividades(@RequestBody Actividad actividad) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.crearActividades(actividad));
     }

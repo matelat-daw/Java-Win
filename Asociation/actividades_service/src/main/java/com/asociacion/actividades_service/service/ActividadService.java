@@ -20,10 +20,14 @@ public class ActividadService {
     }
 
     public Optional<Actividad> getActividadById(Integer id) {
-        return repository.findById(id).orElse(null);
+        return repository.findById(id);
     }
 
-    public void crearActividades(Actividad actividad) {
-        repository.save(actividad);
+    public Optional<Actividad> getActividadesById(Integer id) {
+        return getActividadById(id);
+    }
+
+    public Actividad crearActividades(Actividad actividad) {
+        return repository.save(actividad);
     }
 }
