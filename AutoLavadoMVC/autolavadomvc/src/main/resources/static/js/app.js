@@ -24,6 +24,20 @@ function esMatriculaValida(matricula, tipoMatricula) {
     return /^[A-Z0-9]{5,12}$/.test(normalizada);
 }
 
+function normalizarRutaImagenServicio(imagen) {
+    if (!imagen) return '';
+    if (/^(?:[a-z]+:)?\/\//i.test(imagen) || imagen.startsWith('data:')) {
+        return imagen;
+    }
+
+    const basePath = window.APP_BASE || '/';
+    const basePathNormalizada = basePath.endsWith('/') ? basePath : `${basePath}/`; 
+    const rutaRelativa = imagen.replace(/^\/+/, '');
+    const rutaFinal = rutaRelativa.startsWith('imgs/') ? rutaRelativa : `imgs/${rutaRelativa}`;
+
+    return `${basePathNormalizada}${rutaFinal}`;
+}
+
 function iniciarModalServicio() {
     const servicioImagenModal = document.getElementById('servicioImagenModal');
     if (!servicioImagenModal) return;
@@ -34,9 +48,8 @@ function iniciarModalServicio() {
         const titulo = trigger.getAttribute('data-titulo');
         const modalImg = document.getElementById('servicioImagenModalImg');
         const modalTitle = document.getElementById('servicioImagenModalLabel');
-        const basePath = window.APP_BASE || '/';
 
-        modalImg.src = `${basePath}imgs/${imagen}`;
+        modalImg.src = normalizarRutaImagenServicio(imagen);
         modalImg.alt = titulo;
         modalTitle.textContent = titulo;
     });

@@ -25,9 +25,9 @@
                            data-bs-target="#servicioImagenModal"
                            th:if="${servicio.imagen != null and !#strings.isEmpty(servicio.imagen)}"
                            th:attr="data-imagen=${servicio.imagen},data-titulo=${servicio.servicio}">
-                            <img class="w-100 h-100 object-fit-cover servicio-preview-image"
-                                 th:src="@{/imgs/{imagen}(imagen=${servicio.imagen})}"
-                                 th:alt="${servicio.servicio}">
+                               <img class="w-100 h-100 object-fit-cover servicio-preview-image"
+                                   th:src="@{/imgs/{imagen}(imagen=${servicio.imagen})}"
+                                   th:alt="${servicio.servicio}">
                         </a>
                         <div class="d-flex align-items-center justify-content-center text-muted small"
                              th:if="${servicio.imagen == null or #strings.isEmpty(servicio.imagen)}">
