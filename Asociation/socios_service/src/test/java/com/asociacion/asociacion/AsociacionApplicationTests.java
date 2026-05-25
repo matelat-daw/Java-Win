@@ -1,4 +1,4 @@
-package com.asociacion.socios_service;
+package com.asociacion.asociacion;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
