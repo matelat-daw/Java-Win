@@ -1,0 +1,3 @@
+The following files have been resolved:
+   org.mariadb.jdbc:mariadb-java-client:jar:3.5.8:runtime[36m -- module org.mariadb.jdbc[m
+
