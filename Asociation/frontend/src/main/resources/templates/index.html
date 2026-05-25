@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Gestión</title>
+    <!-- CSS de Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <div class="container mt-5">
+        <div class="p-5 mb-4 bg-white rounded-3 shadow-sm border">
+            <div class="container-fluid py-5 text-center">
+                <h1 class="display-5 fw-bold text-primary">Sistema de Asociación</h1>
+                <p class="col-md-8 mx-auto fs-5 text-muted mt-3">
+                    Bienvenido al frontend de gestión. Desde aquí puedes administrar los datos de los módulos alojados en la red de microservicios a través de la API Gateway.
+                </p>
+                <div class="mt-4">
+                    <!-- Botón estilizado de Bootstrap -->
+                    <a th:href="@{/socios}" class="btn btn-primary btn-lg px-4 gap-3 shadow-sm">
+                        <i class="bi bi-people-fill"></i> Gestionar Socios
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Opcional de Bootstrap por si usas componentes interactivos más adelante -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" defer></script>
+</body>
+</html>
