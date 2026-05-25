@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auto Lavado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link id="app-style-css" rel="stylesheet" href="" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script>
+      (() => {
+        const samePortAsApi = window.location.port === "8085";
+        if (!window.APP_API_BASE) {
+          window.APP_API_BASE = samePortAsApi ? "" : "http://localhost:8085";
+        }
+        if (!window.APP_ASSET_BASE) {
+          window.APP_ASSET_BASE = window.APP_API_BASE || "";
+        }
+        const cssLink = document.getElementById("app-style-css");
+        if (cssLink) {
+          cssLink.href = `${window.APP_ASSET_BASE || ""}/css/style.css`;
+        }
+      })();
+    </script>
+    <style>
+      body {
+        background: #f6f8fc;
+      }
+    </style>
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body class="d-flex flex-column min-vh-100 bg-light">
+    <div id="navbar-outlet"></div>
+    <main id="app-outlet" class="flex-grow-1"></main>
+    <footer class="mt-auto py-4 bg-dark text-white-50">
+      <div class="container small">Auto Lavado</div>
+    </footer>
+    <div id="toast-outlet" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080"></div>
+  </body>
+</html>

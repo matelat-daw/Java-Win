@@ -1,0 +1,25 @@
+<div class="container pb-4">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+    <div>
+      <h2 class="mb-0">Servicios</h2>
+      <div class="text-muted">Catálogo</div>
+    </div>
+    <a class="btn btn-primary" href="/reservas/nueva" data-link>Nueva reserva</a>
+  </div>
+
+  <div class="row g-3" data-servicios></div>
+
+  <div class="modal fade" id="servicioImagenModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title" id="servicioImagenModalLabel">Imagen ampliada</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body pt-2">
+          <img id="servicioImagenModalImg" class="img-fluid w-100 rounded-3 object-fit-cover" src="" alt="Imagen del servicio" />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

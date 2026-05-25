@@ -1,0 +1,83 @@
+<div class="container pb-4">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+    <div>
+      <h2 class="mb-0">Nueva reserva</h2>
+      <div class="text-muted">Crear</div>
+    </div>
+    <a class="btn btn-outline-secondary" href="/reservas" data-link>Volver</a>
+  </div>
+
+  <form class="card shadow-sm border-0" data-form>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <label class="form-label">Nombre</label>
+          <input class="form-control" type="text" name="nombreCliente" id="nombreCliente" />
+          <div class="invalid-feedback" data-error="nombreCliente"></div>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label">Teléfono</label>
+          <input class="form-control" type="text" name="telefono" id="telefono" />
+          <div class="invalid-feedback" data-error="telefono"></div>
+          <div class="form-text">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="tipoTelefono" id="tipoTelefonoEsp" value="true" checked />
+              <label class="form-check-label" for="tipoTelefonoEsp">España</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="tipoTelefono" id="tipoTelefonoInt" value="false" />
+              <label class="form-check-label" for="tipoTelefonoInt">Internacional</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label">Matrícula</label>
+          <input class="form-control font-monospace" type="text" name="matricula" id="matricula" />
+          <div class="invalid-feedback" data-error="matricula"></div>
+          <div class="form-text">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="tipoMatricula" id="tipoMatriculaEsp" value="true" checked />
+              <label class="form-check-label" for="tipoMatriculaEsp">Nacional</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="tipoMatricula" id="tipoMatriculaExt" value="false" />
+              <label class="form-check-label" for="tipoMatriculaExt">Extranjera</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label">Servicio</label>
+          <select class="form-select" name="servicioId" id="servicioId">
+            <option value="">Selecciona...</option>
+          </select>
+          <div class="invalid-feedback" data-error="servicioId"></div>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label">Fecha</label>
+          <input class="form-control" type="date" name="fecha" id="fecha" />
+          <div class="invalid-feedback" data-error="fecha"></div>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label">Hora</label>
+          <input class="form-control" type="time" name="hora" id="hora" />
+          <div class="invalid-feedback" data-error="hora"></div>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label">Observaciones</label>
+          <textarea class="form-control" name="observaciones" id="observaciones" rows="3" maxlength="200"></textarea>
+          <div class="invalid-feedback" data-error="observaciones"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-footer bg-white border-0 d-flex justify-content-end gap-2">
+      <button class="btn btn-primary" type="submit">Guardar</button>
+    </div>
+  </form>
+</div>
+
