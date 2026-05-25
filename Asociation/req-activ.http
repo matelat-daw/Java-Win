@@ -1,0 +1,9 @@
+POST http://localhost:8080/api/v1/actividades
+Content-Type: application/json
+
+{
+  "titulo": "Taller de apoyo escolar",
+  "descripcion": "Actividad semanal de apoyo a estudiantes",
+  "fecha": "2026-06-15",
+  "plazas": 20
+}

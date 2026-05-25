@@ -18,9 +18,9 @@ import java.time.LocalDate;
 public class Inscripcion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    private int actividadId;
-    private int socioId;
+    private Integer id;
+    private Integer actividadId;
+    private Integer socioId;
     private String nombreSocio;
     private LocalDate fechaInscripcion;
 }

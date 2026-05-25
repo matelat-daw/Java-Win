@@ -1,0 +1,9 @@
+POST http://localhost:8080/api/v1/socios
+Content-Type: application/json
+
+{
+  "nombre": "Carlos Gómez",
+  "email": "carlos@asociacion.org",
+  "telefono": "654321098",
+  "estado": "ACTIVO"
+}

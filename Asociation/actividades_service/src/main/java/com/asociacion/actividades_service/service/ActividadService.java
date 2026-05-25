@@ -22,11 +22,7 @@ public class ActividadService {
         return repository.findById(id);
     }
 
-    public Optional<Actividad> getActividadesById(Integer id) {
-        return getActividadById(id);
-    }
-
-    public Actividad crearActividades(Actividad actividad) {
+    public Actividad crearActividad(Actividad actividad) {
         return repository.save(actividad);
     }
 }

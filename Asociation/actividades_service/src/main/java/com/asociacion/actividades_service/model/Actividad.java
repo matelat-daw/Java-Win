@@ -18,7 +18,7 @@ import java.time.LocalDate;
 public class Actividad {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     private String titulo;
     private String descripcion;
     private LocalDate fecha;

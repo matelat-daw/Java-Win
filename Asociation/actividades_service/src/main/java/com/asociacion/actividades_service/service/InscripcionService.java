@@ -25,8 +25,4 @@ public class InscripcionService {
     public Inscripcion inscribirSocio(Inscripcion inscripcion) {
         return repository.save(inscripcion);
     }
-
-    public Inscripcion crearInscripcion(Inscripcion inscripcion) {
-        return repository.save(inscripcion);
-    }
 }

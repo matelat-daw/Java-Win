@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/actividades")
 public class ActividadesController {
-    public ActividadService service;
+    private ActividadService service;
 
     public ActividadesController(ActividadService service) {
         this.service = service;
@@ -26,15 +26,15 @@ public class ActividadesController {
         return ResponseEntity.ok(service.getAllActividades());
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity<Actividad> getActividadesById(@PathVariable Integer id) {
-        return service.getActividadesById(id)
+    @GetMapping("/{id}")
+    public ResponseEntity<Actividad> getActividadById(@PathVariable Integer id) {
+        return service.getActividadById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("nueva")
-    public ResponseEntity<Actividad> createActividades(@RequestBody Actividad actividad) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.crearActividades(actividad));
+    @PostMapping
+    public ResponseEntity<Actividad> createActividad(@RequestBody Actividad actividad) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.crearActividad(actividad));
     }
 }
