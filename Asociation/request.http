@@ -1,9 +1,9 @@
-POST http://localhost:8088/api/v1/actividades
+POST http://localhost:8081/api/v1/socios
 Content-Type: application/json
 
 {
-"titulo": "Taller de Desarrollo WEB",
-"descripcion": "Actividad 3 días a la semana para estudiantes",
-"fecha": "2026-06-15",
-"plazas": 15
+"nombre": "César Matelat",
+"email": "cesar@asociacion.org",
+"telefono": "664774821",
+"estado": "ACTIVO"
 }
