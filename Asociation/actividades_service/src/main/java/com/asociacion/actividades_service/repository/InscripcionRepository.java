@@ -7,5 +7,5 @@ import java.util.List;
 
 @Repository
 public interface InscripcionRepository extends JpaRepository<Inscripcion, Integer> {
-    List<Inscripcion> findByActividadId(Integer actividadId);
+    List<Inscripcion> findByActividad_Id(Integer actividadId);
 }
