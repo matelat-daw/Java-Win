@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.asociacion</groupId>
-	<artifactId>frontend</artifactId>
+	<artifactId>web-ui-thymeleaf</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>frontend</name>
+	<name>web-ui-thymeleaf</name>
 	<description/>
 	<url/>
 	<licenses>

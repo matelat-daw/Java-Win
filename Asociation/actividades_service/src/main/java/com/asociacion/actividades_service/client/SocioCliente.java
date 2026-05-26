@@ -9,5 +9,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface SocioCliente {
     
     @GetMapping("/api/v1/socios/{id}")
-    SocioDto buscarSocio(@PathVariable("id") int id);
+    SocioDto buscarSocio(@PathVariable("id") Integer id);
 }

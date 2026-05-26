@@ -17,9 +17,11 @@
                     Bienvenido al frontend de gestión. Desde aquí puedes administrar los datos de los módulos alojados en la red de microservicios a través de la API Gateway.
                 </p>
                 <div class="mt-4">
-                    <!-- Botón estilizado de Bootstrap -->
-                    <a th:href="@{/socios}" class="btn btn-primary btn-lg px-4 gap-3 shadow-sm">
+                    <a th:href="@{/socios}" class="btn btn-primary btn-lg px-4 gap-3 shadow-sm me-2">
                         <i class="bi bi-people-fill"></i> Gestionar Socios
+                    </a>
+                    <a th:href="@{/actividades}" class="btn btn-success btn-lg px-4 gap-3 shadow-sm">
+                        <i class="bi bi-calendar-event"></i> Ver Actividades
                     </a>
                 </div>
             </div>
