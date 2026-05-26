@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Clínica Veterinaria | Inicio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/estilos.css}">
+</head>
+
+<body class="app-shell">
+    <div class="hero-blob hero-blob-a"></div>
+    <div class="hero-blob hero-blob-b"></div>
+    <header class="navbar navbar-expand-lg navbar-dark vet-navbar shadow-sm position-relative" style="z-index: 2;">
+        <div class="container">
+            <a class="navbar-brand fw-bold" th:href="@{/}">ClinicaMVC</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navClinica" aria-controls="navClinica" aria-expanded="false" aria-label="Navegación">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navClinica">
+                <div class="navbar-nav ms-auto gap-2">
+                    <a class="nav-link active" th:href="@{/}">Inicio</a>
+                    <a class="nav-link" th:href="@{/mascotas}">Mascotas</a>
+                    <a class="btn btn-light btn-sm fw-semibold ms-lg-2" th:href="@{/mascotas/nueva}">Nueva mascota</a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="container py-5 position-relative">
+        <div class="row justify-content-center align-items-center min-vh-100 py-4">
+            <div class="col-12 col-lg-10 col-xxl-9">
+                <div class="card border-0 shadow-lg overflow-hidden hero-card">
+                    <div class="row g-0">
+                        <div class="col-lg-6 p-4 p-md-5 hero-copy text-white">
+                            <span class="badge rounded-pill text-bg-light text-success-emphasis mb-3 px-3 py-2">Clínica veterinaria</span>
+                            <h1 class="display-5 fw-bold mb-3">Cuidamos a tus mascotas con cariño y orden.</h1>
+                            <p class="lead mb-4 opacity-90">Gestiona pacientes, controla su estado y accede a sus detalles desde una experiencia clara y agradable.</p>
+                            <div class="d-flex flex-wrap gap-3">
+                                <a class="btn btn-light btn-lg fw-semibold" th:href="@{/mascotas}">Ver mascotas</a>
+                                <a class="btn btn-outline-light btn-lg fw-semibold" th:href="@{/mascotas/nueva}">Nueva mascota</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 bg-body-tertiary p-4 p-md-5 d-flex align-items-center">
+                            <div class="w-100">
+                                <div class="d-flex align-items-center justify-content-between mb-4">
+                                    <div>
+                                        <p class="text-uppercase text-success fw-semibold small mb-1">Bienvenido a ClinicaMVC</p>
+                                        <h2 class="h3 mb-0">Tu panel de atención</h2>
+                                    </div>
+                                    <div class="icon-badge">🐾</div>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <div class="p-4 rounded-4 info-panel">
+                                            <h3 class="h5 fw-bold">Estado de tus mascotas</h3>
+                                            <p class="mb-0 text-body-secondary">Consulta registros, atiende pendientes y revisa cada ficha en un solo lugar.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="p-4 rounded-4 stat-card">
+                                            <div class="fw-semibold text-success mb-1">Rápido</div>
+                                            <div class="small text-body-secondary">Acceso directo a la lista de pacientes.</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="p-4 rounded-4 stat-card">
+                                            <div class="fw-semibold text-success mb-1">Simple</div>
+                                            <div class="small text-body-secondary">Alta de mascotas en segundos.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

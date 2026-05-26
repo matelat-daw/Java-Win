@@ -1,0 +1,164 @@
+:root {
+    --vet-forest: #1f6f5b;
+    --vet-forest-dark: #185846;
+    --vet-sage: #dff3ea;
+    --vet-cream: #f8f7f2;
+    --vet-ink: #183028;
+    --vet-accent: #f7b267;
+}
+
+body.app-shell {
+    min-height: 100vh;
+    color: var(--vet-ink);
+    background:
+        radial-gradient(circle at top left, rgba(31, 111, 91, 0.14), transparent 28%),
+        radial-gradient(circle at right 12%, rgba(247, 178, 103, 0.16), transparent 24%),
+        linear-gradient(180deg, #fbfcfb 0%, #eef7f3 100%);
+}
+
+.vet-navbar {
+    background: linear-gradient(135deg, var(--vet-forest-dark), var(--vet-forest));
+}
+
+.hero-card {
+    border-radius: 2rem;
+}
+
+.hero-copy {
+    background:
+        linear-gradient(135deg, rgba(24, 88, 70, 0.96), rgba(31, 111, 91, 0.94)),
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.14), transparent 40%);
+}
+
+.hero-blob {
+    position: fixed;
+    border-radius: 999px;
+    filter: blur(28px);
+    opacity: 0.85;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.hero-blob-a {
+    top: -60px;
+    left: -40px;
+    width: 220px;
+    height: 220px;
+    background: rgba(31, 111, 91, 0.12);
+}
+
+.hero-blob-b {
+    bottom: 20px;
+    right: 30px;
+    width: 260px;
+    height: 260px;
+    background: rgba(247, 178, 103, 0.14);
+}
+
+.icon-badge {
+    width: 3.25rem;
+    height: 3.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(10px);
+    font-size: 1.4rem;
+}
+
+.info-panel,
+.stat-card,
+.detail-box {
+    border: 1px solid rgba(31, 111, 91, 0.12);
+    background: rgba(255, 255, 255, 0.82);
+    box-shadow: 0 12px 30px rgba(17, 53, 43, 0.08);
+}
+
+.empty-state {
+    border: 2px dashed rgba(31, 111, 91, 0.2);
+    border-radius: 1.5rem;
+    background: rgba(255, 255, 255, 0.78);
+}
+
+.empty-icon {
+    font-size: 3rem;
+}
+
+.species-pill,
+.status-pill {
+    letter-spacing: 0.02em;
+}
+
+.detail-box {
+    border-radius: 1rem;
+    padding: 1rem 1.1rem;
+}
+
+.detail-label {
+    display: block;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #5c746b;
+    margin-bottom: 0.4rem;
+    font-weight: 700;
+}
+
+.detail-value {
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+table.table thead th {
+    font-size: 0.88rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.table > :not(caption) > * > * {
+    padding: 1rem 1rem;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(31, 111, 91, 0.05);
+}
+
+.btn-success {
+    background-color: var(--vet-forest);
+    border-color: var(--vet-forest);
+}
+
+.btn-success:hover,
+.btn-success:focus {
+    background-color: var(--vet-forest-dark);
+    border-color: var(--vet-forest-dark);
+}
+
+.text-success {
+    color: var(--vet-forest) !important;
+}
+
+.form-control,
+.form-select {
+    border-radius: 0.9rem;
+    border-color: rgba(31, 111, 91, 0.16);
+    padding-top: 0.9rem;
+    padding-bottom: 0.9rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: rgba(31, 111, 91, 0.45);
+    box-shadow: 0 0 0 0.22rem rgba(31, 111, 91, 0.14);
+}
+
+.alert {
+    border-radius: 1rem;
+}
+
+@media (max-width: 991.98px) {
+    .hero-copy {
+        border-radius: 1.75rem 1.75rem 0 0;
+    }
+}

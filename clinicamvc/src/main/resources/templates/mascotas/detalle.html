@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Detalle de mascota | Clínica Veterinaria</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/estilos.css}">
+</head>
+
+<body class="app-shell">
+    <header class="navbar navbar-expand-lg navbar-dark vet-navbar shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" th:href="@{/}">ClinicaMVC</a>
+            <div class="navbar-nav ms-auto gap-2">
+                <a class="nav-link" th:href="@{/}">Inicio</a>
+                <a class="nav-link" th:href="@{/mascotas}">Mascotas</a>
+                <a class="btn btn-light btn-sm fw-semibold ms-lg-2" th:href="@{/mascotas/nueva}">Nueva mascota</a>
+            </div>
+        </div>
+    </header>
+    <main class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-8 col-xl-7">
+                <div class="card border-0 shadow-lg overflow-hidden">
+                    <div class="card-header bg-success text-white border-0 p-4 p-md-5">
+                        <p class="text-uppercase small mb-1 opacity-75">Ficha clínica</p>
+                        <h1 class="h2 fw-bold mb-0">Detalle de la mascota</h1>
+                    </div>
+                    <div class="card-body p-4 p-md-5">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="detail-box">
+                                    <span class="detail-label">ID</span>
+                                    <span class="detail-value" th:text="${mascota.id}"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-box">
+                                    <span class="detail-label">Estado</span>
+                                    <span class="detail-value">
+                                        <span class="badge rounded-pill status-pill" th:classappend="${mascota.estado == 'PENDIENTE'} ? 'text-bg-warning' : 'text-bg-success'" th:text="${mascota.estado}"></span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="detail-box">
+                                    <span class="detail-label">Nombre</span>
+                                    <span class="detail-value" th:text="${mascota.nombre}"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-box">
+                                    <span class="detail-label">Especie</span>
+                                    <span class="detail-value" th:text="${mascota.especie}"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-box">
+                                    <span class="detail-label">Propietario</span>
+                                    <span class="detail-value" th:text="${mascota.propietario}"></span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="detail-box">
+                                    <span class="detail-label">Teléfono</span>
+                                    <span class="detail-value" th:text="${mascota.telefono}"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column flex-sm-row gap-3 mt-4">
+                            <a class="btn btn-outline-success btn-lg flex-fill" th:href="@{/mascotas}">Volver</a>
+                            <a class="btn btn-success btn-lg flex-fill" th:href="@{/mascotas/nueva}">Nueva mascota</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

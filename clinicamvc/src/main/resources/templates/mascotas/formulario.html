@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Nueva mascota | Clínica Veterinaria</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/estilos.css}">
+</head>
+
+<body class="app-shell">
+    <header class="navbar navbar-expand-lg navbar-dark vet-navbar shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" th:href="@{/}">ClinicaMVC</a>
+            <div class="navbar-nav ms-auto gap-2">
+                <a class="nav-link" th:href="@{/}">Inicio</a>
+                <a class="nav-link" th:href="@{/mascotas}">Mascotas</a>
+                <a class="btn btn-light btn-sm fw-semibold ms-lg-2 active" th:href="@{/mascotas/nueva}">Nueva mascota</a>
+            </div>
+        </div>
+    </header>
+    <main class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-8 col-xl-7">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body p-4 p-md-5">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <p class="text-uppercase text-success fw-semibold small mb-1">Nuevo registro</p>
+                                <h1 class="h2 fw-bold mb-0">Nueva mascota</h1>
+                            </div>
+                            <div class="icon-badge">🐾</div>
+                        </div>
+                        <form th:action="@{/mascotas/nueva}" th:object="${mascotaForm}" method="post" class="needs-validation">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Nombre</label>
+                                <input class="form-control form-control-lg" th:field="*{nombre}" type="text" placeholder="Ej. Luna">
+                                <div class="invalid-feedback d-block" th:errors="*{nombre}"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Especie</label>
+                                <select class="form-select form-select-lg" th:field="*{especie}">
+                                    <option value="">-- Seleccionar --</option>
+                                    <option value="Perro">Perro</option>
+                                    <option value="Gato">Gato</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                                <div class="invalid-feedback d-block" th:errors="*{especie}"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Propietario</label>
+                                <input class="form-control form-control-lg" th:field="*{propietario}" type="text" placeholder="Nombre del dueño">
+                                <div class="invalid-feedback d-block" th:errors="*{propietario}"></div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Teléfono</label>
+                                <input class="form-control form-control-lg" th:field="*{telefono}" type="text" placeholder="Ej. 300 123 4567">
+                                <div class="invalid-feedback d-block" th:errors="*{telefono}"></div>
+                            </div>
+                            <div class="d-flex flex-column flex-sm-row gap-3">
+                                <button class="btn btn-success btn-lg flex-fill" type="submit">Guardar</button>
+                                <a class="btn btn-outline-secondary btn-lg flex-fill" th:href="@{/mascotas}">Cancelar</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
