@@ -1,9 +1,9 @@
-POST http://localhost:8080/api/v1/socios
+POST http://localhost:8088/api/v1/actividades
 Content-Type: application/json
 
 {
-  "nombre": "Carlos Gómez",
-  "email": "carlos@asociacion.org",
-  "telefono": "654321098",
-  "estado": "ACTIVO"
+"titulo": "Taller de Desarrollo WEB",
+"descripcion": "Actividad 3 días a la semana para estudiantes",
+"fecha": "2026-06-15",
+"plazas": 15
 }
