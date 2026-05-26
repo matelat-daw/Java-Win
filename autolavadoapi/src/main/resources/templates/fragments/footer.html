@@ -1,0 +1,29 @@
+<footer th:fragment="footer" id="site-footer" class="bg-light border-top py-4">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-4 mb-3 mb-md-0">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <h5 class="mb-1">Auto Lavado</h5>
+                        <p class="small text-muted mb-0">Servicio profesional de lavado y mantenimiento vehicular</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-center mb-3 mb-md-0">
+                <h6 class="mb-2">Enlaces</h6>
+                <ul class="list-unstyled small mb-0">
+                    <li class="d-inline mx-2 d-md-block mx-md-0"><a class="text-muted text-decoration-none" th:href="@{/}">Inicio</a></li>
+                    <li class="d-inline mx-2 d-md-block mx-md-0"><a class="text-muted text-decoration-none" th:href="@{/servicios}">Servicios</a></li>
+                    <li class="d-inline mx-2 d-md-block mx-md-0"><a class="text-muted text-decoration-none" th:href="@{/contacto}">Contacto</a></li>
+                    <li class="d-inline mx-2 d-md-block mx-md-0"><a class="text-muted text-decoration-none" th:href="@{/ayuda}">Ayuda</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <p class="small text-muted mb-1">
+                    Spring Boot 4.0.6 | Java 25 | MariaDB 11.1
+                </p>
+                <p class="small text-muted mb-0">&copy; 2026 Auto Lavado. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </div>
+</footer>

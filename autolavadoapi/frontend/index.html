@@ -5,28 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Auto Lavado</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link id="app-style-css" rel="stylesheet" href="" />
+    <link rel="stylesheet" href="/assets/css/style.css" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" defer></script>
-    <script>
-      (() => {
-        const samePortAsApi = window.location.port === "8085";
-        if (!window.APP_API_BASE) {
-          window.APP_API_BASE = samePortAsApi ? "" : "http://localhost:8085";
-        }
-        if (!window.APP_ASSET_BASE) {
-          window.APP_ASSET_BASE = window.APP_API_BASE || "";
-        }
-        const cssLink = document.getElementById("app-style-css");
-        if (cssLink) {
-          cssLink.href = `${window.APP_ASSET_BASE || ""}/css/style.css`;
-        }
-      })();
-    </script>
-    <style>
-      body {
-        background: #f6f8fc;
-      }
-    </style>
+    <script src="/assets/js/config.js"></script>
     <script type="module" src="/app.js"></script>
   </head>
   <body class="d-flex flex-column min-vh-100 bg-light">

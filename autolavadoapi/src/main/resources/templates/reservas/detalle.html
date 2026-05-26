@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Detalle de Reserva')}">
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+<main class="flex-grow-1 d-flex align-items-center py-5">
+    <div class="container my-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card shadow p-4">
+                    <h2 class="mb-4">Detalle de reserva</h2>
+                        <!-- TODO 72: mostrar id, cliente, teléfono, matrícula, servicio, fecha, hora, precio y estado -->
+                    <ul class="list-unstyled" th:object="${reserva}">
+                        <li class="mb-3"><strong>ID:</strong> <span th:text="*{id}"></span></li>
+                        <li class="mb-3"><strong>Cliente:</strong> <span th:text="*{nombreCliente}"></span></li>
+                        <li class="mb-3"><strong>Teléfono:</strong> <span th:text="*{telefono}"></span></li>
+                        <li class="mb-3"><strong>Matrícula:</strong> <span th:text="*{matricula}"></span></li>
+                        <li class="mb-3"><strong>Servicio:</strong> <span th:text="*{nombreServicio ?: 'N/A'}"></span></li>
+                        <li class="mb-3"><strong>Fecha:</strong> <span th:text="${#temporals.format(reserva.fecha, 'dd-MM-yyyy')}"></span></li>
+                        <li class="mb-3"><strong>Hora:</strong> <span th:text="*{hora}"></span></li>
+                        <li class="mb-3"><strong>Precio:</strong> <span th:text="*{total}"></span></li>
+                        <li class="mb-3"><strong>Estado:</strong> <span class="badge" th:classappend="${reserva.estado != null and #strings.equalsIgnoreCase(reserva.estado.estado, 'PENDIENTE') ? 'bg-warning' : (reserva.estado != null and #strings.equalsIgnoreCase(reserva.estado.estado, 'EN_PROCESO') ? 'bg-info' : 'bg-success')}" th:text="${reserva.estado != null ? reserva.estado.estado : 'N/A'}"></span></li>
+                        <!-- TODO 73: mostrar observaciones solo si no están vacías --> 
+                        <li th:if="${not #strings.isEmpty(reserva.observaciones)}" class="mb-3">
+                            <strong>Observaciones:</strong> <span th:text="*{observaciones}"></span>
+                        </li>
+                    </ul>
+                    <!-- TODO 74: enlace para volver al listado -->
+                    <a th:href="@{/reservas}" class="btn btn-secondary mt-4">Volver al listado</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

@@ -61,6 +61,7 @@ async function crearReserva(payload) {
 }
 
 function cargarServicios(select, servicios) {
+  const prevValue = select.value;
   select.innerHTML = `<option value="">Selecciona...</option>`;
   servicios.forEach((s) => {
     const opt = document.createElement("option");
@@ -68,6 +69,9 @@ function cargarServicios(select, servicios) {
     opt.textContent = `${s.servicio} — ${formatPrecio(s.precio)}`;
     select.appendChild(opt);
   });
+  if (prevValue) {
+    select.value = prevValue;
+  }
 }
 
 function sincronizarMatriculaSegunTelefono(form) {
@@ -84,6 +88,7 @@ export async function render(outlet, { navigate, toast } = {}) {
 
   const form = outlet.querySelector("[data-form]");
   const selectServicio = form.querySelector("#servicioId");
+  const servicioLockedHint = form.querySelector("[data-servicio-locked]");
   const fechaInput = form.querySelector("#fecha");
 
   fechaInput.min = todayIso();
@@ -99,6 +104,10 @@ export async function render(outlet, { navigate, toast } = {}) {
   const preServicioId = urlParams.get("servicioId");
   if (preServicioId) {
     selectServicio.value = preServicioId;
+    selectServicio.disabled = true;
+    if (servicioLockedHint) {
+      servicioLockedHint.classList.remove("d-none");
+    }
   }
 
   form.querySelectorAll('input[name="tipoTelefono"]').forEach((r) =>
@@ -193,4 +202,3 @@ export async function render(outlet, { navigate, toast } = {}) {
     }
   });
 }
-

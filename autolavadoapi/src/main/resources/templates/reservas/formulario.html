@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Formulario de Reserva')}">
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+<main class="flex-grow-1 d-flex align-items-center py-5">
+    <div class="container my-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card shadow p-4">
+                    <h2 class="mb-4">Nueva reserva</h2>
+                    <!-- Se añade 'novalidate' para delegar la validación visual a Bootstrap mediante JS -->
+                    <form th:action="@{/reservas/nueva}" th:object="${reservaForm}" method="post" id="reserva-form" novalidate>
+                        <!-- NOMBRE DEL CLIENTE -->
+                        <div class="mb-3">
+                            <label for="nombreCliente" class="form-label">Nombre del cliente</label>
+                            <input type="text" class="form-control" id="nombreCliente" th:field="*{nombreCliente}" required>
+                            <div class="invalid-feedback">Por favor, introduce el nombre del cliente.</div>
+                            <span th:if="${#fields.hasErrors('nombreCliente')}" th:errors="*{nombreCliente}" class="text-danger small"></span>
+                        </div>
+                        <!-- TELÉFONO -->
+                        <div class="mb-3">
+                            <label for="telefono" class="form-label">Teléfono</label>
+                            <input type="text" class="form-control" id="telefono" th:field="*{telefono}" required>
+                            <div id="error-telefono" class="invalid-feedback"></div>
+                            <span th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}" class="text-danger small"></span>
+                        </div>
+                        <!-- TIPO DE TELÉFONO -->
+                        <div class="mb-3">
+                            <label class="form-label d-block">Tipo de teléfono</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" th:field="*{tipoTelefono}" value="true" id="tipoTelefonoEsp">
+                                <label class="form-check-label" for="tipoTelefonoEsp">Español</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" th:field="*{tipoTelefono}" value="false" id="tipoTelefonoInt">
+                                <label class="form-check-label" for="tipoTelefonoInt">Internacional</label>
+                            </div>
+                        </div>
+                        <!-- MATRÍCULA -->
+                        <div class="mb-3">
+                            <label for="matricula" class="form-label">Matrícula</label>
+                            <input type="text" class="form-control" id="matricula" th:field="*{matricula}" required>
+                            <div id="error-matricula" class="invalid-feedback"></div>
+                            <span th:if="${#fields.hasErrors('matricula')}" th:errors="*{matricula}" class="text-danger small"></span>
+                        </div>
+                        <!-- TIPO DE MATRÍCULA -->
+                        <div class="mb-3">
+                            <label class="form-label d-block">Tipo de matrícula</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" th:field="*{tipoMatricula}" value="true" id="tipoMatriculaEsp">
+                                <label class="form-check-label" for="tipoMatriculaEsp">Española</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" th:field="*{tipoMatricula}" value="false" id="tipoMatriculaExt">
+                                <label class="form-check-label" for="tipoMatriculaExt">Extranjera</label>
+                            </div>
+                        </div>
+                        <!-- SERVICIO -->
+                        <div class="mb-3">
+                            <label for="servicioId" class="form-label">Servicio</label>
+                            <select class="form-select" id="servicioId" th:field="*{servicioId}" th:disabled="${servicioLocked}" required>
+                                <option value="">Selecciona un servicio</option>
+                                <option th:each="servicio : ${servicios}"
+                                        th:value="${servicio.id}"
+                                        th:text="${servicio.servicio + ' - ' + servicio.precio + ' €'}"></option>
+                            </select>
+                            <input type="hidden" th:if="${servicioLocked}" th:field="*{servicioId}" />
+                            <div class="invalid-feedback">Debes elegir un servicio.</div>
+                            <span th:if="${#fields.hasErrors('servicioId')}" th:errors="*{servicioId}" class="text-danger small"></span>
+                        </div>
+                        <!-- FECHA -->
+                        <div class="mb-3">
+                            <label for="fecha" class="form-label">Fecha</label>
+                            <input type="date" class="form-control" id="fecha" th:field="*{fecha}" required>
+                            <div id="error-fecha" class="invalid-feedback">Selecciona una fecha válida (no puede ser anterior a hoy).</div>
+                            <span th:if="${#fields.hasErrors('fecha')}" th:errors="*{fecha}" class="text-danger small"></span>
+                        </div>
+                        <!-- HORA -->
+                        <div class="mb-3">
+                            <label for="hora" class="form-label">Hora</label>
+                            <input type="time" class="form-control" id="hora" th:field="*{hora}" required>
+                            <div class="invalid-feedback">Por favor, indica una hora válida.</div>
+                            <span th:if="${#fields.hasErrors('hora')}" th:errors="*{hora}" class="text-danger small"></span>
+                        </div>
+                        <!-- OBSERVACIONES -->
+                        <div class="mb-3">
+                            <label for="observaciones" class="form-label">Observaciones</label>
+                            <textarea class="form-control" id="observaciones" th:field="*{observaciones}" rows="3"></textarea>
+                            <span th:if="${#fields.hasErrors('observaciones')}" th:errors="*{observaciones}" class="text-danger small"></span>
+                        </div>
+                        <div class="d-grid gap-2 d-sm-flex">
+                            <button type="submit" class="btn btn-primary">Guardar reserva</button>
+                            <a th:href="@{/reservas}" class="btn btn-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

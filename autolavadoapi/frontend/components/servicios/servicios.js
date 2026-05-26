@@ -71,6 +71,17 @@ function initModal(outlet) {
       imgEl.alt = "Imagen del servicio";
     }
   });
+
+  const grid = outlet.querySelector("[data-servicios]");
+  if (grid) {
+    grid.addEventListener("click", (e) => {
+      const link = e.target.closest(".servicio-preview-link");
+      if (!link) return;
+      e.preventDefault();
+      const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+      modal.show(link);
+    });
+  }
 }
 
 export async function render(outlet, { toast } = {}) {
