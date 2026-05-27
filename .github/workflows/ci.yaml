@@ -6,26 +6,29 @@ on:
   pull_request:
     branches: [ "main" ]
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Descargar el codigo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
+      # CORREGIDO: Subimos la versión a Java 25 para que coincida con tu pom.xml
       - name: Configurar Java 25
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '25'
           cache: 'maven'
 
+      # Concedemos permisos al wrapper nativo que viene en tu proyecto
+      - name: Conceder permisos de ejecucion a mvnw
+        run: chmod +x mvnw
+
+      # Ejecutamos las pruebas usando el wrapper oficial
       - name: Ejecutar pruebas
-        run: mvn test
+        run: ./mvnw test
         
       - name: Construir aplicacion
-        run: mvn package
+        run: ./mvnw package
