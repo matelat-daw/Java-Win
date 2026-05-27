@@ -6,28 +6,32 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  # Activamos la bandera que nos pide el log de error para unificar a Node 24
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # Corregido a v4 para evitar dependencias cruzadas con Node 20
+      # v5 soluciona el aviso de obsolescencia de Node.js 20
       - name: Descargar el codigo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      # Corregido a v4 nativo con soporte directo para Java 25
+      # v5 es la versión oficial compatible con Java 25 en entornos modernos
       - name: Configurar Java 25
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '25'
           cache: 'maven'
 
-      # Conceder los accesos requeridos por Linux al empaquetador local
+      # Permisos necesarios para ejecutar el comando local en Linux
       - name: Conceder permisos de ejecucion a mvnw
         run: chmod +x mvnw
 
-      # Ejecución controlada del flujo a través del compilador integrado
+      # Compilación guiada por el wrapper oficial
       - name: Ejecutar pruebas
         run: ./mvnw test
         

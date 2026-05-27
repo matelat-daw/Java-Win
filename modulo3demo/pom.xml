@@ -56,9 +56,9 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-				<build>
+			<build>
 		<plugins>
-			<!-- CONFIGURACIÓN DEL COMPILADOR: Enlaza Lombok de forma explícita -->
+			<!-- CONFIGURACIÓN DEL COMPILADOR: Integra Lombok de forma obligatoria -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -67,11 +67,11 @@
 					<source>25</source>
 					<target>25</target>
 					<annotationProcessorPaths>
-						<!-- Este bloque le indica a Java 25 que incluya Lombok en la compilación -->
+						<!-- Esto le permite a Java 25 compilar Lombok sin colapsar -->
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
-							<version>1.18.42</version> 
+							<version>1.18.42</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
@@ -91,7 +91,7 @@
 				</configuration>
 			</plugin>
 
-			<!-- PLUGIN DE PRUEBAS -->
+			<!-- PLUGIN DE PRUEBAS SUREFIRE -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
