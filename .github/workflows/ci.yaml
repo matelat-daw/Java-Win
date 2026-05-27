@@ -6,19 +6,26 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  # Forzamos al runner a usar Node 24 de forma nativa para evitar bloqueos
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+      # CORREGIDO: v5 elimina el aviso de obsolescencia de Node 20
       - name: Descargar el codigo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
+      # CORREGIDO: v5 se alinea nativamente con Node 24 y Java 21 LTS
       - name: Configurar Java 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '21'
 
+      # Comando global directo en la máquina de Linux libre de scripts de Windows
       - name: Ejecutar pruebas
         run: mvn clean test
