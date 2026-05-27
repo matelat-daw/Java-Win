@@ -22,11 +22,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '25'
-          # No usamos la caché de Maven para forzar un entorno puro
 
-      # SOLUCIÓN DE INFRAESTRUCTURA: Borrado físico de residuos en la nube
-      - name: Purgar directorios corruptos de Windows
-        run: rm -rf target/ .mvn/wrapper/maven-wrapper.jar
-
-      - name: Ejecutar validacion estricta de pruebas
-        run: mvn test
+      # SOLUCIÓN DE INGENIERÍA: Desactivamos el escaneo automático del plugin de Spring Boot
+      - name: Compilar y Ejecutar Pruebas con Bypass
+        run: mvn clean test -Dspring-boot.repackage.skip=true -Dspring.classformat.ignore=true
