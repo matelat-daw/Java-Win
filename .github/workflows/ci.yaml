@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 env:
-  # Activamos la bandera que nos pide el log de error para unificar a Node 24
+  # Forzamos las acciones globales al motor de Node 24 sin generar warnings
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
@@ -15,11 +15,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # v5 soluciona el aviso de obsolescencia de Node.js 20
       - name: Descargar el codigo
         uses: actions/checkout@v5
 
-      # v5 es la versión oficial compatible con Java 25 en entornos modernos
       - name: Configurar Java 25
         uses: actions/setup-java@v5
         with:
@@ -27,13 +25,9 @@ jobs:
           java-version: '25'
           cache: 'maven'
 
-      # Permisos necesarios para ejecutar el comando local en Linux
-      - name: Conceder permisos de ejecucion a mvnw
-        run: chmod +x mvnw
-
-      # Compilación guiada por el wrapper oficial
-      - name: Ejecutar pruebas
-        run: ./mvnw test
+      # SOLUCIÓN: Usamos "mvn" directo. No requiere permisos, chmod ni le importan los saltos de línea de Windows
+      - name: Ejecutar pruebas con Maven de Linux
+        run: mvn test
         
-      - name: Construir aplicacion
-        run: ./mvnw package
+      - name: Construir aplicacion con Maven de Linux
+        run: mvn package
