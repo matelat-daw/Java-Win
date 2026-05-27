@@ -7,7 +7,6 @@ on:
     branches: [ "main" ]
 
 env:
-  # Forzamos las acciones globales al motor de Node 24 sin generar warnings
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
@@ -25,9 +24,6 @@ jobs:
           java-version: '25'
           cache: 'maven'
 
-      # SOLUCIÓN: Usamos "mvn" directo. No requiere permisos, chmod ni le importan los saltos de línea de Windows
-      - name: Ejecutar pruebas con Maven de Linux
-        run: mvn test
-        
-      - name: Construir aplicacion con Maven de Linux
-        run: mvn package
+      # Comando global directo en la máquina virtual de Linux
+      - name: Ejecutar pruebas y construir aplicación
+        run: mvn clean package
