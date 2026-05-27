@@ -17,8 +17,6 @@
 
 	<properties>
 		<java.version>25</java.version>
-		<!-- Fuerza la versión compatible con el compilador de Java 25 -->
-		<lombok.version>1.18.42</lombok.version>
 	</properties>
 
 	<dependencies>
@@ -35,27 +33,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-		
-		<!-- CORRECCIÓN SPRING BOOT 4: Módulo de validación adaptado a Jakarta EE 11 -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>jakarta.validation</groupId>
-			<artifactId>jakarta.validation-api</artifactId>
-			<version>3.1.0</version> <!-- Requisito explícito de Spring Boot 4 -->
-		</dependency>
 
-		<!-- Herramientas de Desarrollo -->
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>${lombok.version}</version>
-			<optional>true</optional>
-		</dependency>
-
-		<!-- Entorno de Pruebas (Mandatorio JUnit 5 para Spring Boot 4) -->
+		<!-- Test -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -70,43 +53,10 @@
 
 	<build>
 		<plugins>
-			<!-- Compilador Nativo adaptado a los Annotation Processors de Java 25 -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.13.0</version>
-				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
-					<annotationProcessorPaths>
-						<path>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-							<version>${lombok.version}</version>
-						</path>
-					</annotationProcessorPaths>
-				</configuration>
-			</plugin>
-
-			<!-- Empaquetador de Spring Boot -->
+			<!-- Compilador e Inyector Estándar de Spring Boot -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<excludes>
-						<exclude>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
-
-			<!-- Plugin Surefire Limpio -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.5.2</version>
 			</plugin>
 		</plugins>
 	</build>
