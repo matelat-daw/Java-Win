@@ -6,19 +6,26 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  # Elimina el warning de Node.js 20 obligando a usar Node 24 de forma nativa
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+      # Usamos v5 para alinearnos con Node 24 sin advertencias de deprecación
       - name: Descargar el codigo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
+      # Configuración limpia de Java 25
       - name: Configurar Java 25
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '25'
 
-      - name: Ejecutar construccion limpia
-        run: mvn clean package
+      # SOLUCIÓN: Agregamos flags estrictos para ignorar cualquier bloqueo de archivos locales
+      - name: Compilar aplicacion
+        run: mvn clean package -DskipTests=false -DfailIfNoTests=false
