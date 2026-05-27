@@ -40,6 +40,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+			<version>1.18.42</version>
 			<optional>true</optional>
 		</dependency>
 
@@ -55,8 +56,7 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<build>
+			<build>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -70,7 +70,8 @@
 					</excludes>
 				</configuration>
 			</plugin>
-			<!-- Plugin Surefire Limpio sin parámetros extraños -->
+
+			<!-- Plugin Surefire estándar para ejecutar los tests -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>

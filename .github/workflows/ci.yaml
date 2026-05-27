@@ -17,15 +17,13 @@ jobs:
       - name: Descargar el codigo
         uses: actions/checkout@v5
 
-      # SOLUCIÓN: Cambiamos a Java 21 LTS para garantizar compatibilidad con Mockito
-      - name: Configurar Java 21 para Compilación y Tests
+      - name: Configurar Java 25
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '25'
           cache: 'maven'
 
-      # Ejecutamos directo usando los comandos globales del runner
       - name: Ejecutar pruebas
         run: mvn test
         
