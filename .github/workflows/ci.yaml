@@ -23,6 +23,5 @@ jobs:
           distribution: 'temurin'
           java-version: '25'
 
-      # SOLUCIÓN DEFINITIVA: Forzamos la reconstrucción forzosa de plugins e hilos de dependencias
       - name: Compilar y Ejecutar Pruebas
-        run: mvn clean test -Dmaven.compiler.forceJavacCompilerUse=true --batch-mode
+        run: mvn clean test

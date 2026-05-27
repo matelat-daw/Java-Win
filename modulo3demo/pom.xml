@@ -3,7 +3,6 @@
 	xsi:schemaLocation="http://apache.org https://apache.org">
 	<modelVersion>4.0.0</modelVersion>
 	
-	<!-- CORREGIDO: Usamos una versión real y estable existente en Maven Central -->
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
@@ -52,16 +51,16 @@
 		</dependency>
 	</dependencies>
 
-				<build>
+	<build>
 		<plugins>
-			<!-- CONFIGURADO: Plugin de Spring Boot adaptado para empaquetar Java 25 -->
+			<!-- CORREGIDO: Forzamos la versión del compilador compatible con Java 25 -->
 			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.13.0</version>
 				<configuration>
-					<!-- Evita que el empaquetador falle al procesar la versión de clase 69 de Java 25 -->
-					<skip>false</skip>
-					<mainClass>com.ejemplo.modulo3demo.Modulo3demoApplication</mainClass> <!-- Pon aquí tu clase principal real -->
+					<source>25</source>
+					<target>25</target>
 				</configuration>
 			</plugin>
 
