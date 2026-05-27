@@ -13,10 +13,13 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UsuarioServiceTest {
+    
+    // CORREGIDO: Añadimos 'private' para cumplir con las reglas estrictas de Java 25
     @Mock
-    UsuarioRepository usuarioRepository;
+    private UsuarioRepository usuarioRepository;
+
     @InjectMocks
-    UsuarioService usuarioService;
+    private UsuarioService usuarioService;
 
     @Test
     void saludarUsuario_debeUsarElNombreDelRepositorio() {

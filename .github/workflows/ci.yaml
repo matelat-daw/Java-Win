@@ -14,14 +14,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Descargar el codigo
+      - name: Descargar el codigo limpio
         uses: actions/checkout@v5
 
-      - name: Configurar Java 25
+      - name: Configurar Java 25 LTS
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '25'
+          cache: 'maven'
 
       - name: Ejecutar pruebas
         run: mvn clean test
