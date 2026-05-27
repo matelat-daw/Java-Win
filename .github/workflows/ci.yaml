@@ -7,7 +7,6 @@ on:
     branches: [ "main" ]
 
 env:
-  # Forzar de forma nativa a todo el entorno del Runner a priorizar Node 24
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
@@ -15,18 +14,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # CORREGIDO: v5/v6 están diseñadas para Node 24 nativo
       - name: Descargar el codigo
         uses: actions/checkout@v5
 
-      # CORREGIDO: Se actualiza a la última revisión mayor con soporte directo
-      - name: Configurar Java 25
+      # SOLUCIÓN: Cambiamos a Java 21 LTS para garantizar compatibilidad con Mockito
+      - name: Configurar Java 21 para Compilación y Tests
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '25'
+          java-version: '21'
           cache: 'maven'
 
+      # Ejecutamos directo usando los comandos globales del runner
       - name: Ejecutar pruebas
         run: mvn test
         
