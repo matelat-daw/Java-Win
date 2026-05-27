@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Usamos v5 para alinearnos con Node 24 sin advertencias de deprecación
+      # Descarga el código usando v5 para alinearse con Node 24
       - name: Descargar el codigo
         uses: actions/checkout@v5
 
@@ -26,6 +26,6 @@ jobs:
           distribution: 'temurin'
           java-version: '25'
 
-      # SOLUCIÓN: Agregamos flags estrictos para ignorar cualquier bloqueo de archivos locales
-      - name: Compilar aplicacion
-        run: mvn clean package -DskipTests=false -DfailIfNoTests=false
+      # Comando unificado: Compila la app y ejecuta con éxito todos tus tests con Mockito
+      - name: Compilar y Ejecutar Pruebas
+        run: mvn clean test
