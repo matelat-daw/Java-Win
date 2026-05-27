@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class DemoController {
     
-    // SOLUCIÓN NATIVA: Usamos el registrador nativo del JDK de Java 25
     private static final System.Logger log = System.getLogger(DemoController.class.getName());
 
     @GetMapping("/publico")

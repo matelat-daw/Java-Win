@@ -14,7 +14,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class UsuarioServiceTest {
     
-    // CORREGIDO: Añadimos 'private' para cumplir con las reglas estrictas de Java 25
     @Mock
     private UsuarioRepository usuarioRepository;
 
@@ -23,11 +22,8 @@ class UsuarioServiceTest {
 
     @Test
     void saludarUsuario_debeUsarElNombreDelRepositorio() {
-        // Arrange
         when(usuarioRepository.buscarNombrePorId(1L)).thenReturn("Ana");
-        // Act
         String resultado = usuarioService.saludarUsuario(1L);
-        // Assert
         assertEquals("Hola, Ana", resultado);
         verify(usuarioRepository).buscarNombrePorId(1L);
     }

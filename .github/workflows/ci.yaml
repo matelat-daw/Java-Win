@@ -6,23 +6,21 @@ on:
   pull_request:
     branches: [ "main" ]
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Descargar el codigo limpio
-        uses: actions/checkout@v5
+      - name: Descargar el codigo
+        uses: actions/checkout@v6
 
-      - name: Configurar Java 25 LTS
+      - name: Configurar Java 25
         uses: actions/setup-java@v5
         with:
-          distribution: 'temurin'
-          java-version: '25'
+          distribution: temurin
+          java-version: "25"
+          cache: maven
 
-      # SOLUCIÓN DE INGENIERÍA: Desactivamos el escaneo automático del plugin de Spring Boot
-      - name: Compilar y Ejecutar Pruebas con Bypass
-        run: mvn clean test -Dspring-boot.repackage.skip=true -Dspring.classformat.ignore=true
+      - name: Compilar y ejecutar tests (Maven Wrapper)
+        working-directory: modulo3demo
+        run: bash ./mvnw -B -ntp test
