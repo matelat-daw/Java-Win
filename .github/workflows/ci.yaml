@@ -5,19 +5,23 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  # Forzar de forma nativa a todo el entorno del Runner a priorizar Node 24
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+      # CORREGIDO: v5/v6 están diseñadas para Node 24 nativo
       - name: Descargar el codigo
-        uses: actions/checkout@v4.2.2  # Versión compatible con Node 24
+        uses: actions/checkout@v5
 
+      # CORREGIDO: Se actualiza a la última revisión mayor con soporte directo
       - name: Configurar Java 25
-        uses: actions/setup-java@v5    # Versión v5 que migra nativamente a Node 24
+        uses: actions/setup-java@v6
         with:
           distribution: 'temurin'
           java-version: '25'
