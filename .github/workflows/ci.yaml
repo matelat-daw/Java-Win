@@ -11,10 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Corregido a v4 para evitar dependencias cruzadas con Node 20
       - name: Descargar el codigo
         uses: actions/checkout@v4
 
-      # CORREGIDO: Subimos la versión a Java 25 para que coincida con tu pom.xml
+      # Corregido a v4 nativo con soporte directo para Java 25
       - name: Configurar Java 25
         uses: actions/setup-java@v4
         with:
@@ -22,11 +23,11 @@ jobs:
           java-version: '25'
           cache: 'maven'
 
-      # Concedemos permisos al wrapper nativo que viene en tu proyecto
+      # Conceder los accesos requeridos por Linux al empaquetador local
       - name: Conceder permisos de ejecucion a mvnw
         run: chmod +x mvnw
 
-      # Ejecutamos las pruebas usando el wrapper oficial
+      # Ejecución controlada del flujo a través del compilador integrado
       - name: Ejecutar pruebas
         run: ./mvnw test
         
