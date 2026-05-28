@@ -1,0 +1,7 @@
+curl -X POST POST "http://localhost:8088/api/v1/cursos" \
+-H "Content-Type: application/json" \
+-d '{
+  "titulo": "Avanzado de Java",
+  "modalidad": "PRESENCIAL",
+  "duracion": 45
+}'

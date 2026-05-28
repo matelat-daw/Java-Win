@@ -1,0 +1,6 @@
+curl -X POST "http://localhost:8088/api/v1/alumnos" \
+-H "Content-Type: application/json" \
+-d '{
+    "nombre": "María Pérez",
+    "email": "maria@formacion.com"
+}'
