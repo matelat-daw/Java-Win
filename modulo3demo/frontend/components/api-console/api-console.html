@@ -1,0 +1,31 @@
+<section class="app-console fade-in-up">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h3 class="card-title mb-0">Consola API</h3>
+        <span class="badge rounded-pill text-bg-dark border border-white border-opacity-10" data-console-status>Lista</span>
+    </div>
+
+    <div class="btn-group w-100 mb-3" role="group" aria-label="Acciones rápidas">
+        <button type="button" class="btn btn-soft" data-console-endpoint="/api/publico">Público</button>
+        <button type="button" class="btn btn-soft" data-console-endpoint="/api/privado">Privado</button>
+        <button type="button" class="btn btn-soft" data-console-endpoint="/api/admin">Admin</button>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="endpoint-select">Endpoint</label>
+        <select id="endpoint-select" class="form-select glass-select" data-endpoint-select>
+            <option value="/api/publico">GET /api/publico</option>
+            <option value="/api/privado">GET /api/privado</option>
+            <option value="/api/admin">GET /api/admin</option>
+            <option value="/api/auth/me">GET /api/auth/me</option>
+        </select>
+    </div>
+
+    <div class="d-grid gap-2 mb-3">
+        <button type="button" class="btn btn-emerald" data-run-request>Ejecutar petición</button>
+    </div>
+
+    <div>
+        <label class="form-label">Resultado formateado</label>
+        <pre class="response-box p-3 mb-0" data-console-output>Selecciona un endpoint y ejecuta la consulta.</pre>
+    </div>
+</section>
