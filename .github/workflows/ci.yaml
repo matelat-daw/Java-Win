@@ -25,6 +25,6 @@ jobs:
         working-directory: modulo3demo
         run: bash ./mvnw -B -ntp test
 
-        - name: Contruir la APP
-          working-directory: modulo3demo
-          run: bash ./mvnw package
+      - name: Contruir la APP
+        working-directory: modulo3demo
+        run: bash ./mvnw package
