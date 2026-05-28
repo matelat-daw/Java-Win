@@ -23,6 +23,6 @@ public class Alumno {
     private String email;
     @ManyToOne
     @JoinColumn(name = "curso_id", nullable = false)
-    @JsonIgnoreProperties(value = "curso")
+    @JsonIgnoreProperties(value = "alumnos")
     private Curso curso;
 }

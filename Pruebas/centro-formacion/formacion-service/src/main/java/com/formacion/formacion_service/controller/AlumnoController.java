@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/alumnos")
@@ -29,15 +30,17 @@ public class AlumnoController {
     // TODO 3: GET /api/v1/alumnos
     // Devuelve ResponseEntity.ok(repo.findAll())
     @GetMapping
-    public ResponseEntity<List<Alumno>> findAll() {
-        return ResponseEntity.ok(alumnoRepository.findAll());
+    public ResponseEntity<List<AlumnoResponse>> findAll() {
+        return ResponseEntity.ok(alumnoRepository.findAll().stream()
+                .map(AlumnoResponse::from)
+                .collect(Collectors.toList()));
     }
 
     // TODO 4: POST /api/v1/alumnos
     // Recibe un Alumno con @RequestBody
     // Devuelve ResponseEntity.ok(repo.save(alumno))
     @PostMapping
-    public ResponseEntity<Alumno> save(@RequestBody AlumnoCreateRequest request) {
+    public ResponseEntity<AlumnoResponse> save(@RequestBody AlumnoCreateRequest request) {
         Curso curso = cursoRepository.findById(request.cursoId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "El curso indicado no existe"));
 
@@ -46,7 +49,7 @@ public class AlumnoController {
         alumno.setEmail(request.email());
         alumno.setCurso(curso);
 
-        return ResponseEntity.ok(alumnoRepository.save(alumno));
+        return ResponseEntity.ok(AlumnoResponse.from(alumnoRepository.save(alumno)));
     }
 
     public record AlumnoCreateRequest(
@@ -54,4 +57,31 @@ public class AlumnoController {
             String email,
             @JsonProperty("curso_id") Long cursoId
     ) { }
+
+    public record CursoResumen(
+            Long id,
+            String titulo,
+            String modalidad,
+            int duracion
+    ) {
+        public static CursoResumen from(Curso curso) {
+            return new CursoResumen(curso.getId(), curso.getTitulo(), curso.getModalidad(), curso.getDuracion());
+        }
+    }
+
+    public record AlumnoResponse(
+            Long id,
+            String nombre,
+            String email,
+            CursoResumen curso
+    ) {
+        public static AlumnoResponse from(Alumno alumno) {
+            return new AlumnoResponse(
+                    alumno.getId(),
+                    alumno.getNombre(),
+                    alumno.getEmail(),
+                    alumno.getCurso() == null ? null : CursoResumen.from(alumno.getCurso())
+            );
+        }
+    }
 }
