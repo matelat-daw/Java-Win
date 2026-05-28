@@ -1,0 +1,8 @@
+POST http://localhost:8088/api/v1/cursos
+Content-Type: application/json
+
+{
+  "titulo": "Basic de Commodore 64",
+  "modalidad": "PRESENCIAL",
+  "duracion": 15
+}
