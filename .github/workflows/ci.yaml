@@ -24,3 +24,7 @@ jobs:
       - name: Compilar y ejecutar tests (Maven Wrapper)
         working-directory: modulo3demo
         run: bash ./mvnw -B -ntp test
+
+        - name: Contruir la APP
+          working-directory: modulo3demo
+          run: bash ./mvnw package
