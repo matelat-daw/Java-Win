@@ -5,6 +5,7 @@ import com.formacion.formacion_service.model.Alumno;
 import com.formacion.formacion_service.model.Curso;
 import com.formacion.formacion_service.repository.AlumnoRepository;
 import com.formacion.formacion_service.repository.CursoRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,6 +42,10 @@ public class AlumnoController {
     // Devuelve ResponseEntity.ok(repo.save(alumno))
     @PostMapping
     public ResponseEntity<AlumnoResponse> save(@RequestBody AlumnoCreateRequest request) {
+        if (request.email() == null || request.email().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El email es obligatorio");
+        }
+
         Curso curso = cursoRepository.findById(request.cursoId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "El curso indicado no existe"));
 
@@ -49,7 +54,12 @@ public class AlumnoController {
         alumno.setEmail(request.email());
         alumno.setCurso(curso);
 
-        return ResponseEntity.ok(AlumnoResponse.from(alumnoRepository.save(alumno)));
+        try {
+            Alumno saved = alumnoRepository.save(alumno);
+            return ResponseEntity.ok(AlumnoResponse.from(saved));
+        } catch (DataIntegrityViolationException ex) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe un alumno con ese email");
+        }
     }
 
     public record AlumnoCreateRequest(
