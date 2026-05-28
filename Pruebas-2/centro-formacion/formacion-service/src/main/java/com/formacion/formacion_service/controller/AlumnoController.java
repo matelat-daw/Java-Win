@@ -38,8 +38,8 @@ public class AlumnoController {
                 .collect(Collectors.toList()));
     }
 
-    @GetMapping("/con-cursos")
-    public ResponseEntity<List<AlumnoResponse>> findAllConCursos() {
+    @GetMapping("/en-cursos")
+    public ResponseEntity<List<AlumnoResponse>> findAllEnCursos() {
         return ResponseEntity.ok(alumnoRepository.findAll().stream()
                 .map(AlumnoResponse::from)
                 .collect(Collectors.toList()));

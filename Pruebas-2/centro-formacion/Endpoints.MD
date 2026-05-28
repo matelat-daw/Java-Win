@@ -1,7 +1,7 @@
 - Alumnos
 
 - GET /api/v1/alumnos → ahora devuelve solo alumnos ( id , nombre , email )
-- GET /api/v1/alumnos/con-cursos → devuelve alumnos con sus cursos (lo que mostraba antes)
+- GET /api/v1/alumnos/en-cursos → devuelve alumnos con sus cursos (lo que mostraba antes)
 Implementado en AlumnoController .
 
 

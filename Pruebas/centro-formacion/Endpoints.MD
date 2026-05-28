@@ -1,0 +1,16 @@
+- Alumnos
+
+- GET /api/v1/alumnos → ahora devuelve solo alumnos ( id , nombre , email )
+- GET /api/v1/alumnos/en-cursos → devuelve alumnos con sus cursos (lo que mostraba antes)
+Implementado en AlumnoController .
+
+
+- Cursos
+
+- GET /api/v1/cursos → ahora devuelve solo cursos ( id , titulo , modalidad , duracion )
+- GET /api/v1/cursos/con-alumnos → devuelve cursos con sus alumnos (lo que mostraba antes)
+Implementado en CursoController .
+
+- Para Inscribir un Alumno a un Curso:
+
+/api/v1/alumnos/1/cursos/1 ## Inscribe el Alumno con ID 1 al curso con ID 1.

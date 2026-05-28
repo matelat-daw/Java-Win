@@ -1,8 +1,16 @@
+GET http://localhost:8088/api/v1/alumnos
+
+###
+
+GET http://localhost:8088/api/v1/alumnos/en-cursos
+
+###
+
 POST http://localhost:8088/api/v1/alumnos
 Content-Type: application/json
 
 {
-    "nombre": "Jorge García",
-    "email": "jorge@formacion.com",
+    "nombre": "César Matelat",
+    "email": "cesar@formacion.com",
     "curso_id": 1
 }

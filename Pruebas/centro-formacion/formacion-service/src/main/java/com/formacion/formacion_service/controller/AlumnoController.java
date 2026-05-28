@@ -31,7 +31,14 @@ public class AlumnoController {
     // TODO 3: GET /api/v1/alumnos
     // Devuelve ResponseEntity.ok(repo.findAll())
     @GetMapping
-    public ResponseEntity<List<AlumnoResponse>> findAll() {
+    public ResponseEntity<List<AlumnoBasicResponse>> findAll() {
+        return ResponseEntity.ok(alumnoRepository.findAll().stream()
+                .map(AlumnoBasicResponse::from)
+                .collect(Collectors.toList()));
+    }
+
+    @GetMapping("/en-cursos")
+    public ResponseEntity<List<AlumnoResponse>> findAllEnCursos() {
         return ResponseEntity.ok(alumnoRepository.findAll().stream()
                 .map(AlumnoResponse::from)
                 .collect(Collectors.toList()));
@@ -76,6 +83,16 @@ public class AlumnoController {
     ) {
         public static CursoResumen from(Curso curso) {
             return new CursoResumen(curso.getId(), curso.getTitulo(), curso.getModalidad(), curso.getDuracion());
+        }
+    }
+
+    public record AlumnoBasicResponse(
+            Long id,
+            String nombre,
+            String email
+    ) {
+        public static AlumnoBasicResponse from(Alumno alumno) {
+            return new AlumnoBasicResponse(alumno.getId(), alumno.getNombre(), alumno.getEmail());
         }
     }
 

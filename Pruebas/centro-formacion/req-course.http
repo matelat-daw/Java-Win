@@ -1,8 +1,16 @@
+GET http://localhost:8088/api/v1/cursos
+
+###
+
+GET http://localhost:8088/api/v1/cursos/con-alumnos
+
+###
+
 POST http://localhost:8088/api/v1/cursos
 Content-Type: application/json
 
 {
-  "titulo": "Basic de Commodore 64",
+  "titulo": "Avanzado de Java",
   "modalidad": "PRESENCIAL",
-  "duracion": 15
+  "duracion": 45
 }
