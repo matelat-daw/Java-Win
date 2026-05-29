@@ -1,14 +1,19 @@
 package com.formacion.formacion_service.controller;
 
 import com.formacion.formacion_service.model.Curso;
+import com.formacion.formacion_service.model.Alumno;
+import com.formacion.formacion_service.repository.AlumnoRepository;
 import com.formacion.formacion_service.repository.CursoRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
@@ -18,9 +23,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/cursos")
 public class CursoController {
     private final CursoRepository cursoRepository;
+    private final AlumnoRepository alumnoRepository;
 
-    public CursoController(CursoRepository cursoRepository) {
+    public CursoController(CursoRepository cursoRepository, AlumnoRepository alumnoRepository) {
         this.cursoRepository = cursoRepository;
+        this.alumnoRepository = alumnoRepository;
     }
 
     // TODO 3: GET /api/v1/cursos
@@ -53,6 +60,17 @@ public class CursoController {
         } catch (DataIntegrityViolationException ex) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe un curso con ese título");
         }
+    }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        Curso curso = cursoRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "El curso indicado no existe"));
+
+        alumnoRepository.deleteByCursoId(curso.getId());
+        cursoRepository.delete(curso);
+        return ResponseEntity.noContent().build();
     }
 
     public record AlumnoResumen(
