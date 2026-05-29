@@ -23,6 +23,7 @@ public class WebConfig implements WebMvcConfigurer {
         
         // Mapear /imgs/** a la carpeta de imágenes externas
         registry.addResourceHandler("/imgs/**")
+            .addResourceLocations("classpath:/static/imgs/")
                 .addResourceLocations(fileLocation + "/")
                 .setCachePeriod(0)  // Sin caché para ver cambios inmediatos
                 .resourceChain(true);

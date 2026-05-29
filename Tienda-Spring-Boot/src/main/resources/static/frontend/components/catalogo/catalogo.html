@@ -1,0 +1,52 @@
+<section class="fade-in">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+        <div>
+            <h1 class="page-title h2 mb-2">Catálogo de productos</h1>
+            <p class="muted mb-0">Listado de productos consumido directamente desde la API.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a class="btn btn-success" href="#/nuevo">+ Nuevo producto</a>
+            <a class="btn btn-outline-light" href="#/resumen">Resumen</a>
+        </div>
+    </div>
+
+    <div class="panel p-3 p-lg-4 mb-4">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-6 col-lg-4">
+                <label class="form-label">Buscar</label>
+                <input id="catalogo-buscar" class="form-control" type="search" placeholder="Nombre, categoría o descripción">
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <label class="form-label">Categoría</label>
+                <select id="catalogo-categoria" class="form-select">
+                    <option value="">Todas</option>
+                </select>
+            </div>
+            <div class="col-lg-4 d-flex justify-content-lg-end gap-2">
+                <button id="catalogo-limpiar" class="btn btn-outline-light">Limpiar filtros</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="catalogo-alert" class="mb-3"></div>
+    <div id="catalogo-grid" class="row g-4"></div>
+</section>
+
+<div class="modal fade" id="modalEliminarProducto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border border-danger text-white">
+            <div class="modal-header border-danger">
+                <h5 class="modal-title">Eliminar producto</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-1">¿Seguro que deseas eliminar?</p>
+                <h6 class="mb-0" id="catalogo-producto-a-eliminar"></h6>
+            </div>
+            <div class="modal-footer border-danger">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="catalogo-confirmar-eliminacion">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -8,16 +8,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class TiendaController {
     
     @GetMapping("/")
-    public String inicio(Model model) {
-        model.addAttribute("nombreTienda", "Tienda Tech");
-        model.addAttribute("mensaje", "Aplicación convertida a Spring Boot");
-        return "tienda";
+    public String inicio() {
+        return "redirect:/frontend/index.html";
     }
     
     @GetMapping("/store")
-    public String store(Model model) {
-        model.addAttribute("nombreTienda", "Tienda Tech");
-        model.addAttribute("mensaje", "Aplicación convertida a Spring Boot");
-        return "tienda";
+    public String store() {
+        return "redirect:/frontend/index.html";
     }
 }
