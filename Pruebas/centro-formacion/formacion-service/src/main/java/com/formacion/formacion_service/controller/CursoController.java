@@ -1,7 +1,6 @@
 package com.formacion.formacion_service.controller;
 
 import com.formacion.formacion_service.model.Curso;
-import com.formacion.formacion_service.model.Alumno;
 import com.formacion.formacion_service.repository.AlumnoRepository;
 import com.formacion.formacion_service.repository.CursoRepository;
 import org.springframework.dao.DataIntegrityViolationException;
