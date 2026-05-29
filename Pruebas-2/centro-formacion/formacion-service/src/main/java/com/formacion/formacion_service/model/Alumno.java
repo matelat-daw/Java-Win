@@ -3,7 +3,6 @@ package com.formacion.formacion_service.model;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,15 +16,13 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
+@Data
 @NoArgsConstructor
-@Getter
-@Setter
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity

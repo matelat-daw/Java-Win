@@ -7,3 +7,5 @@ Content-Type: application/json
   "fecha": "2026-06-15",
   "plazas": 10
 }
+
+DELETE http://localhost:8088/api/v1/actividades/1

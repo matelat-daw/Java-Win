@@ -5,11 +5,14 @@ import com.formacion.formacion_service.repository.CursoRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,6 +56,19 @@ public class CursoController {
         } catch (DataIntegrityViolationException ex) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe un curso con ese título");
         }
+    }
+
+    @DeleteMapping("/{cursoId}")
+    @Transactional
+    public ResponseEntity<Void> delete(@PathVariable Long cursoId) {
+        Curso curso = cursoRepository.findById(cursoId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "El curso indicado no existe"));
+
+        curso.getAlumnos().forEach(alumno -> alumno.getCursos().remove(curso));
+        curso.getAlumnos().clear();
+        cursoRepository.delete(curso);
+
+        return ResponseEntity.noContent().build();
     }
 
     public record AlumnoResumen(
