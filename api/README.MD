@@ -1,0 +1,3 @@
+- JWT_SECRET = "@Cadena de Teto Larga para el Token JWT. Y Punto"
+- Email_User = matelat@gmail.com
+- Email_Pass = cmpazrwvngjpmbhw
