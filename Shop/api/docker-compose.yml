@@ -1,0 +1,40 @@
+name: clients
+
+services:
+  mariadb:
+    image: mariadb:11.4
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: clients
+      MARIADB_USER: clients
+      MARIADB_PASSWORD: clients
+    ports:
+      - "3307:3306"
+    volumes:
+      - /home/orion/clients-api/mysql2:/var/lib/mysql
+      - ./clients.sql:/docker-entrypoint-initdb.d/10-clients.sql:ro
+      - ./myikea.sql:/docker-entrypoint-initdb.d/20-myikea.sql:ro
+      - ./db-init-grants.sql:/docker-entrypoint-initdb.d/30-grants.sql:ro
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    image: orions68/clients-api:latest
+    build:
+      context: .
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mariadb:3306/clients?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: clients
+      SPRING_DATASOURCE_PASSWORD: clients
+      JWT_SECRET: change-me-in-prod
+      UPLOAD_DIR: /data/users
+    ports:
+      - "8080:8080"
+    volumes:
+      - /home/orion/clients-api/users:/data/users

@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # Contenedor de la Base de Datos (MariaDB)
+  base-datos:
+    image: mariadb:11.4
+    container_name: mariadb_api
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: Anubis@68
+      MARIADB_DATABASE: techstore
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql # Tus datos se guardan de forma segura aquí
+      - ./techstore.sql:/docker-entrypoint-initdb.d/techstore.sql:ro
+
+  # Contenedor de tu API Java 25
+  api:
+    build: .
+    container_name: java_api
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - base-datos # Espera a que la base de datos inicie primero
+    volumes:
+      - ../:/frontend:ro
+      - "${USERPROFILE}/tienda-api/imgs:/data/imgs"
+    environment:
+      # Spring leerá estas variables automáticamente si configuraste tu application.properties
+      SPRING_DATASOURCE_URL: jdbc:mariadb://base-datos:3306/techstore
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Anubis@68
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_WEB_RESOURCES_STATIC_LOCATIONS: file:/frontend/,classpath:/static/,file:./
+      TIENDA_IMAGES_DIR: /data/imgs
+
+volumes:
+  mariadb_data: # Define el volumen persistente para que no se borren tus datos
