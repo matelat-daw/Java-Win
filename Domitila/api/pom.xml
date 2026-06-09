@@ -23,7 +23,7 @@
         <maven.version>4.0.6</maven.version>
         <jjwt.version>0.12.3</jjwt.version>
         <lombok.version>1.18.38</lombok.version>
-        <tomcat.version>10.1.50</tomcat.version>
+        <tomcat.version>11.0.22</tomcat.version>
     </properties>
 
     <dependencies>
