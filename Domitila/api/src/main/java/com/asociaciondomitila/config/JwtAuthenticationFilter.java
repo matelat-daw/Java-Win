@@ -1,5 +1,6 @@
 package com.asociaciondomitila.config;
 
+import com.asociaciondomitila.service.AuthCookieService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,7 +15,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Set;
 
 @Component
@@ -29,6 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final UserDetailsService userDetailsService;
+    private final AuthCookieService authCookieService;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -52,17 +53,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String jwt = getJwtFromRequest(request);
 
             if (jwt == null) {
-                log.debug("JWT ausente en request {} {} | hasAuthHeader={} | cookieNames={}",
-                        request.getMethod(),
-                        request.getRequestURI(),
-                        request.getHeader("Authorization") != null,
-                        request.getCookies() == null ? "[]" : Arrays.stream(request.getCookies()).map(jakarta.servlet.http.Cookie::getName).toList()
-                );
-            } else if (jwtProvider.isTokenValid(jwt) && !jwtProvider.isTokenExpired(jwt)) {
+                log.debug("JWT ausente en request {} {}", request.getMethod(), request.getRequestURI());
+            } else if (jwtProvider.isTokenValid(jwt) && jwtProvider.isAccessToken(jwt)) {
                 String email = jwtProvider.getEmailFromToken(jwt);
-
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-                
+
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,
@@ -74,7 +69,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 log.debug("JWT válido para usuario: {}", email);
             } else {
-                log.warn("JWT inválido o expirado para request {} {}", request.getMethod(), request.getRequestURI());
+                log.warn("JWT inválido o de tipo no permitido para request {} {}", request.getMethod(), request.getRequestURI());
             }
         } catch (Exception e) {
             log.error("No se pudo autenticar con JWT: {}", e.getMessage());
@@ -83,24 +78,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    /**
-     * Extrae el JWT del header Authorization o de una cookie
-     */
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
 
-        // Alternativamente, buscar en cookies
-        if (request.getCookies() != null) {
-            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
-                if ("auth_token".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-
-        return null;
+        return authCookieService.resolveAccessToken(request).orElse(null);
     }
 }

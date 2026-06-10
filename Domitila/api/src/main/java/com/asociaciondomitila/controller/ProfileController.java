@@ -1,5 +1,6 @@
 package com.asociaciondomitila.controller;
 
+import com.asociaciondomitila.dto.BooleanResultDto;
 import com.asociaciondomitila.dto.ProfileDeleteRequest;
 import com.asociaciondomitila.dto.UpdatePasswordRequest;
 import com.asociaciondomitila.dto.UpdateProfileRequest;
@@ -8,6 +9,8 @@ import com.asociaciondomitila.entity.User;
 import com.asociaciondomitila.service.ImageService;
 import com.asociaciondomitila.service.UserService;
 import com.asociaciondomitila.util.ApiConstants;
+import com.asociaciondomitila.util.ApiResponse;
+import com.asociaciondomitila.util.ApiResponseBuilder;
 import com.asociaciondomitila.util.AuthenticationHelper;
 import com.asociaciondomitila.util.ValidationHelper;
 import jakarta.validation.Valid;
@@ -34,27 +37,15 @@ public class ProfileController {
     private final ImageService imageService;
     private final AuthenticationHelper authenticationHelper;
 
-    /**
-     * GET /api/profile - Obtiene el perfil del usuario autenticado
-     */
     @GetMapping
-    public ResponseEntity<?> getProfile(Authentication authentication) {
+    public ResponseEntity<ApiResponse<UserDto>> getProfile(Authentication authentication) {
         User user = authenticationHelper.requireAuthenticatedUser(authentication);
         authenticationHelper.logAuthEvent(user.getEmail(), "profile_retrieved");
-        
-        // Devolver estructura plana: success, data = usuario
-        return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", ApiConstants.MSG_PROFILE_FETCHED,
-                "data", UserDto.fromEntity(user)
-        ));
+        return ApiResponseBuilder.success(ApiConstants.MSG_PROFILE_FETCHED, UserDto.fromEntity(user));
     }
 
-    /**
-     * PUT /api/profile - Actualiza datos del perfil
-     */
     @PutMapping
-    public ResponseEntity<?> updateProfile(
+    public ResponseEntity<ApiResponse<UserDto>> updateProfile(
             Authentication authentication,
             @Valid @RequestBody UpdateProfileRequest request
     ) {
@@ -69,25 +60,15 @@ public class ProfileController {
         );
 
         authenticationHelper.logAuthEvent(user.getEmail(), "profile_updated");
-        
-        return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", ApiConstants.MSG_PROFILE_UPDATED,
-                "data", UserDto.fromEntity(updatedUser)
-        ));
+        return ApiResponseBuilder.success(ApiConstants.MSG_PROFILE_UPDATED, UserDto.fromEntity(updatedUser));
     }
 
-    /**
-     * POST /api/profile/picture - Sube nueva foto de perfil (MultipartFile)
-     */
     @PostMapping(value = "/picture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateProfilePicture(
+    public ResponseEntity<ApiResponse<UserDto>> updateProfilePicture(
             Authentication authentication,
             @RequestParam("profilePicture") MultipartFile file
     ) {
         User user = authenticationHelper.requireAuthenticatedUser(authentication);
-        
-        // Validar imagen
         ValidationHelper.validateImageFile(file);
 
         try {
@@ -96,23 +77,15 @@ public class ProfileController {
             User updatedUser = userService.updateProfileImage(user.getId(), fileName);
 
             authenticationHelper.logAuthEvent(user.getEmail(), "profile_picture_updated");
-            
-            return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "message", ApiConstants.MSG_PROFILE_PICTURE_UPDATED,
-                    "data", UserDto.fromEntity(updatedUser)
-            ));
+            return ApiResponseBuilder.success(ApiConstants.MSG_PROFILE_PICTURE_UPDATED, UserDto.fromEntity(updatedUser));
         } catch (Exception e) {
             log.error("Error al guardar imagen: {}", e.getMessage());
             throw new RuntimeException(ApiConstants.ERR_IMAGE_SAVE_FAILED);
         }
     }
 
-    /**
-     * PUT /api/profile/password - Cambia la contraseña del usuario
-     */
     @PutMapping("/password")
-    public ResponseEntity<?> updatePassword(
+    public ResponseEntity<ApiResponse<UserDto>> updatePassword(
             Authentication authentication,
             @Valid @RequestBody UpdatePasswordRequest request
     ) {
@@ -129,47 +102,22 @@ public class ProfileController {
         );
 
         authenticationHelper.logAuthEvent(user.getEmail(), "password_changed");
-        
-        return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", ApiConstants.MSG_PASSWORD_UPDATED,
-                "data", UserDto.fromEntity(updatedUser)
-        ));
+        return ApiResponseBuilder.success(ApiConstants.MSG_PASSWORD_UPDATED, UserDto.fromEntity(updatedUser));
     }
 
-    /**
-     * POST /api/profile/delete - Elimina la cuenta del usuario
-     */
     @PostMapping("/delete")
-    public ResponseEntity<?> deleteAccount(
+    public ResponseEntity<ApiResponse<Void>> deleteAccount(
             Authentication authentication,
             @Valid @RequestBody ProfileDeleteRequest request
     ) {
         User user = authenticationHelper.requireAuthenticatedUser(authentication);
-        
-        // Eliminar todas las imágenes del usuario (directorio completo)
-        try {
-            imageService.deleteUserProfileImages(user.getId());
-            log.info("✅ Carpeta de imágenes del usuario {} eliminada", user.getId());
-        } catch (Exception e) {
-            log.warn("⚠️ No se pudo eliminar imágenes del usuario {}: {}", user.getId(), e.getMessage());
-        }
-
         userService.deleteUserAccount(user.getId(), request.getPassword());
-
         authenticationHelper.logAuthEvent(user.getEmail(), "account_deleted");
-        
-        return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", ApiConstants.MSG_PROFILE_DELETED
-        ));
+        return ApiResponseBuilder.success(ApiConstants.MSG_PROFILE_DELETED);
     }
 
-    /**
-     * POST /api/profile/validate-password - Valida la contraseña del usuario
-     */
     @PostMapping("/validate-password")
-    public ResponseEntity<?> validatePassword(
+    public ResponseEntity<ApiResponse<BooleanResultDto>> validatePassword(
             Authentication authentication,
             @RequestBody Map<String, String> request
     ) {
@@ -180,12 +128,7 @@ public class ProfileController {
             throw new IllegalArgumentException("La contraseña es requerida");
         }
 
-        boolean isValid = userService.validateCredentials(user.getEmail(), password);
-        
-        return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "Validación completada",
-                "data", Map.of("valid", isValid)
-        ));
+        boolean isValid = userService.isPasswordValid(user, password);
+        return ApiResponseBuilder.success("Validación completada", new BooleanResultDto(isValid));
     }
 }

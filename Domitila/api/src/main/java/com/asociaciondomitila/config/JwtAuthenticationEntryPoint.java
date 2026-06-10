@@ -1,6 +1,9 @@
 package com.asociaciondomitila.config;
 
+import com.asociaciondomitila.util.ApiResponse;
+import com.asociaciondomitila.util.ApiConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -9,12 +12,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.http.HttpStatus;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public void commence(
@@ -25,15 +30,10 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         log.error("Error de autenticación: {}", authException.getMessage());
 
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType("application/json");
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("success", false);
-        body.put("message", "No autorizado: se requiere autenticación");
-        body.put("error", authException.getMessage());
-
-        ObjectMapper mapper = new ObjectMapper();
-        response.getWriter().write(mapper.writeValueAsString(body));
+        response.getWriter().write(objectMapper.writeValueAsString(
+                ApiResponse.error(HttpStatus.UNAUTHORIZED, ApiConstants.ERR_UNAUTHORIZED)
+        ));
     }
 }

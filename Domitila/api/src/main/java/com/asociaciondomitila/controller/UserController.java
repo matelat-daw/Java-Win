@@ -1,15 +1,22 @@
 package com.asociaciondomitila.controller;
 
-import com.asociaciondomitila.config.JwtProvider;
+import com.asociaciondomitila.dto.AuthSessionDto;
+import com.asociaciondomitila.dto.ChangeRoleRequest;
+import com.asociaciondomitila.dto.PageResponse;
 import com.asociaciondomitila.dto.RegisterRequest;
 import com.asociaciondomitila.dto.UserDto;
 import com.asociaciondomitila.entity.User;
 import com.asociaciondomitila.enums.Role;
-import com.asociaciondomitila.repository.UserRepository;
+import com.asociaciondomitila.service.AuthCookieService;
+import com.asociaciondomitila.service.AuthSessionService;
 import com.asociaciondomitila.service.ImageService;
 import com.asociaciondomitila.service.UserService;
 import com.asociaciondomitila.util.ApiConstants;
+import com.asociaciondomitila.util.ApiResponse;
+import com.asociaciondomitila.util.ApiResponseBuilder;
 import com.asociaciondomitila.util.ValidationHelper;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -17,14 +24,21 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Controlador optimizado para gestión de usuarios
@@ -37,40 +51,19 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
-    private final UserRepository userRepository;
-    private final JwtProvider jwtProvider;
+    private final AuthSessionService authSessionService;
+    private final AuthCookieService authCookieService;
     private final ImageService imageService;
 
-    /**
-     * POST /api/user/register - Registro de usuario con imagen opcional
-     */
     @PostMapping("/register")
-    public ResponseEntity<?> register(
-            @RequestParam String nick,
-            @RequestParam String name,
-            @RequestParam String surname1,
-            @RequestParam(required = false) String surname2,
-            @RequestParam String email,
-            @RequestParam String phone,
-            @RequestParam String password,
-            @RequestParam String gender,
+    public ResponseEntity<ApiResponse<AuthSessionDto>> register(
+            @Valid @ModelAttribute RegisterRequest request,
             @RequestParam(required = false) String bday,
-            @RequestParam(required = false) MultipartFile profilePicture
+            @RequestParam(required = false) MultipartFile profilePicture,
+            HttpServletResponse response
     ) {
-        log.info("Intento de registro para: {} ({})", email, nick);
-        LocalDate birthDate = parseBirthDate(bday);
-
-        RegisterRequest request = RegisterRequest.builder()
-                .nick(nick)
-                .name(name)
-                .surname1(surname1)
-                .surname2(surname2)
-                .email(email)
-                .phone(phone)
-                .password(password)
-                .gender(gender)
-                .bday(birthDate)
-                .build();
+        log.info("Intento de registro para: {} ({})", request.getEmail(), request.getNick());
+        request.setBday(parseBirthDate(bday));
 
         User user = userService.registerUser(request);
 
@@ -85,22 +78,14 @@ public class UserController {
             }
         }
 
-        String token = jwtProvider.generateToken(user.getEmail());
-
-        return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", ApiConstants.MSG_REGISTER_SUCCESS,
-                "token", token,
-                "data", UserDto.fromEntity(user)
-        ));
+        AuthSessionDto session = authSessionService.createSession(user);
+        authCookieService.writeAuthenticationCookies(response, session.accessToken(), session.refreshToken());
+        return ApiResponseBuilder.created(ApiConstants.MSG_REGISTER_SUCCESS, session);
     }
 
-    /**
-     * GET /api/user - Lista usuarios (ADMIN only, excluye ADMIN users)
-     */
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getAllUsers(
+    public ResponseEntity<ApiResponse<PageResponse<UserDto>>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
@@ -108,83 +93,52 @@ public class UserController {
         int safeSize = Math.min(Math.max(1, size), 100);
         Pageable pageable = PageRequest.of(safePage, safeSize);
 
-        Page<User> usersPage = userRepository.findAllExcludingRoleName(Role.ADMIN.name(), pageable);
+        Page<User> usersPage = userService.getUsersExcludingRole(Role.ADMIN, pageable);
 
         List<UserDto> users = usersPage.getContent().stream()
                 .map(UserDto::fromEntity)
                 .toList();
 
-        return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", ApiConstants.MSG_USERS_FETCHED,
-                "users", users,
-                "pagination", Map.of(
-                        "currentPage", usersPage.getNumber(),
-                        "totalItems", usersPage.getTotalElements(),
-                        "totalPages", usersPage.getTotalPages(),
-                        "pageSize", usersPage.getSize(),
-                        "hasNext", usersPage.hasNext(),
-                        "hasPrevious", usersPage.hasPrevious()
+        return ApiResponseBuilder.success(
+                ApiConstants.MSG_USERS_FETCHED,
+                new PageResponse<>(
+                        users,
+                        usersPage.getNumber(),
+                        usersPage.getTotalElements(),
+                        usersPage.getTotalPages(),
+                        usersPage.getSize(),
+                        usersPage.hasNext(),
+                        usersPage.hasPrevious()
                 )
-        ));
+        );
     }
 
-    /**
-     * GET /api/user/{id} - Obtener usuario por ID (ADMIN o el mismo usuario)
-     */
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getUserById(@PathVariable Long id) {
-        User user = userService.getUserById(id)
-                .orElseThrow(() -> new IllegalStateException(ApiConstants.ERR_USER_NOT_FOUND));
-
-        return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", ApiConstants.MSG_PROFILE_FETCHED,
-                "data", UserDto.fromEntity(user)
-        ));
+    public ResponseEntity<ApiResponse<UserDto>> getUserById(@PathVariable Long id) {
+        User user = userService.getRequiredUserById(id);
+        return ApiResponseBuilder.success(ApiConstants.MSG_PROFILE_FETCHED, UserDto.fromEntity(user));
     }
 
-    /**
-     * PUT /api/user/{id}/role - Cambiar rol de usuario (ADMIN only)
-     */
     @PutMapping("/{id}/role")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> changeUserRole(
+    public ResponseEntity<ApiResponse<UserDto>> changeUserRole(
             @PathVariable Long id,
-            @RequestParam String newRole
+            @Valid @org.springframework.web.bind.annotation.RequestBody ChangeRoleRequest request
     ) {
-        if (!ValidationHelper.isValidString(newRole)) {
-            throw new IllegalArgumentException("El rol es requerido");
+        if (!id.equals(request.getUserId())) {
+            throw new IllegalArgumentException("El ID del path no coincide con el cuerpo de la petición");
         }
-        User updatedUser = userService.changeUserRole(id, newRole.toUpperCase());
-        return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "Rol actualizado exitosamente",
-                "data", UserDto.fromEntity(updatedUser)
-        ));
+        User updatedUser = userService.changeUserRole(id, request.getNewRole());
+        return ApiResponseBuilder.success("Rol actualizado exitosamente", UserDto.fromEntity(updatedUser));
     }
 
-    /**
-     * DELETE /api/user/{id} - Eliminar usuario (ADMIN only, no permite eliminar ADMIN)
-     */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        User user = userService.getUserById(id)
-                .orElseThrow(() -> new IllegalStateException(ApiConstants.ERR_USER_NOT_FOUND));
-
-        if (user.getRole() == Role.ADMIN) {
-            throw new IllegalStateException("No se puede eliminar usuarios con rol ADMIN");
-        }
-
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
-        log.info("Usuario eliminado: {} (ID: {})", user.getEmail(), id);
-
-        return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "Usuario eliminado exitosamente"
-        ));
+        log.info("Usuario eliminado con ID: {}", id);
+        return ApiResponseBuilder.success("Usuario eliminado exitosamente");
     }
 
     private static LocalDate parseBirthDate(String bday) {

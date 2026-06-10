@@ -1,46 +1,47 @@
 package com.asociaciondomitila.config;
 
+import com.asociaciondomitila.entity.User;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.time.Instant;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class JwtProvider {
 
-    @Value("${jwt.secret}")
-    private String jwtSecret;
+    private static final String CLAIM_TYPE = "type";
+    private static final String CLAIM_ROLES = "roles";
+    private static final String TOKEN_TYPE_ACCESS = "ACCESS";
+    private static final String TOKEN_TYPE_REFRESH = "REFRESH";
 
-    @Value("${jwt.expiration}")
-    private long jwtExpiration;
-
-    @Value("${jwt.refresh-expiration}")
-    private long refreshExpiration;
+    private final JwtProperties jwtProperties;
 
     private SecretKey key;
     private io.jsonwebtoken.JwtParser jwtParser;
 
     @PostConstruct
     public void init() {
-        if (jwtSecret == null || jwtSecret.isBlank()) {
+        if (jwtProperties.getSecret() == null || jwtProperties.getSecret().isBlank()) {
             throw new IllegalStateException("jwt.secret no está configurado");
         }
 
-        this.key = resolveKey(jwtSecret);
-        
-        // Reusar el parser para mejor rendimiento
+        this.key = resolveKey(jwtProperties.getSecret());
         this.jwtParser = Jwts.parser()
                 .verifyWith(key)
+                .requireIssuer(jwtProperties.getIssuer())
                 .build();
     }
 
@@ -58,83 +59,66 @@ public class JwtProvider {
         }
     }
 
-    /**
-     * Genera un JWT token para el usuario
-     */
-    public String generateToken(String email) {
-        return generateToken(email, new HashMap<>());
+    public String generateAccessToken(User user) {
+        return createToken(
+                user.getEmail(),
+                jwtProperties.getExpiration(),
+                Map.of(
+                        CLAIM_TYPE, TOKEN_TYPE_ACCESS,
+                        CLAIM_ROLES, user.getRoles().stream().map(role -> role.getName()).toList()
+                )
+        );
     }
 
-    /**
-     * Genera un JWT token con claims adicionales
-     */
-    public String generateToken(String email, Map<String, Object> claims) {
-        return createToken(claims, email, jwtExpiration);
+    public String generateRefreshToken(User user) {
+        return createToken(
+                user.getEmail(),
+                jwtProperties.getRefreshExpiration(),
+                Map.of(CLAIM_TYPE, TOKEN_TYPE_REFRESH)
+        );
     }
 
-    /**
-     * Genera un refresh token de larga duración
-     */
-    public String generateRefreshToken(String email) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("type", "REFRESH");
-        return createToken(claims, email, refreshExpiration);
-    }
-
-    /**
-     * Crea el token JWT con firma HS512
-     */
-    private String createToken(Map<String, Object> claims, String subject, long expiration) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expiration);
-
-        return Jwts.builder()
-                .claims(claims)
-                .subject(subject)
-                .issuedAt(now)
-                .expiration(expiryDate)
-                .signWith(key)
-                .compact();
-    }
-
-    /**
-     * Obtiene el email del JWT
-     */
     public String getEmailFromToken(String token) {
         return getAllClaimsFromToken(token).getSubject();
     }
 
-    /**
-     * Obtiene los claims del JWT
-     */
     public Claims getAllClaimsFromToken(String token) {
-        return jwtParser
-                .parseSignedClaims(token)
-                .getPayload();
+        return jwtParser.parseSignedClaims(token).getPayload();
     }
 
-    /**
-     * Valida si el token es válido
-     */
-    public Boolean isTokenValid(String token) {
+    public boolean isAccessToken(String token) {
+        return TOKEN_TYPE_ACCESS.equals(getAllClaimsFromToken(token).get(CLAIM_TYPE, String.class));
+    }
+
+    public boolean isRefreshToken(String token) {
+        return TOKEN_TYPE_REFRESH.equals(getAllClaimsFromToken(token).get(CLAIM_TYPE, String.class));
+    }
+
+    public boolean isTokenValid(String token) {
         try {
             jwtParser.parseSignedClaims(token);
             return true;
-        } catch (Exception e) {
-            log.error("Invalid JWT token: {}", e.getMessage());
+        } catch (JwtException | IllegalArgumentException ex) {
+            log.warn("JWT inválido: {}", ex.getMessage());
             return false;
         }
     }
 
-    /**
-     * Verifica si el token ha expirado
-     */
-    public boolean isTokenExpired(String token) {
-        try {
-            Claims claims = getAllClaimsFromToken(token);
-            return claims.getExpiration().before(new Date());
-        } catch (Exception e) {
-            return true;
-        }
+    public boolean isRefreshTokenValid(String token) {
+        return isTokenValid(token) && isRefreshToken(token);
+    }
+
+    private String createToken(String subject, java.time.Duration expiration, Map<String, Object> claims) {
+        Instant now = Instant.now();
+        Instant expiryDate = now.plus(expiration);
+
+        return Jwts.builder()
+                .subject(subject)
+                .issuer(jwtProperties.getIssuer())
+                .claims(claims)
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(expiryDate))
+                .signWith(key)
+                .compact();
     }
 }

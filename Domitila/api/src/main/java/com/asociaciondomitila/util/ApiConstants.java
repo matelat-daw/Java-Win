@@ -42,12 +42,6 @@ public final class ApiConstants {
     public static final String PROFILE_ENDPOINT = API_PREFIX + "/profile";
     public static final String IMAGES_ENDPOINT = API_PREFIX + "/images";
 
-    // ==================== CONFIGURACIÓN JWT ====================
-    public static final String JWT_COOKIE_NAME = "auth_token";
-    public static final String JWT_COOKIE_PATH = "/";
-    public static final int JWT_COOKIE_MAX_AGE = 86400; // 24 horas
-    public static final String JWT_SAME_SITE = "Lax";
-
     // ==================== CONFIGURACIÓN ROLES ====================
     public static final String ROLE_PREFIX = "ROLE_";
     public static final String ROLE_ADMIN = "ADMIN";

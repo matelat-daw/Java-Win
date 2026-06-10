@@ -12,6 +12,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 /**
@@ -79,15 +80,21 @@ public class GlobalExceptionHandler {
         return ApiResponseBuilder.badRequest("Error de integridad: Ya existe un registro con esos datos únicos.");
     }
 
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException ex) {
+        log.error("Archivo excede el tamaño máximo permitido: {}", ex.getMessage());
+        return ApiResponseBuilder.badRequest("El archivo excede el tamaño máximo permitido.");
+    }
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse<Void>> handleRuntimeException(RuntimeException ex) {
         log.error("Error de runtime: {}", ex.getMessage(), ex);
-        return ApiResponseBuilder.internalServerError(ApiConstants.ERR_INTERNAL_ERROR + ": " + ex.getMessage());
+        return ApiResponseBuilder.internalServerError(ApiConstants.ERR_INTERNAL_ERROR);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGlobalException(Exception ex) {
         log.error("Error no controlado: {} ({})", ex.getMessage(), ex.getClass().getName(), ex);
-        return ApiResponseBuilder.internalServerError(ApiConstants.ERR_INTERNAL_ERROR + " [" + ex.getClass().getSimpleName() + "]: " + ex.getMessage());
+        return ApiResponseBuilder.internalServerError(ApiConstants.ERR_INTERNAL_ERROR);
     }
 }

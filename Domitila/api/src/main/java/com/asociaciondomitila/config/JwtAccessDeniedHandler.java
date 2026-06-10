@@ -1,6 +1,9 @@
 package com.asociaciondomitila.config;
 
+import com.asociaciondomitila.util.ApiConstants;
+import com.asociaciondomitila.util.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -9,12 +12,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.http.HttpStatus;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public void handle(
@@ -25,15 +30,10 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
         log.error("Acceso denegado: {}", accessDeniedException.getMessage());
 
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setStatus(HttpStatus.FORBIDDEN.value());
         response.setContentType("application/json");
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("success", false);
-        body.put("message", "Acceso denegado: no tienes permisos suficientes");
-        body.put("error", accessDeniedException.getMessage());
-
-        ObjectMapper mapper = new ObjectMapper();
-        response.getWriter().write(mapper.writeValueAsString(body));
+        response.getWriter().write(objectMapper.writeValueAsString(
+                ApiResponse.error(HttpStatus.FORBIDDEN, ApiConstants.ERR_FORBIDDEN)
+        ));
     }
 }

@@ -1,29 +1,31 @@
 package com.asociaciondomitila.controller;
 
-import com.asociaciondomitila.config.JwtProvider;
+import com.asociaciondomitila.dto.AuthSessionDto;
 import com.asociaciondomitila.dto.LoginRequest;
-import com.asociaciondomitila.dto.UserDto;
 import com.asociaciondomitila.entity.User;
+import com.asociaciondomitila.service.AuthCookieService;
+import com.asociaciondomitila.service.AuthSessionService;
 import com.asociaciondomitila.service.UserService;
 import com.asociaciondomitila.util.ApiConstants;
+import com.asociaciondomitila.util.ApiResponse;
+import com.asociaciondomitila.util.ApiResponseBuilder;
 import com.asociaciondomitila.util.AuthenticationHelper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.ResponseCookie;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Map;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Controlador optimizado de autenticación
- * Maneja login, logout, verificación de email y operaciones de auth
- */
+import java.io.IOException;
+
 @RestController
 @RequestMapping(ApiConstants.AUTH_ENDPOINT)
 @Slf4j
@@ -31,7 +33,8 @@ import java.util.Map;
 public class AuthController {
 
     private final UserService userService;
-    private final JwtProvider jwtProvider;
+    private final AuthSessionService authSessionService;
+    private final AuthCookieService authCookieService;
     private final AuthenticationHelper authenticationHelper;
 
     @Value("${app.frontend.login-url:http://localhost/login}")
@@ -40,46 +43,18 @@ public class AuthController {
     @Value("${app.frontend.register-url:http://localhost/register}")
     private String frontendRegisterUrl;
 
-    @Value("${app.security.cookie.secure:false}")
-    private boolean cookieSecure;
-
-    @Value("${app.security.cookie.same-site:" + ApiConstants.JWT_SAME_SITE + "}")
-    private String cookieSameSite;
-
-    /**
-     * POST /api/auth/login - Autentica al usuario
-     */
     @PostMapping("/login")
-    public ResponseEntity<?> login(
+    public ResponseEntity<ApiResponse<AuthSessionDto>> login(
             @Valid @RequestBody LoginRequest request,
             HttpServletResponse response
     ) {
-        if (!userService.validateCredentials(request.getEmail(), request.getPassword())) {
-            throw new IllegalArgumentException(ApiConstants.ERR_INVALID_CREDENTIALS);
-        }
-
-        User user = userService.getUserByEmail(request.getEmail())
-                .orElseThrow(() -> new IllegalStateException(ApiConstants.ERR_USER_NOT_FOUND));
-
-        String token = jwtProvider.generateToken(user.getEmail());
-        addAuthCookie(response, token);
-
+        User user = userService.authenticate(request.getEmail(), request.getPassword());
+        AuthSessionDto session = authSessionService.createSession(user);
+        authCookieService.writeAuthenticationCookies(response, session.accessToken(), session.refreshToken());
         authenticationHelper.logAuthEvent(user.getEmail(), "login_successful");
-
-        // Retornar token en el body + datos del usuario como data
-        // Frontend extrae el token de response.token
-        return ResponseEntity.ok()
-                .body(Map.of(
-                        "success", true,
-                        "message", ApiConstants.MSG_LOGIN_SUCCESS,
-                        "token", token,
-                        "data", UserDto.fromEntity(user)
-                ));
+        return ApiResponseBuilder.success(ApiConstants.MSG_LOGIN_SUCCESS, session);
     }
 
-    /**
-     * GET /api/auth/verify/{token} - Verifica el email del usuario
-     */
     @GetMapping("/verify/{token}")
     public void verifyEmail(@PathVariable String token, HttpServletResponse response) throws IOException {
         try {
@@ -91,69 +66,28 @@ public class AuthController {
         }
     }
 
-    /**
-     * POST /api/auth/refresh - Refresca el JWT token
-     */
     @PostMapping("/refresh")
-    public ResponseEntity<?> refreshToken(
-            Authentication authentication,
+    public ResponseEntity<ApiResponse<AuthSessionDto>> refreshToken(
+            HttpServletRequest request,
             HttpServletResponse response
     ) {
-        User user = authenticationHelper.requireAuthenticatedUser(authentication);
+        String refreshToken = authCookieService.resolveRefreshToken(request)
+                .orElseThrow(() -> new IllegalArgumentException(ApiConstants.ERR_INVALID_TOKEN));
+        if (!authenticationHelper.isRefreshTokenValid(refreshToken)) {
+            throw new IllegalArgumentException(ApiConstants.ERR_INVALID_TOKEN);
+        }
 
-        String newToken = jwtProvider.generateToken(user.getEmail());
-        addAuthCookie(response, newToken);
-
+        User user = userService.getRequiredUserByEmail(authenticationHelper.getEmailFromToken(refreshToken));
+        AuthSessionDto session = authSessionService.createSession(user);
+        authCookieService.writeAuthenticationCookies(response, session.accessToken(), session.refreshToken());
         authenticationHelper.logAuthEvent(user.getEmail(), "token_refreshed");
-
-        return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", ApiConstants.MSG_TOKEN_REFRESHED,
-                "data", Map.of("token", newToken)
-        ));
+        return ApiResponseBuilder.success(ApiConstants.MSG_TOKEN_REFRESHED, session);
     }
 
-    /**
-     * POST /api/auth/logout - Cierra la sesión del usuario
-     */
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response) {
-        removeAuthCookie(response);
+    public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse response) {
+        authCookieService.clearAuthenticationCookies(response);
         log.info("Logout realizado");
-
-        return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "Logout exitoso"
-        ));
-    }
-
-    /**
-     * Agrega cookie de autenticación segura
-     */
-    private void addAuthCookie(HttpServletResponse response, String token) {
-        ResponseCookie cookie = ResponseCookie.from(ApiConstants.JWT_COOKIE_NAME, token)
-                .path(ApiConstants.JWT_COOKIE_PATH)
-                .httpOnly(true)
-                .secure(cookieSecure)
-                .maxAge(ApiConstants.JWT_COOKIE_MAX_AGE)
-                .sameSite(cookieSameSite)
-                .build();
-
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-    }
-
-    /**
-     * Elimina la cookie de autenticación
-     */
-    private void removeAuthCookie(HttpServletResponse response) {
-        ResponseCookie cookie = ResponseCookie.from(ApiConstants.JWT_COOKIE_NAME, "")
-                .path(ApiConstants.JWT_COOKIE_PATH)
-                .httpOnly(true)
-                .secure(cookieSecure)
-                .maxAge(0)
-                .sameSite(cookieSameSite)
-                .build();
-
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        return ApiResponseBuilder.success("Logout exitoso");
     }
 }

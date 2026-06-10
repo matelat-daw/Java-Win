@@ -1,5 +1,6 @@
 package com.asociaciondomitila.util;
 
+import com.asociaciondomitila.config.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -19,6 +20,7 @@ import java.util.Optional;
 public class AuthenticationHelper {
 
     private final UserService userService;
+    private final JwtProvider jwtProvider;
 
     /**
      * Valida que el usuario esté autenticado
@@ -69,5 +71,13 @@ public class AuthenticationHelper {
      */
     public void logUnauthorizationAttempt(String reason) {
         log.warn("Unauthorized access attempt: {}", reason);
+    }
+
+    public boolean isRefreshTokenValid(String refreshToken) {
+        return jwtProvider.isRefreshTokenValid(refreshToken);
+    }
+
+    public String getEmailFromToken(String token) {
+        return jwtProvider.getEmailFromToken(token);
     }
 }

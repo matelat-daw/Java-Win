@@ -12,6 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Optional;
@@ -29,35 +32,23 @@ public class UserService {
     private final EmailService emailService;
     private final ImageService imageService;
 
-    /**
-     * Registra un nuevo usuario
-     */
     @Transactional
     public User registerUser(RegisterRequest request) {
-        // Validar que el email no exista
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("El email ya está registrado");
         }
 
-        // Validar que el nick no exista
         if (userRepository.existsByNick(request.getNick())) {
             throw new IllegalArgumentException("El nick ya está en uso");
         }
 
-        // Convertir gender string a enum
         Gender gender = Gender.fromEnglishName(request.getGender());
-
-        RoleEntity userRole = roleRepository.findByName(Role.USER.name())
-            .orElseThrow(() -> new IllegalStateException("El rol USER no existe en la tabla roles"));
-
-        // Asignar imagen por defecto si no se proporciona
         String profileImg = request.getProfileImg();
         if (profileImg == null || profileImg.trim().isEmpty()) {
             profileImg = gender.getDefaultImagePath();
             log.info("Asignando imagen por defecto para gender: {}", gender.getDisplayName());
         }
 
-        // Crear nuevo usuario
         User user = User.builder()
                 .nick(request.getNick())
                 .name(request.getName())
@@ -69,7 +60,7 @@ public class UserService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .profileImg(profileImg)
-                .roles(new HashSet<>(Set.of(userRole)))
+                .roles(new HashSet<>(Set.of(getRequiredRole(Role.USER))))
                 .active(false)
                 .emailVerified(false)
                 .verificationToken(UUID.randomUUID().toString())
@@ -80,7 +71,6 @@ public class UserService {
 
         log.info("Usuario registrado: {}", user.getEmail());
 
-        // Enviar email de verificación
         try {
             emailService.sendVerificationEmail(
                     user.getEmail(),
@@ -95,20 +85,15 @@ public class UserService {
         return user;
     }
 
-    /**
-     * Verifica el email del usuario
-     */
     @Transactional
     public User verifyEmail(String token) {
         User user = userRepository.findByVerificationToken(token)
                 .orElseThrow(() -> new IllegalArgumentException("Token de verificación inválido"));
 
-        // Verificar que el token no haya expirado
         if (user.getVerificationTokenExpiry().isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException("El token de verificación ha expirado");
         }
 
-        // Marcar como verificado
         user.setEmailVerified(true);
         user.setActive(true);
         user.setVerificationToken(null);
@@ -123,49 +108,51 @@ public class UserService {
         return user;
     }
 
-    /**
-     * Obtiene un usuario por email
-     */
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-    /**
-     * Obtiene un usuario por nick
-     */
     public Optional<User> getUserByNick(String nick) {
         return userRepository.findByNick(nick);
     }
 
-    /**
-     * Obtiene un usuario por ID
-     */
     public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
 
-    /**
-     * Valida las credenciales del usuario
-     */
+    public User getRequiredUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+    }
+
+    public User getRequiredUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+    }
+
+    public User authenticate(String email, String password) {
+        User user = getRequiredUserByEmail(email);
+        validateUserIsActive(user);
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("Email o contraseña incorrectos");
+        }
+        return user;
+    }
+
     public boolean validateCredentials(String email, String password) {
         return userRepository.findByEmail(email)
-                .map(user -> {
-                    if (!user.getActive() || !user.getEmailVerified()) {
-                        throw new IllegalStateException("Usuario no verificado o inactivo");
-                    }
-                    return passwordEncoder.matches(password, user.getPassword());
-                })
+                .filter(user -> Boolean.TRUE.equals(user.getActive()) && Boolean.TRUE.equals(user.getEmailVerified()))
+                .map(user -> passwordEncoder.matches(password, user.getPassword()))
                 .orElse(false);
     }
 
-    /**
-     * Actualiza el perfil del usuario
-     */
+    public boolean isPasswordValid(User user, String password) {
+        return passwordEncoder.matches(password, user.getPassword());
+    }
+
     @Transactional
     public User updateUserProfile(Long id, String name, String surname1, String surname2, String phone) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
-
+        User user = getRequiredUserById(id);
         user.setName(name);
         user.setSurname1(surname1);
         user.setSurname2(surname2);
@@ -174,15 +161,9 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    /**
-     * Actualiza la imagen de perfil de un usuario
-     */
     @Transactional
     public User updateProfileImage(Long userId, String imagePath) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
-        
-        // Eliminar imagen anterior si no es por defecto
+        User user = getRequiredUserById(userId);
         if (user.getProfileImg() != null
                 && !imageService.isProtectedImage(user.getProfileImg())
                 && !user.getProfileImg().equals(imagePath)) {
@@ -197,25 +178,17 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    /**
-     * Cambia la contraseña del usuario
-     */
     @Transactional
     public User changePassword(Long id, String oldPassword, String newPassword) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
-
-        // Validar contraseña anterior
+        User user = getRequiredUserById(id);
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             throw new IllegalArgumentException("Contraseña actual incorrecta");
         }
 
-        // Validar que la nueva contraseña sea diferente
         if (passwordEncoder.matches(newPassword, user.getPassword())) {
             throw new IllegalArgumentException("La nueva contraseña no puede ser igual a la actual");
         }
 
-        // Cambiar contraseña
         user.setPassword(passwordEncoder.encode(newPassword));
         user = userRepository.save(user);
 
@@ -223,67 +196,62 @@ public class UserService {
         return user;
     }
 
-    /**
-     * Elimina la cuenta del usuario (requiere confirmación con contraseña)
-     */
     @Transactional
     public void deleteUserAccount(Long id, String password) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
-
+        User user = getRequiredUserById(id);
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new IllegalArgumentException("Contraseña incorrecta");
         }
 
-        // Eliminar imagen de perfil si existe
-        if (user.getProfileImg() != null && !user.getProfileImg().isEmpty()) {
-            try {
-                imageService.deleteProfileImage(user.getId(), user.getProfileImg());
-            } catch (Exception e) {
-                log.warn("Error al eliminar imágenes de perfil: {}", e.getMessage());
-            }
-        }
-
+        deleteUserAssets(user);
         userRepository.delete(user);
         log.info("Cuenta eliminada permanentemente: {}", user.getEmail());
     }
 
-    /**
-     * Elimina un usuario por ID (Admin only)
-     */
     @Transactional
     public void deleteUser(Long id) {
-        userRepository.findById(id).ifPresent(user -> {
-            if (user.getRole() == Role.ADMIN) {
-                throw new IllegalStateException("No se puede eliminar usuarios con rol ADMIN");
-            }
-            // Eliminar imagen de perfil si existe
-            if (user.getProfileImg() != null && !user.getProfileImg().isEmpty()) {
-                try {
-                    imageService.deleteProfileImage(user.getId(), user.getProfileImg());
-                } catch (Exception e) {
-                    log.warn("Error al eliminar imágenes de perfil: {}", e.getMessage());
-                }
-            }
-            userRepository.delete(user);
-        });
+        User user = getRequiredUserById(id);
+        if (user.getRole() == Role.ADMIN) {
+            throw new IllegalStateException("No se puede eliminar usuarios con rol ADMIN");
+        }
+
+        deleteUserAssets(user);
+        userRepository.delete(user);
     }
 
-    /**
-     * Cambia el rol de un usuario
-     */
     @Transactional
     public User changeUserRole(Long userId, String roleName) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
-
+        User user = getRequiredUserById(userId);
         Role role = Role.fromDisplayName(roleName);
-        RoleEntity roleEntity = roleRepository.findByName(role.name())
-                .orElseThrow(() -> new IllegalStateException("Rol no encontrado en la base de datos: " + role.name()));
-
         user.getRoles().clear();
-        user.getRoles().add(roleEntity);
-        
+        user.getRoles().add(getRequiredRole(role));
         return userRepository.save(user);
+    }
+
+    public Page<User> getUsersExcludingRole(Role role, Pageable pageable) {
+        return userRepository.findAllExcludingRoleName(role.name(), pageable);
+    }
+
+    private void validateUserIsActive(User user) {
+        if (!Boolean.TRUE.equals(user.getActive()) || !Boolean.TRUE.equals(user.getEmailVerified())) {
+            throw new IllegalStateException("Usuario no verificado o inactivo");
+        }
+    }
+
+    private RoleEntity getRequiredRole(Role role) {
+        return roleRepository.findByName(role.name())
+                .orElseThrow(() -> new IllegalStateException("Rol no encontrado en la base de datos: " + role.name()));
+    }
+
+    private void deleteUserAssets(User user) {
+        if (user.getProfileImg() == null || user.getProfileImg().isEmpty()) {
+            return;
+        }
+
+        try {
+            imageService.deleteProfileImage(user.getId(), user.getProfileImg());
+        } catch (Exception e) {
+            log.warn("Error al eliminar imágenes de perfil del usuario {}: {}", user.getId(), e.getMessage());
+        }
     }
 }
