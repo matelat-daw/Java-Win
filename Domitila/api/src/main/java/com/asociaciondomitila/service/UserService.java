@@ -233,8 +233,11 @@ public class UserService {
     }
 
     private void validateUserIsActive(User user) {
-        if (!Boolean.TRUE.equals(user.getActive()) || !Boolean.TRUE.equals(user.getEmailVerified())) {
-            throw new IllegalStateException("Usuario no verificado o inactivo");
+        if (!Boolean.TRUE.equals(user.getEmailVerified())) {
+            throw new IllegalStateException("Tu cuenta todavia no ha sido verificada. Revisa tu correo electronico y haz clic en el enlace de confirmacion antes de iniciar sesion.");
+        }
+        if (!Boolean.TRUE.equals(user.getActive())) {
+            throw new IllegalStateException("Tu cuenta esta inactiva. Contacta con soporte para reactivarla.");
         }
     }
 

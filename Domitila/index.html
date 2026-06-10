@@ -3,90 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clients - Gestión de Clientes</title>
+    
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous">
+    
+    <!-- Base URL configurada para localhost en raíz -->
     <base href="/">
-    <title>Tienda Tech - SPA</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Estilos de la aplicación -->
+    <link rel="stylesheet" href="/frontend/app/app.css">
 </head>
-<body class="d-flex flex-column min-vh-100">
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="./" onClick="event.preventDefault(); navigate('home')">
-                <strong>🛍️ Tienda Tech</strong>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item" id="nav-home">
-                        <a class="nav-link" href="./" onclick="event.preventDefault(); navigate('home')">🏠 Inicio</a>
-                    </li>
-                    <li class="nav-item" id="nav-catalogo">
-                        <a class="nav-link" href="catalogo" onclick="event.preventDefault(); navigate('catalogo')">📦 Catálogo</a>
-                    </li>
-                    <li class="nav-item" id="nav-resumen">
-                        <a class="nav-link" href="resumen" onclick="event.preventDefault(); navigate('resumen')">📊 Resumen</a>
-                    </li>
-                    <li class="nav-item" id="nav-contacto">
-                        <a class="nav-link" href="contacto" onclick="event.preventDefault(); navigate('contacto')">📧 Contacto</a>
-                    </li>
-                    <li class="nav-item" id="nav-login">
-                        <a class="nav-link" href="login" onclick="event.preventDefault(); navigate('login')">🔐 Login</a>
-                    </li>
-                    <li class="nav-item" id="nav-register">
-                        <a class="nav-link" href="register" onclick="event.preventDefault(); navigate('register')">🧾 Registro</a>
-                    </li>
-                    <li class="nav-item" id="nav-profile">
-                        <a class="nav-link" href="profile" onclick="event.preventDefault(); navigate('profile')">👤 Perfil</a>
-                    </li>
-                    <li class="nav-item" id="nav-logout">
-                        <a class="nav-link" href="logout" onclick="event.preventDefault(); navigate('logout')">🚪 Salir</a>
-                    </li>
-                    <li class="nav-item" id="nav-role">
-                        <span class="navbar-text text-white-50 small"></span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+<body>
+    <!-- Sistema de registro de scripts - DEBE SER PRIMERO -->
+    <script>
+        const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
+        window.APP_BASE_PATH = baseHref.endsWith('/') ? baseHref : (baseHref + '/');
 
-    <!-- Main Content Container -->
-    <main id="app">
-        <!-- Content will be injected here by app.js -->
-        <div class="container text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
-            </div>
-        </div>
-    </main>
+        // Objeto global para rastrear cuándo cada script está listo
+        window.AppScripts = {
+            loaded: new Set(),
+            register(scriptName) {
+                this.loaded.add(scriptName);
+                window.dispatchEvent(new CustomEvent('appscript:loaded', { detail: scriptName }));
+            },
+            isReady(scriptName) {
+                return this.loaded.has(scriptName);
+            },
+            allReady() {
+                const required = Array.isArray(this.required) && this.required.length > 0
+                    ? this.required
+                    : ['constants', 'utils', 'client.model', 'client.service', 'customer.service', 'auth.service', 'navbar', 'register', 'login', 'dashboard', 'profile', 'users', 'user-details', 'customers', 'customer-details', 'app'];
+                return required.every(s => this.loaded.has(s));
+            }
+        };
+</script>
+    
+    <!-- Contenedor principal de la aplicación -->
+    <div id="app" class="d-flex flex-column min-vh-100">
+        <!-- Navbar -->
+        <nav id="navbar-container"></nav>
+        
+        <!-- Contenido principal -->
+        <main id="router-outlet" class="flex-grow-1">
+            <!-- Las vistas se cargarán aquí -->
+        </main>
+        
+        <!-- Footer -->
+        <footer class="bg-dark text-white py-4 text-center mt-5">
+            <p class="mb-0">&copy; 2026 Clients API. All rights reserved.</p>
+        </footer>
+    </div>
 
-    <!-- Footer -->
-    <footer class="footer bg-light mt-auto py-4 border-top">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <p class="text-muted">
-                        <strong>🛍️ Tienda Tech</strong><br/>
-                        Tienda de productos tecnológicos (SPA Version)
-                    </p>
+    <!-- Modal para mensajes -->
+    <div class="modal fade" id="messageModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="messageTitle"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="col-md-6 text-end">
-                    <p class="text-muted">
-                        <small>Frontend SPA | Backend API | MariaDB</small><br/>
-                        <small>&copy; 2026 - Todos los derechos reservados</small>
-                    </p>
+                <div class="modal-body" id="messageBody"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Accept</button>
                 </div>
             </div>
         </div>
-    </footer>
+    </div>
 
-    <!-- Modals Container -->
-    <div id="modal-container"></div>
-
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module" src="js/app.js?v=20260610"></script>
+    <!-- Bootstrap JS -->
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    
+    <!-- Script de limpieza de modales -->
+    <script>
+        // Limpiar backdrops y estilos cuando se cierre cualquier modal
+        document.addEventListener('hidden.bs.modal', function(e) {
+            // Remover todos los backdrops residuales
+            const backdrops = document.querySelectorAll('.modal-backdrop');
+            backdrops.forEach(backdrop => backdrop.remove());
+            
+            // Remover la clase modal-open del body
+            document.body.classList.remove('modal-open');
+            
+            // Resetear el padding del body
+            document.body.style.paddingRight = '';
+        });
+    </script>
+    
+    <!-- Scripts de la aplicación -->
+    <script defer src="/frontend/shared/constants.js"></script>
+    <script defer src="/frontend/shared/utils.js"></script>
+    <script defer src="/frontend/core/models/client.model.js"></script>
+    <script defer src="/frontend/core/services/auth.service.js"></script>
+    <script defer src="/frontend/core/services/client.service.js"></script>
+    <script defer src="/frontend/core/services/customer.service.js"></script>
+    <script defer src="/frontend/components/navbar/navbar.component.js"></script>
+    <script defer src="/frontend/components/register/register.component.js"></script>
+    <script defer src="/frontend/components/login/login.component.js"></script>
+    <script defer src="/frontend/components/dashboard/dashboard.component.js"></script>
+    <script defer src="/frontend/components/profile/profile.component.js"></script>
+    <script defer src="/frontend/components/users/users.component.js"></script>
+    <script defer src="/frontend/components/users/user-details.component.js"></script>
+    <script defer src="/frontend/components/customers/customers.component.js"></script>
+    <script defer src="/frontend/components/customers/customer-details.component.js"></script>
+    <script defer src="/frontend/app/app.js"></script>
+    <script defer src="/frontend/main.js"></script>
 </body>
 </html>
