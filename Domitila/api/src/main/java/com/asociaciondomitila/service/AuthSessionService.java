@@ -15,7 +15,6 @@ public class AuthSessionService {
 
     public AuthSessionDto createSession(User user) {
         String accessToken = jwtProvider.generateAccessToken(user);
-        String refreshToken = jwtProvider.generateRefreshToken(user);
-        return new AuthSessionDto(accessToken, refreshToken, UserDto.fromEntity(user));
+        return new AuthSessionDto(accessToken, null, UserDto.fromEntity(user));
     }
 }

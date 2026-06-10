@@ -1,21 +1,14 @@
 package com.asociaciondomitila.controller;
 
-import com.asociaciondomitila.dto.AuthSessionDto;
 import com.asociaciondomitila.dto.ChangeRoleRequest;
 import com.asociaciondomitila.dto.PageResponse;
-import com.asociaciondomitila.dto.RegisterRequest;
 import com.asociaciondomitila.dto.UserDto;
 import com.asociaciondomitila.entity.User;
 import com.asociaciondomitila.enums.Role;
-import com.asociaciondomitila.service.AuthCookieService;
-import com.asociaciondomitila.service.AuthSessionService;
-import com.asociaciondomitila.service.ImageService;
 import com.asociaciondomitila.service.UserService;
 import com.asociaciondomitila.util.ApiConstants;
 import com.asociaciondomitila.util.ApiResponse;
 import com.asociaciondomitila.util.ApiResponseBuilder;
-import com.asociaciondomitila.util.ValidationHelper;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,18 +19,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 
 /**
@@ -51,37 +37,6 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final AuthSessionService authSessionService;
-    private final AuthCookieService authCookieService;
-    private final ImageService imageService;
-
-    @PostMapping("/register")
-    public ResponseEntity<ApiResponse<AuthSessionDto>> register(
-            @Valid @ModelAttribute RegisterRequest request,
-            @RequestParam(required = false) String bday,
-            @RequestParam(required = false) MultipartFile profilePicture,
-            HttpServletResponse response
-    ) {
-        log.info("Intento de registro para: {} ({})", request.getEmail(), request.getNick());
-        request.setBday(parseBirthDate(bday));
-
-        User user = userService.registerUser(request);
-
-        if (profilePicture != null && !profilePicture.isEmpty()) {
-            try {
-                ValidationHelper.validateImageFile(profilePicture);
-                imageService.ensureUserImageDirectory(user.getId());
-                String fileName = imageService.saveProfileImage(profilePicture, user.getId());
-                user = userService.updateProfileImage(user.getId(), fileName);
-            } catch (Exception e) {
-                log.warn("No se pudo guardar imagen de perfil post-registro para {}: {}", user.getEmail(), e.getMessage());
-            }
-        }
-
-        AuthSessionDto session = authSessionService.createSession(user);
-        authCookieService.writeAuthenticationCookies(response, session.accessToken(), session.refreshToken());
-        return ApiResponseBuilder.created(ApiConstants.MSG_REGISTER_SUCCESS, session);
-    }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -139,26 +94,5 @@ public class UserController {
         userService.deleteUser(id);
         log.info("Usuario eliminado con ID: {}", id);
         return ApiResponseBuilder.success("Usuario eliminado exitosamente");
-    }
-
-    private static LocalDate parseBirthDate(String bday) {
-        if (bday == null) {
-            return null;
-        }
-        String trimmed = bday.trim();
-        if (trimmed.isEmpty()) {
-            return null;
-        }
-
-        DateTimeFormatter formatter = new DateTimeFormatterBuilder()
-                .appendOptional(DateTimeFormatter.ISO_LOCAL_DATE)
-                .appendOptional(DateTimeFormatter.ofPattern("dd/MM/uuuu"))
-                .toFormatter();
-
-        try {
-            return LocalDate.parse(trimmed, formatter);
-        } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("Formato de fecha inválido. Use YYYY-MM-DD o DD/MM/YYYY");
-        }
     }
 }

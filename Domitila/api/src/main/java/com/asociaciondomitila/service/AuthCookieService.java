@@ -20,27 +20,17 @@ public class AuthCookieService {
     private final SecurityProperties securityProperties;
     private final JwtProperties jwtProperties;
 
-    public void writeAuthenticationCookies(HttpServletResponse response, String accessToken, String refreshToken) {
+    public void writeAuthCookie(HttpServletResponse response, String accessToken) {
         response.addHeader(HttpHeaders.SET_COOKIE, buildCookie(
                 securityProperties.getCookie().getAccessTokenName(),
                 accessToken,
                 jwtProperties.getExpiration()
         ).toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, buildCookie(
-                securityProperties.getCookie().getRefreshTokenName(),
-                refreshToken,
-                jwtProperties.getRefreshExpiration()
-        ).toString());
     }
 
-    public void clearAuthenticationCookies(HttpServletResponse response) {
+    public void clearAuthCookie(HttpServletResponse response) {
         response.addHeader(HttpHeaders.SET_COOKIE, buildCookie(
                 securityProperties.getCookie().getAccessTokenName(),
-                "",
-                Duration.ZERO
-        ).toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, buildCookie(
-                securityProperties.getCookie().getRefreshTokenName(),
                 "",
                 Duration.ZERO
         ).toString());
@@ -48,10 +38,6 @@ public class AuthCookieService {
 
     public Optional<String> resolveAccessToken(HttpServletRequest request) {
         return resolveCookieValue(request, securityProperties.getCookie().getAccessTokenName());
-    }
-
-    public Optional<String> resolveRefreshToken(HttpServletRequest request) {
-        return resolveCookieValue(request, securityProperties.getCookie().getRefreshTokenName());
     }
 
     private Optional<String> resolveCookieValue(HttpServletRequest request, String cookieName) {

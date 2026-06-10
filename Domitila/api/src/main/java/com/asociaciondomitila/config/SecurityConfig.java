@@ -31,10 +31,8 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_URLS = {
             "/api/auth/login",
+            "/api/auth/register",
             "/api/auth/verify/**",
-            "/api/auth/refresh",
-            "/api/user/register",
-            "/api/user/register/**",
             "/api/images/**",
             "/error"
     };

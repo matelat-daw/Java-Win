@@ -12,6 +12,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.springframework.http.HttpStatus;
 
 @Component
@@ -31,7 +32,8 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         log.error("Acceso denegado: {}", accessDeniedException.getMessage());
 
         response.setStatus(HttpStatus.FORBIDDEN.value());
-        response.setContentType("application/json");
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write(objectMapper.writeValueAsString(
                 ApiResponse.error(HttpStatus.FORBIDDEN, ApiConstants.ERR_FORBIDDEN)
         ));

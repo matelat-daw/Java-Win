@@ -24,7 +24,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Set<String> PUBLIC_EXACT_PATHS = Set.of(
         "/api/auth/login",
-        "/api/user/register"
+        "/api/auth/register"
     );
 
     private final JwtProvider jwtProvider;
@@ -39,7 +39,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         return path.startsWith("/api/auth/verify/")
-            || path.startsWith("/api/user/register/")
             || path.startsWith("/api/images/");
     }
 

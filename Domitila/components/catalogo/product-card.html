@@ -1,0 +1,21 @@
+<div class="card mb-3 shadow-sm border-0">
+    <div class="row g-0">
+        <div class="col-4">
+            <img src="{{imagenSrc}}" class="img-fluid rounded-start h-100" style="object-fit: cover;">
+        </div>
+        <div class="col-8">
+            <div class="card-body py-2">
+                <h5 class="card-title mb-1 text-truncate">{{nombre}}</h5>
+                <p class="card-text mb-1">
+                    <span class="badge bg-info">{{categoria}}</span>
+                    <strong class="text-success ms-2">€ {{precio}}</strong>
+                </p>
+                <p class="card-text mb-2">
+                    <span class="badge text-bg-light border">Stock: {{stock}}</span>
+                    <span class="badge ms-2 {{activoBadgeClass}}">{{activoLabel}}</span>
+                </p>
+                <div class="d-flex gap-2">{{acciones}}</div>
+            </div>
+        </div>
+    </div>
+</div>
