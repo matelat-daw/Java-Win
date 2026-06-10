@@ -3,6 +3,7 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 .kotlin
+.dbg
 
 ### Eclipse ###
 .apt_generated
