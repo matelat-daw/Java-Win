@@ -38,7 +38,7 @@
             allReady() {
                 const required = Array.isArray(this.required) && this.required.length > 0
                     ? this.required
-                    : ['constants', 'utils', 'client.model', 'client.service', 'customer.service', 'auth.service', 'navbar', 'register', 'login', 'dashboard', 'profile', 'users', 'user-details', 'customers', 'customer-details', 'app'];
+                    : ['constants', 'utils', 'client.model', 'client.service', 'auth.service', 'navbar', 'register', 'login', 'dashboard', 'profile', 'users', 'user-details', 'app'];
                 return required.every(s => this.loaded.has(s));
             }
         };
@@ -101,7 +101,6 @@
     <script defer src="/frontend/core/models/client.model.js"></script>
     <script defer src="/frontend/core/services/auth.service.js"></script>
     <script defer src="/frontend/core/services/client.service.js"></script>
-    <script defer src="/frontend/core/services/customer.service.js"></script>
     <script defer src="/frontend/components/navbar/navbar.component.js"></script>
     <script defer src="/frontend/components/register/register.component.js"></script>
     <script defer src="/frontend/components/login/login.component.js"></script>
@@ -109,8 +108,6 @@
     <script defer src="/frontend/components/profile/profile.component.js"></script>
     <script defer src="/frontend/components/users/users.component.js"></script>
     <script defer src="/frontend/components/users/user-details.component.js"></script>
-    <script defer src="/frontend/components/customers/customers.component.js"></script>
-    <script defer src="/frontend/components/customers/customer-details.component.js"></script>
     <script defer src="/frontend/app/app.js"></script>
     <script defer src="/frontend/main.js"></script>
 </body>

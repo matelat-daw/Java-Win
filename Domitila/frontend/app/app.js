@@ -13,8 +13,7 @@ class App {
             'users': this.loadUsers,
             'login': this.loadLogin,
             'dashboard': this.loadDashboard,
-            'profile': this.loadProfile,
-            'customers': this.loadCustomers
+            'profile': this.loadProfile
         };
         // Instancias de componentes
         this.loginComponent = null;
@@ -22,7 +21,6 @@ class App {
         this.registerComponent = null;
         this.profileComponent = null;
         this.usersComponent = null;
-        this.customersComponent = null;
     }
 
     normalizeBasePath(path) {
@@ -87,7 +85,6 @@ class App {
         this.registerComponent = null;
         this.profileComponent = null;
         this.usersComponent = null;
-        this.customersComponent = null;
 }
 
     /**
@@ -189,6 +186,30 @@ class App {
         const parts = relativePath.split('/').filter(Boolean);
         const route = parts.length > 0 ? parts[0] : 'home';
         const param = parts.length > 1 ? parts[1] : null;
+        if (route === 'customers') {
+            const isAuthenticated = typeof AuthService !== 'undefined' && AuthService.isAuthenticated();
+            const nextRoute = isAuthenticated ? 'dashboard' : 'home';
+            const nextPath = isAuthenticated ? '/dashboard' : '/';
+
+            try {
+                const fullPath = this.toAbsolutePath(nextPath);
+                if (window.location.pathname !== fullPath) {
+                    window.history.replaceState(null, '', fullPath);
+                }
+            } catch (error) {
+                console.warn('Error al redirigir desde customers:', error);
+            }
+
+            this.currentRoute = nextRoute;
+            if (nextRoute === 'dashboard') {
+                this.loadDashboard();
+            } else {
+                this.loadHome();
+            }
+            this.updateNavbarAsync(nextRoute);
+            return;
+        }
+
         this.currentRoute = route;
         
         // Cargar ruta sin esperar
@@ -674,119 +695,6 @@ const outlet = document.getElementById('router-outlet');
                 outlet.innerHTML = '<div class="alert alert-danger m-5"><h5>Error</h5><p>' + error.message + '</p><a href="/users" class="btn btn-primary">Volver</a></div>';
             }
         }
-    }
-
-    /**
-     * Carga la lista de customers de MyIkea o los detalles de uno específico
-     */
-    loadCustomers(customerId) {
-        // Verificar si el usuario está autenticado
-        if (!AuthService.isAuthenticated()) {
-            this.navigateTo('/login');
-            return;
-        }
-
-        // Verificar si el usuario es ADMIN o PREMIUM
-        const userRole = AuthService.getRole();
-        if (userRole !== 'ADMIN' && userRole !== 'PREMIUM') {
-            const outlet = document.getElementById('router-outlet');
-            if (outlet) {
-                outlet.innerHTML = `
-                    <div class="container py-5">
-                        <div class="row justify-content-center">
-                            <div class="col-md-8">
-                                <div class="card shadow-sm border-warning">
-                                    <div class="card-body text-center py-5">
-                                        <div style="font-size: 80px; margin-bottom: 20px;">🔐</div>
-                                        <h2 class="card-title fw-bold mb-3 text-danger">Acceso Denegado</h2>
-                                        <p class="lead mb-3">No tienes permisos para acceder a esta sección</p>
-                                        <p class="text-muted mb-4">
-                                            <i class="fas fa-info-circle me-2"></i>
-                                            <strong>Esta funcionalidad solo está disponible para usuarios con rol ADMIN o PREMIUM</strong>
-                                        </p>
-                                        <a href="/dashboard" class="btn btn-primary mt-3">
-                                            <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-            return;
-        }
-
-        const outlet = document.getElementById('router-outlet');
-
-        // Si hay customerId, cargar los detalles
-        if (customerId) {
-            // Mostrar loading
-            if (outlet) {
-                outlet.innerHTML = `
-                    <div class="text-center py-5">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Cargando detalles...</span>
-                        </div>
-                        <p class="mt-3">Cargando detalles del cliente...</p>
-                    </div>
-                `;
-            }
-
-            // Cargar componente de detalles
-            if (typeof CustomerDetailsComponent === 'undefined') {
-                setTimeout(() => {
-                    if (typeof CustomerDetailsComponent !== 'undefined') {
-                        const detailComponent = new CustomerDetailsComponent();
-                        detailComponent.init(customerId);
-                    }
-                }, 100);
-                return;
-            }
-            const detailComponent = new CustomerDetailsComponent();
-            detailComponent.init(customerId);
-            return;
-        }
-
-        // Si no hay customerId, mostrar lista de customers
-        if (outlet) {
-            outlet.innerHTML = `
-                <div class="customers-container">
-                    <div class="text-center">
-                        <div class="spinner-border text-primary" role="status" style="margin-top: 50px;">
-                            <span class="visually-hidden">Cargando customers...</span>
-                        </div>
-                        <p class="mt-3">Cargando lista de customers...</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Crear instancia bajo demanda si no existe
-        if (!this.customersComponent) {
-            // Verificar si CustomersComponent está disponible
-            if (typeof CustomersComponent === 'undefined') {
-                setTimeout(() => {
-                    if (typeof CustomersComponent !== 'undefined') {
-                        this.customersComponent = new CustomersComponent();
-                        window.CustomersComponentInstance = this.customersComponent;
-                        this.customersComponent.init();
-                    } else {
-                        outlet.innerHTML = `
-                            <div class="alert alert-danger m-5">
-                                <h4>Error al cargar la lista de customers</h4>
-                                <p>No se pudo cargar el componente de customers. Por favor, recarga la página.</p>
-                                <button class="btn btn-primary" onclick="window.location.reload()">Recargar página</button>
-                            </div>
-                        `;
-                    }
-                }, 100);
-                return;
-            }
-            this.customersComponent = new CustomersComponent();
-            window.CustomersComponentInstance = this.customersComponent;
-        }
-        this.customersComponent.init();
     }
 }
 

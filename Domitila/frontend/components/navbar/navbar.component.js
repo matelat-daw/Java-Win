@@ -58,7 +58,6 @@ this.showUnauthenticatedView();
         const loginLink = document.getElementById('loginLink');
         const authenticatedLinks = document.getElementById('authenticatedLinks');
         const usersLink = document.getElementById('usersLink');
-        const customersLink = document.getElementById('customersLink');
         const userDropdown = document.getElementById('userDropdown');
 
         if (isAuthenticated) {
@@ -69,13 +68,10 @@ this.showUnauthenticatedView();
             if (authenticatedLinks) authenticatedLinks.style.display = 'block';
             if (userDropdown) userDropdown.style.display = 'block';
 
-            // Mostrar users y customers links si es ADMIN o PREMIUM
+            // Mostrar users link si es ADMIN
             const userRole = AuthService.getRole();
             if (usersLink) {
-                usersLink.style.display = (userRole === 'ADMIN' || userRole === 'PREMIUM') ? 'block' : 'none';
-            }
-            if (customersLink) {
-                customersLink.style.display = (userRole === 'ADMIN' || userRole === 'PREMIUM') ? 'block' : 'none';
+                usersLink.style.display = (userRole === 'ADMIN') ? 'block' : 'none';
             }
 
             // Cargar datos del usuario
@@ -87,7 +83,6 @@ this.showUnauthenticatedView();
             if (loginLink) loginLink.style.display = 'block';
             if (authenticatedLinks) authenticatedLinks.style.display = 'none';
             if (usersLink) usersLink.style.display = 'none';
-            if (customersLink) customersLink.style.display = 'none';
             if (userDropdown) userDropdown.style.display = 'none';
         }
     }
@@ -101,7 +96,6 @@ this.showUnauthenticatedView();
         const loginLink = document.getElementById('loginLink');
         const authenticatedLinks = document.getElementById('authenticatedLinks');
         const usersLink = document.getElementById('usersLink');
-        const customersLink = document.getElementById('customersLink');
         const userDropdown = document.getElementById('userDropdown');
 
         if (guestLinks) guestLinks.style.display = 'block';
@@ -109,7 +103,6 @@ this.showUnauthenticatedView();
         if (loginLink) loginLink.style.display = 'block';
         if (authenticatedLinks) authenticatedLinks.style.display = 'none';
         if (usersLink) usersLink.style.display = 'none';
-        if (customersLink) customersLink.style.display = 'none';
         if (userDropdown) userDropdown.style.display = 'none';
     }
 

@@ -23,9 +23,7 @@ App.getInstance().navigateTo('/login');
             // Obtener el rol del usuario
             const userRole = AuthService.getRole();
 const isAdmin = userRole === 'ADMIN';
-            const isPremium = userRole === 'PREMIUM';
-
-            if (!isAdmin && !isPremium) {
+            if (!isAdmin) {
                 this.renderAccessDenied(userRole);
                 return;
             }
@@ -33,7 +31,6 @@ const isAdmin = userRole === 'ADMIN';
             // Guardar el rol en la instancia para usarlo en other methods
             this.userRole = userRole;
             this.isAdmin = isAdmin;
-            this.isPremium = isPremium;
 
             // Mostrar spinner mientras se cargan los datos
             const container = document.querySelector(this.selector);
@@ -121,10 +118,15 @@ throw error;
 
                 <!-- Header -->
                 <div class="row mb-4">
-                    <div class="col-12">
+                    <div class="col-12 d-flex justify-content-between align-items-center">
                         <h1 class="display-5 fw-bold mb-2">
                             <i class="fas fa-users me-3"></i>Lista de Usuarios
                         </h1>
+                        <button type="button" class="btn btn-primary" id="addUserBtn">
+                            <i class="fas fa-user-plus me-2"></i>Agregar usuario
+                        </button>
+                    </div>
+                    <div class="col-12">
                         <p class="text-muted">Total de usuarios: <strong>${this.totalItems}</strong></p>
                     </div>
                 </div>
@@ -183,6 +185,9 @@ throw error;
                             <i class="fas fa-eye"></i> Ver
                         </button>
                         ${this.isAdmin ? `
+                            <button class="btn btn-outline-success btn-sm edit-user-btn" data-user-id="${user.id}">
+                                <i class="fas fa-pen"></i> Editar
+                            </button>
                             <button class="btn btn-outline-danger btn-sm delete-user-btn" data-user-id="${user.id}" data-user-nick="${user.nick}">
                                 <i class="fas fa-trash"></i> Eliminar
                             </button>
@@ -207,7 +212,7 @@ throw error;
                             <th>Teléfono</th>
                             <th>Rol</th>
                             <th>Registro</th>
-                            <th style="width: 150px;">Acciones</th>
+                            <th style="width: 220px;">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -315,12 +320,38 @@ throw error;
     }
 
     attachTableListeners() {
+        const addUserBtn = document.getElementById('addUserBtn');
+        if (addUserBtn && addUserBtn.dataset.listenersAttached !== 'true') {
+            addUserBtn.dataset.listenersAttached = 'true';
+            addUserBtn.addEventListener('click', () => {
+                UsersComponent.showCreateUserModal();
+            });
+        }
+
         // Listeners para botones "Ver" (detalles del usuario)
         document.querySelectorAll('.view-user-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const userId = btn.dataset.userId;
                 if (userId) {
                     App.getInstance().navigateTo('/users/' + userId);
+                }
+            });
+        });
+
+        document.querySelectorAll('.edit-user-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const userId = btn.dataset.userId;
+                if (!userId) return;
+                try {
+                    const res = await UserService.getUserById(userId);
+                    const user = res?.data || res?.user || null;
+                    if (!user) {
+                        UsersComponent.showErrorNotification('No se pudo cargar el usuario');
+                        return;
+                    }
+                    UsersComponent.showEditUserModal(user);
+                } catch (e) {
+                    UsersComponent.showErrorNotification(e.message || 'Error al cargar usuario');
                 }
             });
         });
@@ -397,6 +428,268 @@ throw error;
         // Mostrar modal
         const modal = new bootstrap.Modal(document.getElementById('deleteUserModal'));
         modal.show();
+    }
+
+    static showCreateUserModal() {
+        const modalHtml = `
+            <div class="modal fade" id="createUserModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title">
+                                <i class="fas fa-user-plus me-2"></i>Agregar usuario
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="createUserForm">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nick</label>
+                                        <input class="form-control" name="nick" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Email</label>
+                                        <input class="form-control" type="email" name="email" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nombre</label>
+                                        <input class="form-control" name="name" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Primer apellido</label>
+                                        <input class="form-control" name="surname1" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Segundo apellido</label>
+                                        <input class="form-control" name="surname2">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Teléfono</label>
+                                        <input class="form-control" name="phone" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Género</label>
+                                        <select class="form-select" name="gender" required>
+                                            <option value="">Seleccionar</option>
+                                            <option value="MALE">Male</option>
+                                            <option value="FEMALE">Female</option>
+                                            <option value="OTHER">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Fecha de nacimiento</label>
+                                        <input class="form-control" type="date" name="bday">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Contraseña</label>
+                                        <input class="form-control" type="password" name="password" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Foto de perfil</label>
+                                        <input class="form-control" type="file" name="profilePicture" accept="image/*">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-primary" id="confirmCreateUserBtn">
+                                <i class="fas fa-save me-2"></i>Crear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const existingModal = document.getElementById('createUserModal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        const modalEl = document.getElementById('createUserModal');
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+
+        const confirmBtn = document.getElementById('confirmCreateUserBtn');
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', () => UsersComponent.createUserConfirmed(), { once: true });
+        }
+    }
+
+    static async createUserConfirmed() {
+        const form = document.getElementById('createUserForm');
+        const btn = document.getElementById('confirmCreateUserBtn');
+        if (!form || !btn) return;
+
+        const fd = new FormData(form);
+        const userData = {
+            nick: String(fd.get('nick') || '').trim(),
+            name: String(fd.get('name') || '').trim(),
+            surname1: String(fd.get('surname1') || '').trim(),
+            surname2: String(fd.get('surname2') || '').trim(),
+            email: String(fd.get('email') || '').trim(),
+            phone: String(fd.get('phone') || '').trim(),
+            password: String(fd.get('password') || ''),
+            gender: String(fd.get('gender') || ''),
+            bday: fd.get('bday') ? String(fd.get('bday')) : null
+        };
+
+        if (!userData.nick || !userData.email || !userData.name || !userData.surname1 || !userData.phone || !userData.password || !userData.gender) {
+            UsersComponent.showErrorNotification('Completa los campos obligatorios');
+            return;
+        }
+
+        btn.disabled = true;
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creando...';
+
+        try {
+            const user = new User(userData);
+            const profilePicture = fd.get('profilePicture');
+            const response = await UserService.register(user, profilePicture);
+            if (!response?.success) {
+                throw new Error(response?.message || 'No se pudo crear el usuario');
+            }
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('createUserModal'));
+            if (modal) {
+                modal.hide();
+            }
+            UsersComponent.showSuccessNotification('Usuario creado. Revisa el correo para verificar la cuenta.');
+
+            const instance = window.UsersComponentInstance;
+            if (instance) {
+                instance.currentPage = 0;
+                await instance.loadUsers();
+                instance.renderAdminView();
+                instance.attachPaginationListeners();
+            }
+        } catch (e) {
+            UsersComponent.showErrorNotification(e.message || 'Error al crear usuario');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+    }
+
+    static showEditUserModal(user) {
+        const modalHtml = `
+            <div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header bg-success text-white">
+                            <h5 class="modal-title">
+                                <i class="fas fa-pen me-2"></i>Editar usuario
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="editUserForm" data-user-id="${user.id}">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nick</label>
+                                        <input class="form-control" value="${user.nick || ''}" disabled>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Email</label>
+                                        <input class="form-control" value="${user.email || ''}" disabled>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nombre</label>
+                                        <input class="form-control" name="name" value="${user.name || ''}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Primer apellido</label>
+                                        <input class="form-control" name="surname1" value="${user.surname1 || ''}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Segundo apellido</label>
+                                        <input class="form-control" name="surname2" value="${user.surname2 || ''}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Teléfono</label>
+                                        <input class="form-control" name="phone" value="${user.phone || ''}" required>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-success" id="confirmEditUserBtn">
+                                <i class="fas fa-save me-2"></i>Guardar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const existingModal = document.getElementById('editUserModal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        const modalEl = document.getElementById('editUserModal');
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+
+        const confirmBtn = document.getElementById('confirmEditUserBtn');
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', () => UsersComponent.updateUserConfirmed(), { once: true });
+        }
+    }
+
+    static async updateUserConfirmed() {
+        const form = document.getElementById('editUserForm');
+        const btn = document.getElementById('confirmEditUserBtn');
+        if (!form || !btn) return;
+
+        const userId = form.dataset.userId;
+        const fd = new FormData(form);
+        const payload = {
+            name: String(fd.get('name') || '').trim(),
+            surname1: String(fd.get('surname1') || '').trim(),
+            surname2: String(fd.get('surname2') || '').trim(),
+            phone: String(fd.get('phone') || '').trim()
+        };
+
+        if (!userId || !payload.name || !payload.surname1 || !payload.phone) {
+            UsersComponent.showErrorNotification('Completa los campos obligatorios');
+            return;
+        }
+
+        btn.disabled = true;
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+
+        try {
+            const response = await UserService.updateUser(userId, payload);
+            if (!response?.success) {
+                throw new Error(response?.message || 'No se pudo actualizar el usuario');
+            }
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
+            if (modal) {
+                modal.hide();
+            }
+            UsersComponent.showSuccessNotification('Usuario actualizado exitosamente');
+
+            const instance = window.UsersComponentInstance;
+            if (instance) {
+                await instance.loadUsers();
+                instance.renderAdminView();
+                instance.attachPaginationListeners();
+            }
+        } catch (e) {
+            UsersComponent.showErrorNotification(e.message || 'Error al actualizar usuario');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
     }
 
     /**

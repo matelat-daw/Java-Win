@@ -81,7 +81,13 @@ class UserService {
     static async updateUser(id, user) {
         try {
             const url = API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.UPDATE_USER.replace(':id', id);
-            const response = await Utils.makeRequest('PUT', url, user.toJSON());
+            const body = {
+                name: user?.name ?? '',
+                surname1: user?.surname1 ?? '',
+                surname2: user?.surname2 ?? '',
+                phone: user?.phone ?? ''
+            };
+            const response = await Utils.makeRequest('PUT', url, body);
             
             // Limpiar cache tras actualizar
             Utils.clearCache();

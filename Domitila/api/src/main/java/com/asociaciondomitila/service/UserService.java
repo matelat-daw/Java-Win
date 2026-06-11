@@ -7,6 +7,7 @@ import com.asociaciondomitila.enums.Gender;
 import com.asociaciondomitila.enums.Role;
 import com.asociaciondomitila.repository.RoleRepository;
 import com.asociaciondomitila.repository.UserRepository;
+import com.asociaciondomitila.dto.UpdateProfileRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -158,6 +159,19 @@ public class UserService {
         user.setSurname2(surname2);
         user.setPhone(phone);
 
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public User updateUserProfileAsAdmin(Long id, UpdateProfileRequest request) {
+        User user = getRequiredUserById(id);
+        if (Role.ADMIN.equals(user.getRole())) {
+            throw new IllegalStateException("No se puede actualizar usuarios con rol ADMIN");
+        }
+        user.setName(request.getName());
+        user.setSurname1(request.getSurname1());
+        user.setSurname2(request.getSurname2());
+        user.setPhone(request.getPhone());
         return userRepository.save(user);
     }
 

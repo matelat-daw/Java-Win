@@ -113,15 +113,10 @@ Utils.showMessage('Error', 'No se pudo cargar el dashboard', 'error');
 
             // Mostrar/ocultar enlaces de ADMIN y PREMIUM en Quick Links
             const adminUsersLink = document.getElementById('adminUsersLink');
-            const adminCustomersLink = document.getElementById('adminCustomersLink');
             const isAdmin = role === 'ADMIN';
-            const isPremium = role === 'PREMIUM';
             
             if (adminUsersLink) {
-                adminUsersLink.style.display = (isAdmin || isPremium) ? 'block' : 'none';
-            }
-            if (adminCustomersLink) {
-                adminCustomersLink.style.display = (isAdmin || isPremium) ? 'block' : 'none';
+                adminUsersLink.style.display = (isAdmin) ? 'block' : 'none';
             }
 
             // Ajustar tamaño de tarjetas según rol
@@ -133,12 +128,10 @@ Utils.showMessage('Error', 'No se pudo cargar el dashboard', 'error');
                     col.style.flex = '';
                     col.classList.remove('col-md-3', 'col-md-4');
 
-                    if (isAdmin || isPremium) {
-                        // ADMIN y PREMIUM: 5 tarjetas en una línea (20% cada una)
-                        col.style.flex = '0 0 20%';
+                    if (isAdmin) {
+                        col.style.flex = '0 0 25%';
                         col.classList.add('col-md-3');
                     } else {
-                        // USER: Tarjetas más grandes (3 por línea = 33.33%)
                         col.style.flex = '0 0 33.333%';
                         col.classList.add('col-md-4');
                     }

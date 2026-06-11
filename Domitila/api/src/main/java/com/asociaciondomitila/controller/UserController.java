@@ -9,6 +9,7 @@ import com.asociaciondomitila.service.UserService;
 import com.asociaciondomitila.util.ApiConstants;
 import com.asociaciondomitila.util.ApiResponse;
 import com.asociaciondomitila.util.ApiResponseBuilder;
+import com.asociaciondomitila.dto.UpdateProfileRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -73,6 +74,16 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserDto>> getUserById(@PathVariable Long id) {
         User user = userService.getRequiredUserById(id);
         return ApiResponseBuilder.success(ApiConstants.MSG_PROFILE_FETCHED, UserDto.fromEntity(user));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<UserDto>> updateUserProfile(
+            @PathVariable Long id,
+            @Valid @org.springframework.web.bind.annotation.RequestBody UpdateProfileRequest request
+    ) {
+        User updatedUser = userService.updateUserProfileAsAdmin(id, request);
+        return ApiResponseBuilder.success("Usuario actualizado exitosamente", UserDto.fromEntity(updatedUser));
     }
 
     @PutMapping("/{id}/role")

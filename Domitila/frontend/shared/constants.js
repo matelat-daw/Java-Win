@@ -40,7 +40,6 @@ const API_CONFIG = {
         UPDATE_USER: '/user/:id',
         DELETE_USER: '/user/:id',
         IMAGES: '/images',
-        // Endpoints de Customers (MyIkea)
         CUSTOMERS: '/myikea/customer',
         CUSTOMER_BY_ID: '/myikea/customer/:id',
         CUSTOMER_SEARCH_FIRSTNAME: '/myikea/customer/search/firstName/:firstName',
