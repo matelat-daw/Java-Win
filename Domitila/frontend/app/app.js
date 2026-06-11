@@ -186,30 +186,6 @@ class App {
         const parts = relativePath.split('/').filter(Boolean);
         const route = parts.length > 0 ? parts[0] : 'home';
         const param = parts.length > 1 ? parts[1] : null;
-        if (route === 'customers') {
-            const isAuthenticated = typeof AuthService !== 'undefined' && AuthService.isAuthenticated();
-            const nextRoute = isAuthenticated ? 'dashboard' : 'home';
-            const nextPath = isAuthenticated ? '/dashboard' : '/';
-
-            try {
-                const fullPath = this.toAbsolutePath(nextPath);
-                if (window.location.pathname !== fullPath) {
-                    window.history.replaceState(null, '', fullPath);
-                }
-            } catch (error) {
-                console.warn('Error al redirigir desde customers:', error);
-            }
-
-            this.currentRoute = nextRoute;
-            if (nextRoute === 'dashboard') {
-                this.loadDashboard();
-            } else {
-                this.loadHome();
-            }
-            this.updateNavbarAsync(nextRoute);
-            return;
-        }
-
         this.currentRoute = route;
         
         // Cargar ruta sin esperar

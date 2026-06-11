@@ -69,13 +69,7 @@ const container = document.querySelector(this.selector);
 
     async loadUsers() {
         try {
-// #region debug-point A:users-request
-            fetch("http://127.0.0.1:7777/event",{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({sessionId:"users-list-empty",runId:"pre-fix",hypothesisId:"A",location:"frontend/components/users/users.component.js:75",msg:"[DEBUG] Solicitud de usuarios iniciada",data:{page:this.currentPage,size:this.pageSize,currentUser:AuthService?.getUserSession?.()?.email||null,currentRole:AuthService?.getRole?.()||null},ts:Date.now()})}).catch(()=>{});
-// #endregion
 const response = await UserService.getUsers(this.currentPage, this.pageSize);
-// #region debug-point C:users-response-shape
-            fetch("http://127.0.0.1:7777/event",{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({sessionId:"users-list-empty",runId:"pre-fix",hypothesisId:"C",location:"frontend/components/users/users.component.js:77",msg:"[DEBUG] Respuesta de usuarios recibida",data:{success:response?.success||false,topLevelKeys:response?Object.keys(response):[],dataKeys:response?.data&&typeof response.data==="object"?Object.keys(response.data):[],responseUsersLength:Array.isArray(response?.users)?response.users.length:null,responseDataItemsLength:Array.isArray(response?.data?.items)?response.data.items.length:null,responseDataTotalItems:response?.data?.totalItems??null,responseMessage:response?.message||null},ts:Date.now()})}).catch(()=>{});
-// #endregion
             
             if (response.success) {
                 const pageData = response.data || {};
@@ -88,9 +82,6 @@ const response = await UserService.getUsers(this.currentPage, this.pageSize);
                 this.users = rawItems.filter(user => user?.id !== currentUserId && user?.email !== currentUserEmail);
                 this.totalItems = Math.max(0, (pageData.totalItems ?? this.users.length) - (currentUserIncluded ? 1 : 0));
                 this.totalPages = pageData.totalPages ?? (this.totalItems > 0 ? 1 : 0);
-// #region debug-point B:users-frontend-state
-                fetch("http://127.0.0.1:7777/event",{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({sessionId:"users-list-empty",runId:"post-fix",hypothesisId:"B",location:"frontend/components/users/users.component.js:90",msg:"[DEBUG] Estado frontend tras normalizar usuarios",data:{currentUserId,currentUserEmail,assignedUsersLength:Array.isArray(this.users)?this.users.length:null,totalItems:this.totalItems,totalPages:this.totalPages},ts:Date.now()})}).catch(()=>{});
-// #endregion
 } else {
                 throw new Error(response.message || 'Error al obtener usuarios');
             }

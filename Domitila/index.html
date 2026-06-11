@@ -38,7 +38,7 @@
             allReady() {
                 const required = Array.isArray(this.required) && this.required.length > 0
                     ? this.required
-                    : ['constants', 'utils', 'client.model', 'client.service', 'auth.service', 'navbar', 'register', 'login', 'dashboard', 'profile', 'users', 'user-details', 'app'];
+                    : ['constants', 'utils', 'user.model', 'user.service', 'auth.service', 'navbar', 'register', 'login', 'dashboard', 'profile', 'users', 'user-details', 'app'];
                 return required.every(s => this.loaded.has(s));
             }
         };
@@ -98,9 +98,9 @@
     <!-- Scripts de la aplicación -->
     <script defer src="/frontend/shared/constants.js"></script>
     <script defer src="/frontend/shared/utils.js"></script>
-    <script defer src="/frontend/core/models/client.model.js"></script>
+    <script defer src="/frontend/core/models/user.model.js"></script>
     <script defer src="/frontend/core/services/auth.service.js"></script>
-    <script defer src="/frontend/core/services/client.service.js"></script>
+    <script defer src="/frontend/core/services/user.service.js"></script>
     <script defer src="/frontend/components/navbar/navbar.component.js"></script>
     <script defer src="/frontend/components/register/register.component.js"></script>
     <script defer src="/frontend/components/login/login.component.js"></script>

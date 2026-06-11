@@ -39,13 +39,7 @@ const API_CONFIG = {
         USER_BY_ID: '/user/:id',
         UPDATE_USER: '/user/:id',
         DELETE_USER: '/user/:id',
-        IMAGES: '/images',
-        CUSTOMERS: '/myikea/customer',
-        CUSTOMER_BY_ID: '/myikea/customer/:id',
-        CUSTOMER_SEARCH_FIRSTNAME: '/myikea/customer/search/firstName/:firstName',
-        CUSTOMER_SEARCH_LASTNAME: '/myikea/customer/search/lastName/:lastName',
-        DELETE_CUSTOMER: '/myikea/customer/:id',
-        UPDATE_CUSTOMER: '/myikea/customer/:id'
+        IMAGES: '/images'
     }
 };
 
@@ -54,8 +48,7 @@ const ROUTES = {
     REGISTER: `${APP_BASE_PATH}register`,
     LOGIN: `${APP_BASE_PATH}login`,
     USERS: `${APP_BASE_PATH}users`,
-    DASHBOARD: `${APP_BASE_PATH}dashboard`,
-    CUSTOMERS: `${APP_BASE_PATH}customers`
+    DASHBOARD: `${APP_BASE_PATH}dashboard`
 };
 
 const MESSAGES = {

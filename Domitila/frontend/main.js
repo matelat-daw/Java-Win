@@ -9,10 +9,9 @@ async function initializeApp() {
         const requiredScripts = [
             'constants',
             'utils',
-            'client.model',
+            'user.model',
             'auth.service',
-            'client.service',
-            'customer.service',
+            'user.service',
             'navbar',
             'register',
             'login',
@@ -20,8 +19,6 @@ async function initializeApp() {
             'profile',
             'users',
             'user-details',
-            'customers',
-            'customer-details',
             'app'
         ];
 
@@ -95,5 +92,4 @@ if (document.readyState === 'loading') {
     // El DOM ya est� listo
     initializeApp();
 }
-
 

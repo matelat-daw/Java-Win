@@ -125,8 +125,7 @@ class User {
 
 // Exponer globalmente para la verificación de carga
 window.User = User;
-window.Client = User;
 
 // Registrar que este script se ha cargado
-if (typeof AppScripts !== 'undefined') AppScripts.register('client.model');
+if (typeof AppScripts !== 'undefined') AppScripts.register('user.model');
 

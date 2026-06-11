@@ -120,9 +120,8 @@ class UserService {
 
 // Exponer globalmente para la verificación de carga
 window.UserService = UserService;
-window.ClientService = UserService;
 
 // Registrar que este script se ha cargado
-if (typeof AppScripts !== 'undefined') AppScripts.register('client.service');
+if (typeof AppScripts !== 'undefined') AppScripts.register('user.service');
 
 
