@@ -219,6 +219,9 @@ const Utils = {
         if (typeof AuthService === 'undefined') {
             return;
         }
+        if (typeof AuthService.isLogoutInProgress === 'function' && AuthService.isLogoutInProgress()) {
+            return;
+        }
         if (Utils._isPublicAuthEndpoint(requestUrl)) {
             return;
         }

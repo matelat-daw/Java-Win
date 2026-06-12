@@ -10,12 +10,13 @@ import com.asociaciondomitila.repository.UserRepository;
 import com.asociaciondomitila.dto.UpdateProfileRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Optional;
@@ -32,6 +33,9 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final EmailService emailService;
     private final ImageService imageService;
+
+    @Value("${app.email.verification-token-expiration:24h}")
+    private Duration emailVerificationTokenExpiration;
 
     @Transactional
     public User registerUser(RegisterRequest request) {
@@ -65,7 +69,7 @@ public class UserService {
                 .active(false)
                 .emailVerified(false)
                 .verificationToken(UUID.randomUUID().toString())
-                .verificationTokenExpiry(LocalDateTime.now().plusHours(24))
+                .verificationTokenExpiry(LocalDateTime.now().plus(emailVerificationTokenExpiration))
                 .build();
 
         user = userRepository.save(user);
@@ -244,6 +248,13 @@ public class UserService {
 
     public Page<User> getUsersExcludingRole(Role role, Pageable pageable) {
         return userRepository.findAllExcludingRoleName(role.name(), pageable);
+    }
+
+    public Page<User> getUsersExcludingRoleBySurname(Role role, String surname, Pageable pageable) {
+        if (surname == null || surname.isBlank()) {
+            return getUsersExcludingRole(role, pageable);
+        }
+        return userRepository.findAllExcludingRoleNameBySurname(role.name(), surname.trim(), pageable);
     }
 
     private void validateUserIsActive(User user) {

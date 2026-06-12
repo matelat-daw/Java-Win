@@ -19,6 +19,11 @@ class AuthService {
     static bootstrapPromise = null;
 
     /**
+     * Indica si se está cerrando sesión en este momento.
+     */
+    static logoutInProgress = false;
+
+    /**
      * Login del usuario
      * @param {string} email - Email del usuario
      * @param {string} password - Contraseña del usuario
@@ -107,6 +112,11 @@ class AuthService {
      * @returns {Promise<Object|null>}
      */
     static async bootstrapSession(force = false) {
+        if (this.logoutInProgress) {
+            this.clearLocalSession();
+            return null;
+        }
+
         if (!force) {
             const currentUser = this.getUserSession();
             if (currentUser) {
@@ -209,6 +219,7 @@ class AuthService {
     static clearLocalSession() {
         this.userSession = null;
         this.jwtToken = null;
+        this.bootstrapPromise = null;
         sessionStorage.removeItem('user_session');
         sessionStorage.removeItem('jwt_token');
         localStorage.removeItem('user_session');
@@ -219,8 +230,18 @@ class AuthService {
     /**
      * Cierra la sesión del usuario (logout)
      */
-    static async logout() {
+    static async logout(redirectTo = (ROUTES && ROUTES.LOGIN ? ROUTES.LOGIN : (APP_BASE_PATH + 'login'))) {
+        this.logoutInProgress = true;
+
         try {
+            // Limpiar primero el estado local para que la UI deje de intentar hidratar perfil.
+            this.clearLocalSession();
+
+            // Limpiar caché si existe
+            if (Utils && typeof Utils.clearCache === 'function') {
+                Utils.clearCache();
+            }
+
             // Intentar llamar al endpoint de logout del backend para limpiar la cookie
             if (API_CONFIG && API_CONFIG.BASE_URL && API_CONFIG.ENDPOINTS.LOGOUT) {
                 const url = API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.LOGOUT;
@@ -237,18 +258,17 @@ class AuthService {
                 }
             }
         } finally {
-            // Limpiar estado local
-            this.clearLocalSession();
-            
-            // Limpiar caché si existe
-            if (Utils && typeof Utils.clearCache === 'function') {
-                Utils.clearCache();
+            if (redirectTo) {
+                window.location.href = redirectTo;
+                return;
             }
-            
-            // Redirigir al login
-            const loginUrl = ROUTES && ROUTES.LOGIN ? ROUTES.LOGIN : (APP_BASE_PATH + 'login');
-            window.location.href = loginUrl;
+
+            this.logoutInProgress = false;
         }
+    }
+
+    static isLogoutInProgress() {
+        return this.logoutInProgress;
     }
 
     /**

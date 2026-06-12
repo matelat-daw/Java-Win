@@ -10,6 +10,10 @@ class UsersComponent {
         this.users = [];
         this.totalItems = 0;
         this.totalPages = 0;
+        this.searchSurname = '';
+        this.sortBy = 'surname1';
+        this.sortDir = 'asc';
+        this._searchDebounceId = null;
     }
 
     async init() {
@@ -69,7 +73,11 @@ const container = document.querySelector(this.selector);
 
     async loadUsers() {
         try {
-const response = await UserService.getUsers(this.currentPage, this.pageSize);
+const response = await UserService.getUsers(this.currentPage, this.pageSize, {
+                surname: this.searchSurname,
+                sortBy: this.sortBy,
+                sortDir: this.sortDir
+            });
             
             if (response.success) {
                 const pageData = response.data || {};
@@ -93,6 +101,7 @@ throw error;
     renderAdminView() {
         const currentUser = AuthService.getUserSession();
         const userName = currentUser ? `${currentUser.name} ${currentUser.surname1}` : 'Usuario';
+        const safeSearchSurnameValue = UsersComponent.escapeHtml(this.searchSurname);
         
         const html = `
             <div class="container-fluid py-5">
@@ -119,6 +128,33 @@ throw error;
                     </div>
                     <div class="col-12">
                         <p class="text-muted">Total de usuarios: <strong>${this.totalItems}</strong></p>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Buscar por apellido</label>
+                                        <input type="text" class="form-control" id="surnameSearchInput" value="${safeSearchSurnameValue}" placeholder="Ej: Pérez">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Orden por apellido</label>
+                                        <select class="form-select" id="surnameSortDir">
+                                            <option value="asc" ${this.sortDir === 'asc' ? 'selected' : ''}>A → Z</option>
+                                            <option value="desc" ${this.sortDir === 'desc' ? 'selected' : ''}>Z → A</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3 d-grid">
+                                        <button type="button" class="btn btn-outline-secondary" id="clearSurnameSearchBtn" ${this.searchSurname ? '' : 'disabled'}>
+                                            Limpiar búsqueda
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -160,8 +196,8 @@ throw error;
                     <strong>${user.nick || 'N/A'}</strong><br>
                     <small class="text-muted">${user.name} ${user.surname1}</small>
                 </td>
-                <td>${user.email}</td>
-                <td>${user.phone || '-'}</td>
+                <td>${UsersComponent.renderEmailCell(user.email)}</td>
+                <td>${UsersComponent.renderPhoneCell(user.phone)}</td>
                 <td>
                     <span class="badge ${this.getRoleBadgeClass(user.role) || 'bg-secondary'}">
                         ${user.role || 'USER'}
@@ -212,6 +248,51 @@ throw error;
                 </table>
             </div>
         `;
+    }
+
+    static escapeHtml(value) {
+        return String(value ?? '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+    }
+
+    static normalizePhoneForWhatsApp(phone) {
+        const raw = String(phone ?? '').trim();
+        if (!raw) return null;
+
+        let digits = raw.replace(/[^\d+]/g, '');
+        if (digits.startsWith('+')) digits = digits.substring(1);
+        if (digits.startsWith('00')) digits = digits.substring(2);
+        digits = digits.replace(/\D/g, '');
+
+        if (!digits) return null;
+        if (digits.length === 9) return `34${digits}`;
+        return digits;
+    }
+
+    static renderEmailCell(email) {
+        const safeEmail = UsersComponent.escapeHtml(email);
+        if (!safeEmail) return '-';
+        const href = `mailto:${safeEmail}`;
+        return `<a href="${href}" class="text-decoration-none">${safeEmail}</a>`;
+    }
+
+    static renderPhoneCell(phone) {
+        const safePhone = UsersComponent.escapeHtml(phone);
+        if (!safePhone) return '-';
+
+        const normalized = UsersComponent.normalizePhoneForWhatsApp(phone);
+        if (!normalized) return safePhone;
+
+        const waUrl = `https://wa.me/${normalized}`;
+        return `
+            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                <i class="fab fa-whatsapp me-1 text-success"></i>${safePhone}
+            </a>
+        `.trim();
     }
 
     renderEmpty() {
@@ -316,6 +397,57 @@ throw error;
             addUserBtn.dataset.listenersAttached = 'true';
             addUserBtn.addEventListener('click', () => {
                 UsersComponent.showCreateUserModal();
+            });
+        }
+
+        const surnameSearchInput = document.getElementById('surnameSearchInput');
+        if (surnameSearchInput && surnameSearchInput.dataset.listenersAttached !== 'true') {
+            surnameSearchInput.dataset.listenersAttached = 'true';
+            surnameSearchInput.addEventListener('input', (e) => {
+                const instance = window.UsersComponentInstance;
+                if (!instance) return;
+
+                const nextValue = String(e.target.value || '');
+                instance.searchSurname = nextValue;
+                instance.currentPage = 0;
+
+                if (instance._searchDebounceId) {
+                    clearTimeout(instance._searchDebounceId);
+                }
+                instance._searchDebounceId = setTimeout(async () => {
+                    await instance.loadUsers();
+                    instance.renderAdminView();
+                    instance.attachPaginationListeners();
+                }, 300);
+            });
+        }
+
+        const surnameSortDir = document.getElementById('surnameSortDir');
+        if (surnameSortDir && surnameSortDir.dataset.listenersAttached !== 'true') {
+            surnameSortDir.dataset.listenersAttached = 'true';
+            surnameSortDir.addEventListener('change', async (e) => {
+                const instance = window.UsersComponentInstance;
+                if (!instance) return;
+                instance.sortBy = 'surname1';
+                instance.sortDir = (String(e.target.value) === 'desc') ? 'desc' : 'asc';
+                instance.currentPage = 0;
+                await instance.loadUsers();
+                instance.renderAdminView();
+                instance.attachPaginationListeners();
+            });
+        }
+
+        const clearSurnameSearchBtn = document.getElementById('clearSurnameSearchBtn');
+        if (clearSurnameSearchBtn && clearSurnameSearchBtn.dataset.listenersAttached !== 'true') {
+            clearSurnameSearchBtn.dataset.listenersAttached = 'true';
+            clearSurnameSearchBtn.addEventListener('click', async () => {
+                const instance = window.UsersComponentInstance;
+                if (!instance) return;
+                instance.searchSurname = '';
+                instance.currentPage = 0;
+                await instance.loadUsers();
+                instance.renderAdminView();
+                instance.attachPaginationListeners();
             });
         }
 

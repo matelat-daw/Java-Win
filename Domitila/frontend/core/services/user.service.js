@@ -43,11 +43,29 @@ class UserService {
      * Obtiene todos los usuarios con paginación
      * @param {number} page - Número de página (default 0)
      * @param {number} size - Tamaño de página (default 10)
+     * @param {{surname?: string, sortBy?: string, sortDir?: 'asc'|'desc'}} options
      * @returns {Promise<Object>}
      */
-    static async getUsers(page = 0, size = 10) {
+    static async getUsers(page = 0, size = 10, options = {}) {
         try {
-            const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.USERS}?page=${page}&size=${size}`;
+            const params = new URLSearchParams();
+            params.set('page', String(page));
+            params.set('size', String(size));
+
+            const surname = typeof options?.surname === 'string' ? options.surname.trim() : '';
+            if (surname) {
+                params.set('surname', surname);
+            }
+
+            const sortBy = typeof options?.sortBy === 'string' ? options.sortBy.trim() : '';
+            if (sortBy) {
+                params.set('sortBy', sortBy);
+            }
+
+            const sortDir = (options?.sortDir === 'desc') ? 'desc' : 'asc';
+            params.set('sortDir', sortDir);
+
+            const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.USERS}?${params.toString()}`;
             // Usar cache para la lista de usuarios (útil si se navega entre detalles y lista)
             const response = await Utils.makeRequest('GET', url, null, true);
             return response;

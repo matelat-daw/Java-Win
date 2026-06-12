@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -43,13 +44,21 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<PageResponse<UserDto>>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String surname,
+            @RequestParam(defaultValue = "surname1") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
     ) {
         int safePage = Math.max(0, page);
         int safeSize = Math.min(Math.max(1, size), 100);
-        Pageable pageable = PageRequest.of(safePage, safeSize);
+        String safeSortBy = switch (sortBy) {
+            case "surname1", "surname2", "name", "email", "phone", "createdAt", "nick" -> sortBy;
+            default -> "surname1";
+        };
+        Sort.Direction direction = "desc".equalsIgnoreCase(sortDir) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(safePage, safeSize, Sort.by(direction, safeSortBy));
 
-        Page<User> usersPage = userService.getUsersExcludingRole(Role.ADMIN, pageable);
+        Page<User> usersPage = userService.getUsersExcludingRoleBySurname(Role.ADMIN, surname, pageable);
 
         List<UserDto> users = usersPage.getContent().stream()
                 .map(UserDto::fromEntity)

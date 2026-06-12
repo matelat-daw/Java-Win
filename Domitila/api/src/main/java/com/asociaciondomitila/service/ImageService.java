@@ -277,8 +277,4 @@ public class ImageService {
             // No lanzar excepción, solo logging para no interrumpir la eliminación del usuario
         }
     }
-
-    /**
-     * Valida el tipo de contenido de la imagen
-     */
 }

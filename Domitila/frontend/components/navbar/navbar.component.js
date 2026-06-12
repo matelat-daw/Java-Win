@@ -97,6 +97,9 @@ this.showUnauthenticatedView();
         const authenticatedLinks = document.getElementById('authenticatedLinks');
         const usersLink = document.getElementById('usersLink');
         const userDropdown = document.getElementById('userDropdown');
+        const profilePic = document.getElementById('navbarProfilePic');
+        const userNick = document.getElementById('navbarUserNick');
+        const fullName = document.getElementById('dropdownFullName');
 
         if (guestLinks) guestLinks.style.display = 'block';
         if (registerLink) registerLink.style.display = 'block';
@@ -104,6 +107,9 @@ this.showUnauthenticatedView();
         if (authenticatedLinks) authenticatedLinks.style.display = 'none';
         if (usersLink) usersLink.style.display = 'none';
         if (userDropdown) userDropdown.style.display = 'none';
+        if (profilePic) profilePic.src = '';
+        if (userNick) userNick.textContent = '';
+        if (fullName) fullName.textContent = '';
     }
 
     /**
@@ -237,9 +243,9 @@ return;
     /**
      * Realiza el logout después de confirmar en el modal
      */
-    confirmLogoutAction() {
-        AuthService.logout();
-        
+    async confirmLogoutAction() {
+        await AuthService.logout(null);
+
         // Limpiar instancias de componentes
         const app = App.getInstance();
         if (app && typeof app.clearComponentInstances === 'function') {
@@ -250,12 +256,6 @@ return;
         if (typeof NavBar !== 'undefined' && NavBar && typeof NavBar.reinit === 'function') {
             NavBar.reinit();
         }
-        
-        Utils.showMessage(
-            'Logged Out',
-            'You have been successfully logged out.',
-            'success'
-        );
 
         // Ocultar modal
         const logoutModal = document.getElementById('logoutConfirmModal');
@@ -264,10 +264,13 @@ return;
             if (modal) modal.hide();
         }
 
-        // Redirigir a home
-        setTimeout(() => {
-            App.getInstance().navigateTo('/');
-        }, 300);
+        Utils.showMessage(
+            'Logged Out',
+            'You have been successfully logged out.',
+            'success'
+        );
+
+        App.getInstance().navigateTo('/');
     }
 
     /**

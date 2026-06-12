@@ -7,7 +7,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import com.asociaciondomitila.entity.User;
 import com.asociaciondomitila.service.UserService;
-
 import java.util.Optional;
 
 /**
