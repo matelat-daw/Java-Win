@@ -11,6 +11,7 @@ class App {
             'home': this.loadHome,
             'register': this.loadRegister,
             'users': this.loadUsers,
+            'projects': this.loadProjects,
             'login': this.loadLogin,
             'dashboard': this.loadDashboard,
             'profile': this.loadProfile
@@ -21,6 +22,7 @@ class App {
         this.registerComponent = null;
         this.profileComponent = null;
         this.usersComponent = null;
+        this.projectsComponent = null;
     }
 
     normalizeBasePath(path) {
@@ -85,7 +87,8 @@ class App {
         this.registerComponent = null;
         this.profileComponent = null;
         this.usersComponent = null;
-}
+        this.projectsComponent = null;
+    }
 
     /**
      * Configura el sistema de rutas
@@ -648,6 +651,48 @@ outlet.innerHTML = `
             window.UsersComponentInstance = this.usersComponent;
         }
         this.usersComponent.init();
+    }
+
+    loadProjects() {
+        const outlet = document.getElementById('router-outlet');
+        if (outlet) {
+            outlet.innerHTML = `
+                <div class="projects-container">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status" style="margin-top: 50px;">
+                            <span class="visually-hidden">Cargando proyectos...</span>
+                        </div>
+                        <p class="mt-3">Cargando lista de proyectos...</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (!this.projectsComponent) {
+            if (typeof ProjectsComponent === 'undefined') {
+                setTimeout(() => {
+                    if (typeof ProjectsComponent !== 'undefined') {
+                        this.projectsComponent = new ProjectsComponent();
+                        window.ProjectsComponentInstance = this.projectsComponent;
+                        this.projectsComponent.init();
+                    } else if (outlet) {
+                        outlet.innerHTML = `
+                            <div class="alert alert-danger m-5">
+                                <h4>Error al cargar proyectos</h4>
+                                <p>No se pudo cargar el componente de proyectos. Por favor, recarga la página.</p>
+                                <button class="btn btn-primary" onclick="window.location.reload()">Recargar página</button>
+                            </div>
+                        `;
+                    }
+                }, 100);
+                return;
+            }
+
+            this.projectsComponent = new ProjectsComponent();
+            window.ProjectsComponentInstance = this.projectsComponent;
+        }
+
+        this.projectsComponent.init();
     }
 
     /**

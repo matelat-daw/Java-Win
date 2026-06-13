@@ -58,6 +58,7 @@ this.showUnauthenticatedView();
         const loginLink = document.getElementById('loginLink');
         const authenticatedLinks = document.getElementById('authenticatedLinks');
         const usersLink = document.getElementById('usersLink');
+        const projectsLink = document.getElementById('projectsLink');
         const userDropdown = document.getElementById('userDropdown');
 
         if (isAuthenticated) {
@@ -73,6 +74,9 @@ this.showUnauthenticatedView();
             if (usersLink) {
                 usersLink.style.display = (userRole === 'ADMIN') ? 'block' : 'none';
             }
+            if (projectsLink) {
+                projectsLink.style.display = 'block';
+            }
 
             // Cargar datos del usuario
             this.loadUserData();
@@ -83,6 +87,7 @@ this.showUnauthenticatedView();
             if (loginLink) loginLink.style.display = 'block';
             if (authenticatedLinks) authenticatedLinks.style.display = 'none';
             if (usersLink) usersLink.style.display = 'none';
+            if (projectsLink) projectsLink.style.display = 'none';
             if (userDropdown) userDropdown.style.display = 'none';
         }
     }
@@ -96,6 +101,7 @@ this.showUnauthenticatedView();
         const loginLink = document.getElementById('loginLink');
         const authenticatedLinks = document.getElementById('authenticatedLinks');
         const usersLink = document.getElementById('usersLink');
+        const projectsLink = document.getElementById('projectsLink');
         const userDropdown = document.getElementById('userDropdown');
         const profilePic = document.getElementById('navbarProfilePic');
         const userNick = document.getElementById('navbarUserNick');
@@ -106,6 +112,7 @@ this.showUnauthenticatedView();
         if (loginLink) loginLink.style.display = 'block';
         if (authenticatedLinks) authenticatedLinks.style.display = 'none';
         if (usersLink) usersLink.style.display = 'none';
+        if (projectsLink) projectsLink.style.display = 'none';
         if (userDropdown) userDropdown.style.display = 'none';
         if (profilePic) profilePic.src = '';
         if (userNick) userNick.textContent = '';

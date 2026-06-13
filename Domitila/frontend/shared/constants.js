@@ -8,7 +8,7 @@ const APP_BASE_PATH = window.APP_BASE_PATH || (() => {
         return path;
     }
 
-    const knownRoutes = ['login', 'register', 'dashboard', 'users', 'profile'];
+    const knownRoutes = ['login', 'register', 'dashboard', 'users', 'projects', 'profile'];
     const parts = path.split('/').filter(Boolean);
     
     // Si estamos en una subruta conocida, el base path es el anterior
@@ -39,6 +39,8 @@ const API_CONFIG = {
         USER_BY_ID: '/user/:id',
         UPDATE_USER: '/user/:id',
         DELETE_USER: '/user/:id',
+        PROJECTS: '/projects',
+        PROJECT_BY_ID: '/projects/:id',
         IMAGES: '/images'
     }
 };
@@ -48,6 +50,7 @@ const ROUTES = {
     REGISTER: `${APP_BASE_PATH}register`,
     LOGIN: `${APP_BASE_PATH}login`,
     USERS: `${APP_BASE_PATH}users`,
+    PROJECTS: `${APP_BASE_PATH}projects`,
     DASHBOARD: `${APP_BASE_PATH}dashboard`
 };
 

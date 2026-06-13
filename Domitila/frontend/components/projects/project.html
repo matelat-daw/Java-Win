@@ -1,0 +1,40 @@
+<form id="createProjectForm">
+    <div class="mb-3">
+        <label class="form-label" for="pCode">Código del Proyecto</label>
+        <input type="text" id="pCode" name="code" class="form-control" placeholder="ej: PROJ-2026">
+        <div class="form-text">Opcional. La API actual no lo persiste todavía.</div>
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="pName">Nombre</label>
+        <input type="text" id="pName" name="name" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="pDescription">Descripción</label>
+        <textarea id="pDescription" name="description" class="form-control" rows="3"></textarea>
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label" for="pStartDate">Fecha Inicio</label>
+            <input type="date" id="pStartDate" name="startDate" class="form-control" required>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label" for="pEndDate">Fecha Fin</label>
+            <input type="date" id="pEndDate" name="endDate" class="form-control">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label" for="pStatus">Estado</label>
+            <select id="pStatus" name="status" class="form-select" required>
+                <option value="ACTIVO">ACTIVO</option>
+                <option value="PAUSADO">PAUSADO</option>
+                <option value="COMPLETADO">COMPLETADO</option>
+                <option value="CANCELADO">CANCELADO</option>
+            </select>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label" for="pType">Tipo</label>
+            <input type="text" id="pType" name="type" class="form-control" placeholder="ej: Desarrollo, Social">
+        </div>
+    </div>
+</form>

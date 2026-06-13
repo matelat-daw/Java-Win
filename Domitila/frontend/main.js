@@ -12,6 +12,7 @@ async function initializeApp() {
             'user.model',
             'auth.service',
             'user.service',
+            'project.service',
             'navbar',
             'register',
             'login',
@@ -19,6 +20,7 @@ async function initializeApp() {
             'profile',
             'users',
             'user-details',
+            'projects',
             'app'
         ];
 
@@ -92,4 +94,3 @@ if (document.readyState === 'loading') {
     // El DOM ya est� listo
     initializeApp();
 }
-
