@@ -431,7 +431,7 @@ public class ProjectsService {
                 project.getEndDate(),
                 project.getStatus(),
                 project.getType(),
-                project.getTeamMembers() != null ? project.getTeamMembers().size() : 0,
+                project.getTeamMembers() != null ? (long) project.getTeamMembers().size() : 0L,
                 countVisibleTasks(project, currentStaff)
         );
     }
@@ -575,9 +575,9 @@ public class ProjectsService {
         };
     }
 
-    private int countVisibleTasks(Project project, Staff currentStaff) {
+    private long countVisibleTasks(Project project, Staff currentStaff) {
         if (project.getTasks() == null) {
-            return 0;
+            return 0L;
         }
         if (currentStaff == null) {
             return project.getTasks().size();
@@ -585,7 +585,7 @@ public class ProjectsService {
         if (isAdmin(currentStaff)) {
             return project.getTasks().size();
         }
-        return (int) project.getTasks().stream()
+        return project.getTasks().stream()
                 .filter(task -> task.getAssignedStaff() != null && currentStaff.getId().equals(task.getAssignedStaff().getId()))
                 .count();
     }
