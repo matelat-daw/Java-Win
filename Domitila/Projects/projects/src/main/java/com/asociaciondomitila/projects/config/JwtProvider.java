@@ -1,6 +1,6 @@
 package com.asociaciondomitila.projects.config;
 
-import com.asociaciondomitila.projects.entity.User;
+import com.asociaciondomitila.projects.entity.Staff;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -58,20 +58,20 @@ public class JwtProvider {
         }
     }
 
-    public String generateAccessToken(User user) {
+    public String generateAccessToken(Staff staff) {
         return createToken(
-                user.getEmail(),
+                staff.getEmail(),
                 jwtProperties.getExpiration(),
                 Map.of(
                         CLAIM_TYPE, TOKEN_TYPE_ACCESS,
-                        CLAIM_ROLES, user.getRoles().stream().map(role -> role.getName()).toList()
+                        CLAIM_ROLES, staff.getRoles().stream().map(role -> role.getName()).toList()
                 )
         );
     }
 
-    public String generateRefreshToken(User user) {
+    public String generateRefreshToken(Staff staff) {
         return createToken(
-                user.getEmail(),
+                staff.getEmail(),
                 jwtProperties.getRefreshExpiration(),
                 Map.of(CLAIM_TYPE, TOKEN_TYPE_REFRESH)
         );

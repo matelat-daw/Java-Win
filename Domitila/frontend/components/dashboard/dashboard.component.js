@@ -20,7 +20,7 @@ class DashboardComponent {
             }
 
             await Utils.loadHtml(this.selector, '/frontend/components/dashboard/dashboard.component.html');
-            await this.loadUserData();
+            await this.loadStaffData();
             this.attachEventListeners();
         } catch (error) {
 Utils.showMessage('Error', 'No se pudo cargar el dashboard', 'error');
@@ -30,10 +30,10 @@ Utils.showMessage('Error', 'No se pudo cargar el dashboard', 'error');
     /**
      * Carga los datos del usuario en la página
      */
-    async loadUserData() {
-        let user = AuthService.getUserSession();
+    async loadStaffData() {
+        let staff = AuthService.getStaffSession();
         
-        if (!user) {
+        if (!staff) {
             // Si no hay sesión, no hacer nada
             return;
         }
@@ -45,8 +45,8 @@ Utils.showMessage('Error', 'No se pudo cargar el dashboard', 'error');
             
             if (response.success && response.data) {
                 // Actualizar sesión con datos frescos del servidor
-                AuthService.setUserSession(response.data);
-                user = response.data;
+                AuthService.setStaffSession(response.data);
+                staff = response.data;
             }
         } catch (error) {
             // Si falla el refresh, usar datos del sessionStorage
@@ -54,9 +54,9 @@ Utils.showMessage('Error', 'No se pudo cargar el dashboard', 'error');
 
         // Actualizar nombre en bienvenida
         const fullName = AuthService.getFullName();
-        const userNameDisplay = document.getElementById('userNameDisplay');
-        if (userNameDisplay) {
-            userNameDisplay.innerHTML = `<strong>${user.nick}</strong> / ${fullName}`;
+        const staffNameDisplay = document.getElementById('staffNameDisplay');
+        if (staffNameDisplay) {
+            staffNameDisplay.innerHTML = `<strong>${staff.nick}</strong> / ${fullName}`;
         }
 
         // Actualizar foto de perfil con lazy loading y fallback
@@ -82,12 +82,12 @@ Utils.showMessage('Error', 'No se pudo cargar el dashboard', 'error');
         // Actualizar información del usuario
         const nickDisplay = document.getElementById('nickDisplay');
         if (nickDisplay) {
-            nickDisplay.textContent = user.nick || 'N/A';
+            nickDisplay.textContent = staff.nick || 'N/A';
         }
 
         const emailDisplay = document.getElementById('emailDisplay');
         if (emailDisplay) {
-            emailDisplay.textContent = user.email || 'N/A';
+            emailDisplay.textContent = staff.email || 'N/A';
         }
 
         const fullNameDisplay = document.getElementById('fullNameDisplay');
@@ -112,11 +112,11 @@ Utils.showMessage('Error', 'No se pudo cargar el dashboard', 'error');
             }
 
             // Mostrar/ocultar enlaces de ADMIN y PREMIUM en Quick Links
-            const adminUsersLink = document.getElementById('adminUsersLink');
+            const adminStaffLink = document.getElementById('adminStaffLink');
             const isAdmin = role === 'ADMIN';
             
-            if (adminUsersLink) {
-                adminUsersLink.style.display = (isAdmin) ? 'block' : 'none';
+            if (adminStaffLink) {
+                adminStaffLink.style.display = (isAdmin) ? 'block' : 'none';
             }
 
             // Ajustar tamaño de tarjetas según rol
@@ -139,7 +139,7 @@ Utils.showMessage('Error', 'No se pudo cargar el dashboard', 'error');
             }
 
             // Guardar rol en sessionStorage para usar en otros componentes
-            sessionStorage.setItem('userRole', role);
+            sessionStorage.setItem('staffRole', role);
         }
     }
 

@@ -1,12 +1,12 @@
 package com.asociaciondomitila.projects.util;
 
 import com.asociaciondomitila.projects.config.JwtProvider;
-import com.asociaciondomitila.projects.entity.User;
+import com.asociaciondomitila.projects.entity.Staff;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
-import com.asociaciondomitila.projects.service.UserService;
+import com.asociaciondomitila.projects.service.StaffService;
 import java.util.Optional;
 
 /**
@@ -18,7 +18,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthenticationHelper {
 
-    private final UserService userService;
+    private final StaffService userService;
     private final JwtProvider jwtProvider;
 
     /**
@@ -42,27 +42,27 @@ public class AuthenticationHelper {
     /**
      * Obtiene el usuario autenticado actual
      */
-    public Optional<User> getAuthenticatedUser(Authentication authentication) {
+    public Optional<Staff> getAuthenticatedStaff(Authentication authentication) {
         String email = getAuthenticatedEmail(authentication);
         if (email == null) {
             return Optional.empty();
         }
-        return userService.getUserByEmail(email);
+        return userService.getStaffByEmail(email);
     }
 
     /**
      * Valida autenticación y retorna el usuario o lanza excepción
      */
-    public User requireAuthenticatedUser(Authentication authentication) {
-        return getAuthenticatedUser(authentication)
-                .orElseThrow(() -> new IllegalStateException(ApiConstants.ERR_USER_NOT_FOUND));
+    public Staff requireAuthenticatedStaff(Authentication authentication) {
+        return getAuthenticatedStaff(authentication)
+                .orElseThrow(() -> new IllegalStateException(ApiConstants.ERR_STAFF_NOT_FOUND));
     }
 
     /**
      * Log de evento de autenticación
      */
     public void logAuthEvent(String email, String action) {
-        log.info("Auth event for user '{}': {}", email, action);
+        log.info("Auth event for staff '{}': {}", email, action);
     }
 
     /**

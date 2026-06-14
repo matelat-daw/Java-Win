@@ -2,8 +2,11 @@ package com.asociaciondomitila.projects.repository;
 
 import com.asociaciondomitila.projects.entity.Project;
 import com.asociaciondomitila.projects.enums.ProjectStatus;
-import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface ProjectsRepository extends JpaRepository<Project, Long> {
     
@@ -15,4 +18,13 @@ public interface ProjectsRepository extends JpaRepository<Project, Long> {
     
     // 3. Buscar proyectos que contengan una palabra en su nombre (para buscadores)
     List<Project> findByNameContainingIgnoreCase(String name);
+
+    @Query("""
+            select distinct p
+            from Project p
+            left join p.teamMembers tm
+            left join p.projectManager pm
+            where pm.id = :staffId or tm.id = :staffId
+            """)
+    List<Project> findAccessibleProjectsByStaffId(@Param("staffId") Long staffId, Sort sort);
 }

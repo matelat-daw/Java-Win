@@ -9,17 +9,17 @@ async function initializeApp() {
         const requiredScripts = [
             'constants',
             'utils',
-            'user.model',
+            'staff.model',
             'auth.service',
-            'user.service',
+            'staff.service',
             'project.service',
             'navbar',
             'register',
             'login',
             'dashboard',
             'profile',
-            'users',
-            'user-details',
+            'staff',
+            'staff-details',
             'projects',
             'app'
         ];

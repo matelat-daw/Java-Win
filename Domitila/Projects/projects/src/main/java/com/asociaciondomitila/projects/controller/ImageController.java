@@ -33,7 +33,7 @@ public class ImageController {
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     /**
-     * Obtiene una imagen por nombre (soporta subcarpetas de usuario como {userId}/profile.jpg)
+     * Obtiene una imagen por nombre (soporta subcarpetas de usuario como {staffId}/profile.jpg)
      * GET /api/images/**
      */
     @GetMapping("/**")

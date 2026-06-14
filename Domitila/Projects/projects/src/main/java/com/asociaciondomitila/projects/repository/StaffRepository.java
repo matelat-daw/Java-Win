@@ -1,6 +1,6 @@
 package com.asociaciondomitila.projects.repository;
 
-import com.asociaciondomitila.projects.entity.User;
+import com.asociaciondomitila.projects.entity.Staff;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -8,12 +8,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByEmail(String email);
+public interface StaffRepository extends JpaRepository<Staff, Long> {
+    Optional<Staff> findByEmail(String email);
 
-    Optional<User> findByNick(String nick);
+    Optional<Staff> findByNick(String nick);
 
-    Optional<User> findByVerificationToken(String token);
+    Optional<Staff> findByVerificationToken(String token);
 
     boolean existsByEmail(String email);
 
@@ -22,7 +22,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(
             value = """
                     select u
-                    from User u
+                    from Staff u
                     where not exists (
                         select 1
                         from u.roles r
@@ -31,7 +31,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
                     """,
             countQuery = """
                     select count(u)
-                    from User u
+                    from Staff u
                     where not exists (
                         select 1
                         from u.roles r
@@ -39,12 +39,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
                     )
                     """
     )
-    Page<User> findAllExcludingRoleName(@Param("roleName") String roleName, Pageable pageable);
+    Page<Staff> findAllExcludingRoleName(@Param("roleName") String roleName, Pageable pageable);
 
     @Query(
             value = """
                     select u
-                    from User u
+                    from Staff u
                     where not exists (
                         select 1
                         from u.roles r
@@ -57,7 +57,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
                     """,
             countQuery = """
                     select count(u)
-                    from User u
+                    from Staff u
                     where not exists (
                         select 1
                         from u.roles r
@@ -69,7 +69,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
                     )
                     """
     )
-    Page<User> findAllExcludingRoleNameBySurname(
+    Page<Staff> findAllExcludingRoleNameBySurname(
             @Param("roleName") String roleName,
             @Param("surname") String surname,
             Pageable pageable

@@ -4,10 +4,10 @@ import com.asociaciondomitila.projects.dto.BooleanResultDto;
 import com.asociaciondomitila.projects.dto.ProfileDeleteRequest;
 import com.asociaciondomitila.projects.dto.UpdatePasswordRequest;
 import com.asociaciondomitila.projects.dto.UpdateProfileRequest;
-import com.asociaciondomitila.projects.dto.UserDto;
-import com.asociaciondomitila.projects.entity.User;
+import com.asociaciondomitila.projects.dto.StaffDto;
+import com.asociaciondomitila.projects.entity.Staff;
 import com.asociaciondomitila.projects.service.ImageService;
-import com.asociaciondomitila.projects.service.UserService;
+import com.asociaciondomitila.projects.service.StaffService;
 import com.asociaciondomitila.projects.util.ApiConstants;
 import com.asociaciondomitila.projects.util.ApiResponse;
 import com.asociaciondomitila.projects.util.ApiResponseBuilder;
@@ -33,51 +33,51 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ProfileController {
 
-    private final UserService userService;
+    private final StaffService userService;
     private final ImageService imageService;
     private final AuthenticationHelper authenticationHelper;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<UserDto>> getProfile(Authentication authentication) {
-        User user = authenticationHelper.requireAuthenticatedUser(authentication);
-        authenticationHelper.logAuthEvent(user.getEmail(), "profile_retrieved");
-        return ApiResponseBuilder.success(ApiConstants.MSG_PROFILE_FETCHED, UserDto.fromEntity(user));
+    public ResponseEntity<ApiResponse<StaffDto>> getProfile(Authentication authentication) {
+        Staff staff = authenticationHelper.requireAuthenticatedStaff(authentication);
+        authenticationHelper.logAuthEvent(staff.getEmail(), "profile_retrieved");
+        return ApiResponseBuilder.success(ApiConstants.MSG_PROFILE_FETCHED, StaffDto.fromEntity(staff));
     }
 
     @PutMapping
-    public ResponseEntity<ApiResponse<UserDto>> updateProfile(
+    public ResponseEntity<ApiResponse<StaffDto>> updateProfile(
             Authentication authentication,
             @Valid @RequestBody UpdateProfileRequest request
     ) {
-        User user = authenticationHelper.requireAuthenticatedUser(authentication);
+        Staff staff = authenticationHelper.requireAuthenticatedStaff(authentication);
         
-        User updatedUser = userService.updateUserProfile(
-                user.getId(),
+        Staff updatedUser = userService.updateStaffProfile(
+                staff.getId(),
                 request.getName(),
                 request.getSurname1(),
                 request.getSurname2(),
                 request.getPhone()
         );
 
-        authenticationHelper.logAuthEvent(user.getEmail(), "profile_updated");
-        return ApiResponseBuilder.success(ApiConstants.MSG_PROFILE_UPDATED, UserDto.fromEntity(updatedUser));
+        authenticationHelper.logAuthEvent(staff.getEmail(), "profile_updated");
+        return ApiResponseBuilder.success(ApiConstants.MSG_PROFILE_UPDATED, StaffDto.fromEntity(updatedUser));
     }
 
     @PostMapping(value = "/picture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponse<UserDto>> updateProfilePicture(
+    public ResponseEntity<ApiResponse<StaffDto>> updateProfilePicture(
             Authentication authentication,
             @RequestParam("profilePicture") MultipartFile file
     ) {
-        User user = authenticationHelper.requireAuthenticatedUser(authentication);
+        Staff staff = authenticationHelper.requireAuthenticatedStaff(authentication);
         ValidationHelper.validateImageFile(file);
 
         try {
-            imageService.ensureUserImageDirectory(user.getId());
-            String fileName = imageService.saveProfileImage(file, user.getId());
-            User updatedUser = userService.updateProfileImage(user.getId(), fileName);
+            imageService.ensureStaffImageDirectory(staff.getId());
+            String fileName = imageService.saveProfileImage(file, staff.getId());
+            Staff updatedUser = userService.updateProfileImage(staff.getId(), fileName);
 
-            authenticationHelper.logAuthEvent(user.getEmail(), "profile_picture_updated");
-            return ApiResponseBuilder.success(ApiConstants.MSG_PROFILE_PICTURE_UPDATED, UserDto.fromEntity(updatedUser));
+            authenticationHelper.logAuthEvent(staff.getEmail(), "profile_picture_updated");
+            return ApiResponseBuilder.success(ApiConstants.MSG_PROFILE_PICTURE_UPDATED, StaffDto.fromEntity(updatedUser));
         } catch (Exception e) {
             log.error("Error al guardar imagen: {}", e.getMessage());
             throw new RuntimeException(ApiConstants.ERR_IMAGE_SAVE_FAILED);
@@ -85,24 +85,24 @@ public class ProfileController {
     }
 
     @PutMapping("/password")
-    public ResponseEntity<ApiResponse<UserDto>> updatePassword(
+    public ResponseEntity<ApiResponse<StaffDto>> updatePassword(
             Authentication authentication,
             @Valid @RequestBody UpdatePasswordRequest request
     ) {
-        User user = authenticationHelper.requireAuthenticatedUser(authentication);
+        Staff staff = authenticationHelper.requireAuthenticatedStaff(authentication);
         
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
             throw new IllegalArgumentException(ApiConstants.ERR_PASSWORD_MISMATCH);
         }
 
-        User updatedUser = userService.changePassword(
-                user.getId(),
+        Staff updatedUser = userService.changePassword(
+                staff.getId(),
                 request.getCurrentPassword(),
                 request.getNewPassword()
         );
 
-        authenticationHelper.logAuthEvent(user.getEmail(), "password_changed");
-        return ApiResponseBuilder.success(ApiConstants.MSG_PASSWORD_UPDATED, UserDto.fromEntity(updatedUser));
+        authenticationHelper.logAuthEvent(staff.getEmail(), "password_changed");
+        return ApiResponseBuilder.success(ApiConstants.MSG_PASSWORD_UPDATED, StaffDto.fromEntity(updatedUser));
     }
 
     @PostMapping("/delete")
@@ -110,9 +110,9 @@ public class ProfileController {
             Authentication authentication,
             @Valid @RequestBody ProfileDeleteRequest request
     ) {
-        User user = authenticationHelper.requireAuthenticatedUser(authentication);
-        userService.deleteUserAccount(user.getId(), request.getPassword());
-        authenticationHelper.logAuthEvent(user.getEmail(), "account_deleted");
+        Staff staff = authenticationHelper.requireAuthenticatedStaff(authentication);
+        userService.deleteStaffAccount(staff.getId(), request.getPassword());
+        authenticationHelper.logAuthEvent(staff.getEmail(), "account_deleted");
         return ApiResponseBuilder.success(ApiConstants.MSG_PROFILE_DELETED);
     }
 
@@ -121,14 +121,14 @@ public class ProfileController {
             Authentication authentication,
             @RequestBody Map<String, String> request
     ) {
-        User user = authenticationHelper.requireAuthenticatedUser(authentication);
+        Staff staff = authenticationHelper.requireAuthenticatedStaff(authentication);
         
         String password = request.get("password");
         if (!ValidationHelper.isValidString(password)) {
             throw new IllegalArgumentException(ApiConstants.ERR_PASSWORD_REQUIRED);
         }
 
-        boolean isValid = userService.isPasswordValid(user, password);
+        boolean isValid = userService.isPasswordValid(staff, password);
         return ApiResponseBuilder.success(ApiConstants.MSG_PASSWORD_VALIDATION, new BooleanResultDto(isValid));
     }
 }

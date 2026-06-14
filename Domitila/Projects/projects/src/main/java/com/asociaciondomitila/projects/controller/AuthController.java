@@ -3,11 +3,11 @@ package com.asociaciondomitila.projects.controller;
 import com.asociaciondomitila.projects.dto.AuthSessionDto;
 import com.asociaciondomitila.projects.dto.LoginRequest;
 import com.asociaciondomitila.projects.dto.RegisterRequest;
-import com.asociaciondomitila.projects.entity.User;
+import com.asociaciondomitila.projects.entity.Staff;
 import com.asociaciondomitila.projects.service.AuthCookieService;
 import com.asociaciondomitila.projects.service.AuthSessionService;
 import com.asociaciondomitila.projects.service.ImageService;
-import com.asociaciondomitila.projects.service.UserService;
+import com.asociaciondomitila.projects.service.StaffService;
 import com.asociaciondomitila.projects.util.ApiConstants;
 import com.asociaciondomitila.projects.util.ApiResponse;
 import com.asociaciondomitila.projects.util.ApiResponseBuilder;
@@ -41,7 +41,7 @@ import java.time.format.DateTimeParseException;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UserService userService;
+    private final StaffService userService;
     private final AuthSessionService authSessionService;
     private final AuthCookieService authCookieService;
     private final AuthenticationHelper authenticationHelper;
@@ -58,10 +58,10 @@ public class AuthController {
             @Valid @RequestBody LoginRequest request,
             HttpServletResponse response
     ) {
-        User user = userService.authenticate(request.getEmail(), request.getPassword());
-        AuthSessionDto session = authSessionService.createSession(user);
+        Staff staff = userService.authenticate(request.getEmail(), request.getPassword());
+        AuthSessionDto session = authSessionService.createSession(staff);
         authCookieService.writeAuthCookie(response, session.accessToken());
-        authenticationHelper.logAuthEvent(user.getEmail(), "login_successful");
+        authenticationHelper.logAuthEvent(staff.getEmail(), "login_successful");
         return ApiResponseBuilder.success(ApiConstants.MSG_LOGIN_SUCCESS, session);
     }
 
@@ -75,20 +75,20 @@ public class AuthController {
         log.info("Intento de registro para: {} ({})", request.getEmail(), request.getNick());
         request.setBday(parseBirthDate(bday));
 
-        User user = userService.registerUser(request);
+        Staff staff = userService.registerStaff(request);
 
         if (profilePicture != null && !profilePicture.isEmpty()) {
             try {
                 ValidationHelper.validateImageFile(profilePicture);
-                imageService.ensureUserImageDirectory(user.getId());
-                String fileName = imageService.saveProfileImage(profilePicture, user.getId());
-                user = userService.updateProfileImage(user.getId(), fileName);
+                imageService.ensureStaffImageDirectory(staff.getId());
+                String fileName = imageService.saveProfileImage(profilePicture, staff.getId());
+                staff = userService.updateProfileImage(staff.getId(), fileName);
             } catch (Exception e) {
-                log.warn("No se pudo guardar imagen de perfil post-registro para {}: {}", user.getEmail(), e.getMessage());
+                log.warn("No se pudo guardar imagen de perfil post-registro para {}: {}", staff.getEmail(), e.getMessage());
             }
         }
 
-        AuthSessionDto session = authSessionService.createSession(user);
+        AuthSessionDto session = authSessionService.createSession(staff);
         authCookieService.writeAuthCookie(response, session.accessToken());
         return ApiResponseBuilder.created(ApiConstants.MSG_REGISTER_SUCCESS, session);
     }
@@ -109,10 +109,10 @@ public class AuthController {
             Authentication authentication,
             HttpServletResponse response
     ) {
-        User user = authenticationHelper.requireAuthenticatedUser(authentication);
-        AuthSessionDto session = authSessionService.createSession(user);
+        Staff staff = authenticationHelper.requireAuthenticatedStaff(authentication);
+        AuthSessionDto session = authSessionService.createSession(staff);
         authCookieService.writeAuthCookie(response, session.accessToken());
-        authenticationHelper.logAuthEvent(user.getEmail(), "token_refreshed");
+        authenticationHelper.logAuthEvent(staff.getEmail(), "token_refreshed");
         return ApiResponseBuilder.success(ApiConstants.MSG_TOKEN_REFRESHED, session);
     }
 

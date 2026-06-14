@@ -33,7 +33,7 @@ public class ImageService {
     private Path resolveUploadBasePath() {
         Path basePath = Paths.get(uploadDir);
         if (!basePath.isAbsolute()) {
-            basePath = Paths.get(System.getProperty("user.dir")).resolve(basePath);
+            basePath = Paths.get(System.getProperty("staff.dir")).resolve(basePath);
         }
         return basePath.normalize();
     }
@@ -56,14 +56,14 @@ public class ImageService {
     /**
      * Asegura que exista la carpeta base y la carpeta del usuario.
      */
-    public Path ensureUserImageDirectory(Long userId) throws IOException {
+    public Path ensureStaffImageDirectory(Long staffId) throws IOException {
         Path uploadPath = resolveUploadBasePath();
         Files.createDirectories(uploadPath);
 
-        Path userPath = uploadPath.resolve(String.valueOf(userId));
-        Files.createDirectories(userPath);
+        Path staffPath = uploadPath.resolve(String.valueOf(staffId));
+        Files.createDirectories(staffPath);
 
-        return userPath;
+        return staffPath;
     }
 
     /**
@@ -147,7 +147,7 @@ public class ImageService {
     /**
      * Genera una ruta segura para una imagen
      */
-    public String generateSecureImagePath(String fileName, Long userId) {
+    public String generateSecureImagePath(String fileName, Long staffId) {
         // Validar nombre de archivo
         log.warn("Intentando generar ruta segura para archivo: {}", fileName);
         if (!fileName.matches("^[a-zA-Z0-9._-]+$")) {
@@ -156,30 +156,30 @@ public class ImageService {
         }
 
         // Crear carpeta por usuario
-        String userImageDir = String.format("%d/", userId);
-        return userImageDir + System.currentTimeMillis() + "_" + fileName;
+        String staffImageDir = String.format("%d/", staffId);
+        return staffImageDir + System.currentTimeMillis() + "_" + fileName;
     }
 
     /**
      * Guarda una imagen de perfil de usuario con nombre fijo "profile"
      */
-    public String saveProfileImage(MultipartFile file, Long userId) throws Exception {
+    public String saveProfileImage(MultipartFile file, Long staffId) throws Exception {
         try {
             ValidationHelper.validateImageFile(file);
             } catch (IllegalArgumentException e) {
-            log.error("❌ Error de validación de imagen para usuario {}: {}", userId, ApiConstants.ERR_INVALID_IMAGE_FILE);
+            log.error("❌ Error de validación de imagen para usuario {}: {}", staffId, ApiConstants.ERR_INVALID_IMAGE_FILE);
             throw e;
         }
         String extension = resolveOriginalExtension(file);
 
         try {
             // Verificar y crear el directorio padre y la carpeta del usuario si no existen
-            Path userPath = ensureUserImageDirectory(userId);
-            log.info("📁 Carpeta lista para usuario ID {}: {}", userId, userPath.toAbsolutePath());
+            Path staffPath = ensureStaffImageDirectory(staffId);
+            log.info("📁 Carpeta lista para usuario ID {}: {}", staffId, staffPath.toAbsolutePath());
 
             // El nombre siempre será "profile" con su extensión original
             String fileName = "profile." + extension;
-            Path filePath = userPath.resolve(fileName);
+            Path filePath = staffPath.resolve(fileName);
 
             // Guardar archivo (sobrescribirá si ya existe)
             log.info("📝 Guardando archivo en: {}", filePath.toAbsolutePath());
@@ -189,13 +189,13 @@ public class ImageService {
             log.info("✅ Archivo guardado correctamente. Tamaño: {} bytes", file.getSize());
             
             // La ruta que guardamos en BD será relativa a uploadDir: "ID/profile.ext"
-            String dbPath = userId + "/" + fileName;
-            log.info("📸 Imagen de perfil guardada para usuario {}: {} (Ruta absoluta: {})", userId, dbPath, filePath.toAbsolutePath());
+            String dbPath = staffId + "/" + fileName;
+            log.info("📸 Imagen de perfil guardada para usuario {}: {} (Ruta absoluta: {})", staffId, dbPath, filePath.toAbsolutePath());
             
             return dbPath;
         } catch (Exception e) {
             log.error("❌ Error al guardar imagen para usuario {}: {} | Directorio configurado: {} | Causa: {}", 
-                    userId, e.getMessage(), resolveUploadBasePath(), e.getClass().getSimpleName(), e);
+                    staffId, e.getMessage(), resolveUploadBasePath(), e.getClass().getSimpleName(), e);
             throw new RuntimeException(ApiConstants.ERR_INTERNAL_ERROR);
         }
     }
@@ -240,37 +240,37 @@ public class ImageService {
      * - Si es imagen protegida (default), no elimina nada
      * - Si es imagen personalizada, elimina todo el directorio del usuario
      */
-    public void deleteProfileImage(Long userId, String imagePath) {
+    public void deleteProfileImage(Long staffId, String imagePath) {
         if (imagePath == null || imagePath.isEmpty()) {
-            log.warn("Ruta de imagen vacía para usuario: {}", userId);
+            log.warn("Ruta de imagen vacía para usuario: {}", staffId);
             return;
         }
 
         // Si es imagen protegida, no hacer nada
         if (isProtectedImage(imagePath)) {
-            log.info("📸 Imagen protegida (por defecto) para usuario {}. No se eliminará.", userId);
+            log.info("📸 Imagen protegida (por defecto) para usuario {}. No se eliminará.", staffId);
             return;
         }
 
         // Eliminar toda la carpeta del usuario
-        deleteUserProfileImages(userId);
+        deleteStaffProfileImages(staffId);
     }
 
     /**
      * Elimina todos los archivos de perfil de un usuario (carpeta completa)
      * Se usa cuando se elimina la cuenta del usuario
      */
-    public void deleteUserProfileImages(Long userId) {
+    public void deleteStaffProfileImages(Long staffId) {
         try {
-            Path userPath = resolveUploadBasePath().resolve(userId.toString());
+            Path staffPath = resolveUploadBasePath().resolve(staffId.toString());
             
-            if (!Files.exists(userPath)) {
-                log.warn("📁 Carpeta de usuario no encontrada: {}", userPath);
+            if (!Files.exists(staffPath)) {
+                log.warn("📁 Carpeta de usuario no encontrada: {}", staffPath);
                 return;
             }
 
             // Eliminar recursivamente toda la carpeta
-            Files.walk(userPath)
+            Files.walk(staffPath)
                     .sorted((a, b) -> b.compareTo(a)) // Ordenar en reverso para eliminar primero archivos
                     .forEach(path -> {
                         try {
@@ -281,9 +281,9 @@ public class ImageService {
                         }
                     });
 
-            log.info("✅ Carpeta de imágenes del usuario {} eliminada completamente", userId);
+            log.info("✅ Carpeta de imágenes del usuario {} eliminada completamente", staffId);
         } catch (Exception e) {
-            log.error("❌ Error al eliminar carpeta de imágenes del usuario {}: {}", userId, e.getMessage());
+            log.error("❌ Error al eliminar carpeta de imágenes del usuario {}: {}", staffId, e.getMessage());
             // No lanzar excepción, solo logging para no interrumpir la eliminación del usuario
         }
     }

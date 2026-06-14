@@ -26,4 +26,8 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project project;
+
+    @ManyToOne
+    @JoinColumn(name = "assigned_staff_id")
+    private Staff assignedStaff;
 }

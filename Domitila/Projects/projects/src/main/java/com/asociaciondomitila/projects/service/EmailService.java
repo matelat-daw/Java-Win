@@ -33,7 +33,7 @@ public class EmailService {
      * Envía email de verificación de cuenta
      */
     @Async
-    public void sendVerificationEmail(String userEmail, String userName, String verificationToken) {
+    public void sendVerificationEmail(String userEmail, String staffName, String verificationToken) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -46,7 +46,7 @@ public class EmailService {
                 : normalizedBackendUrl + "/api";
             String verificationLink = verificationBasePath + "/auth/verify/" + verificationToken;
 
-            String htmlContent = buildVerificationEmailHTML(userName, verificationLink);
+            String htmlContent = buildVerificationEmailHTML(staffName, verificationLink);
 
             helper.setFrom(mailFrom);
             helper.setTo(userEmail);
@@ -65,12 +65,12 @@ public class EmailService {
      * Envía email de bienvenida después de verificación
      */
     @Async
-    public void sendWelcomeEmail(String userEmail, String userName) {
+    public void sendWelcomeEmail(String userEmail, String staffName) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            String htmlContent = buildWelcomeEmailHTML(userName);
+            String htmlContent = buildWelcomeEmailHTML(staffName);
 
             helper.setFrom(mailFrom);
             helper.setTo(userEmail);
@@ -89,13 +89,13 @@ public class EmailService {
      * Envía email de recuperación de contraseña
      */
     @Async
-    public void sendPasswordResetEmail(String userEmail, String userName, String resetToken) {
+    public void sendPasswordResetEmail(String userEmail, String staffName, String resetToken) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             String resetLink = frontendUrl + "/reset-password?token=" + resetToken;
-            String htmlContent = buildPasswordResetEmailHTML(userName, resetLink);
+            String htmlContent = buildPasswordResetEmailHTML(staffName, resetLink);
 
             helper.setFrom(mailFrom);
             helper.setTo(userEmail);

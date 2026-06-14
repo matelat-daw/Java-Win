@@ -6,7 +6,7 @@ class AuthService {
     /**
      * Información del usuario autenticado en sesión
      */
-    static userSession = null;
+    static staffSession = null;
     
     /**
      * Token JWT del usuario
@@ -39,58 +39,58 @@ class AuthService {
             const response = await Utils.makeRequest('POST', url, data);
             // Detectar si el login fue exitoso - flexible para diferentes formatos de API
             let isSuccess = false;
-            let userData = null;
+            let staffData = null;
             let token = null;
 
             const sessionData = response?.data && typeof response.data === 'object' ? response.data : null;
-            const nestedUser = sessionData?.user || null;
+            const nestedStaff = sessionData?.staff || null;
             const nestedToken = sessionData?.accessToken || sessionData?.token || null;
 
             // Formato 1: response.success
             if (response.success === true) {
                 isSuccess = true;
-                userData = nestedUser || response.user || response.data || response;
+                staffData = nestedStaff || response.staff || response.data || response;
                 token = response.token || nestedToken;
             }
             // Formato 2: response.code === 200 con data
-            else if (response.code === 200 && (response.data || response.user)) {
+            else if (response.code === 200 && (response.data || response.staff)) {
                 isSuccess = true;
-                userData = nestedUser || response.user || response.data;
+                staffData = nestedStaff || response.staff || response.data;
                 token = response.token || nestedToken;
             }
             // Formato 3: respuesta directa con token (API .NET)
             else if (response.token) {
                 isSuccess = true;
-                userData = response.data || response.user || response;
+                staffData = response.data || response.staff || response;
                 token = response.token;
             }
             // Formato 4: HTTP 200 sin estructura específica (asumir éxito con token)
             else if (!response.error && !response.message?.includes('failed') && !response.message?.includes('invalid')) {
                 isSuccess = true;
-                userData = nestedUser || response.data || response.user || response;
+                staffData = nestedStaff || response.data || response.staff || response;
                 token = response.token || nestedToken || response.access_token;
             }
 
             if (isSuccess && token) {
                 // Guardar datos del usuario en sessionStorage
-                this.setUserSession(userData);
+                this.setStaffSession(staffData);
                 
                 // Guardar token JWT
                 this.setJwtToken(token);
                 return {
                     success: true,
                     message: response.message || 'Login exitoso',
-                    user: userData,
+                    staff: staffData,
                     token: token
                 };
             } else if (isSuccess) {
                 // Login exitoso sin token en body: la API puede estar operando solo con cookie
-                this.setUserSession(userData);
+                this.setStaffSession(staffData);
                 this.setJwtToken(null);
                 return {
                     success: true,
                     message: response.message || 'Login exitoso',
-                    user: userData,
+                    staff: staffData,
                     token: null
                 };
             }
@@ -118,9 +118,9 @@ class AuthService {
         }
 
         if (!force) {
-            const currentUser = this.getUserSession();
-            if (currentUser) {
-                return currentUser;
+            const currentStaff = this.getStaffSession();
+            if (currentStaff) {
+                return currentStaff;
             }
             if (this.bootstrapPromise) {
                 return this.bootstrapPromise;
@@ -148,18 +148,18 @@ class AuthService {
                 }
 
                 const payload = await response.json().catch(() => null);
-                const userData = payload?.data || payload?.user || null;
+                const staffData = payload?.data || payload?.staff || null;
 
-                if (!userData) {
+                if (!staffData) {
                     this.clearLocalSession();
                     return null;
                 }
 
-                this.setUserSession(userData);
-                return userData;
+                this.setStaffSession(staffData);
+                return staffData;
             } catch (error) {
                 // Si el backend no está disponible, mantener la mejor información local posible.
-                return this.getUserSession();
+                return this.getStaffSession();
             } finally {
                 this.bootstrapPromise = null;
             }
@@ -170,30 +170,30 @@ class AuthService {
 
     /**
      * Guarda los datos del usuario en sesión
-     * @param {Object} userData - Datos del usuario
+     * @param {Object} staffData - Datos del usuario
      */
-    static setUserSession(userData) {
-        this.userSession = userData;
-        sessionStorage.setItem('user_session', JSON.stringify(userData));
+    static setStaffSession(staffData) {
+        this.staffSession = staffData;
+        sessionStorage.setItem('staff_session', JSON.stringify(staffData));
     }
 
     /**
      * Obtiene los datos del usuario de sesión
      * @returns {Object|null}
      */
-    static getUserSession() {
-        if (!this.userSession) {
-            const stored = sessionStorage.getItem('user_session');
+    static getStaffSession() {
+        if (!this.staffSession) {
+            const stored = sessionStorage.getItem('staff_session');
             if (stored) {
                 try {
-                    this.userSession = JSON.parse(stored);
+                    this.staffSession = JSON.parse(stored);
                 } catch (_) {
-                    sessionStorage.removeItem('user_session');
-                    this.userSession = null;
+                    sessionStorage.removeItem('staff_session');
+                    this.staffSession = null;
                 }
             }
         }
-        return this.userSession;
+        return this.staffSession;
     }
 
     /**
@@ -201,8 +201,8 @@ class AuthService {
      * @returns {boolean}
      */
     static isAuthenticated() {
-        const user = this.getUserSession();
-        return user !== null && user !== undefined;
+        const staff = this.getStaffSession();
+        return staff !== null && staff !== undefined;
     }
 
     /**
@@ -210,19 +210,19 @@ class AuthService {
      * @returns {boolean}
      */
     static hasLocalSession() {
-        return !!this.getUserSession();
+        return !!this.getStaffSession();
     }
 
     /**
      * Limpia el estado local de autenticación sin llamar al backend.
      */
     static clearLocalSession() {
-        this.userSession = null;
+        this.staffSession = null;
         this.jwtToken = null;
         this.bootstrapPromise = null;
-        sessionStorage.removeItem('user_session');
+        sessionStorage.removeItem('staff_session');
         sessionStorage.removeItem('jwt_token');
-        localStorage.removeItem('user_session');
+        localStorage.removeItem('staff_session');
         localStorage.removeItem('jwt_token');
         localStorage.removeItem('auth_token');
     }
@@ -276,12 +276,12 @@ class AuthService {
      * @returns {string}
      */
     static getFullName() {
-        const user = this.getUserSession();
-        if (!user) return '';
+        const staff = this.getStaffSession();
+        if (!staff) return '';
         
-        const name = user.name || '';
-        const surname1 = user.surname1 || '';
-        const surname2 = user.surname2 || '';
+        const name = staff.name || '';
+        const surname1 = staff.surname1 || '';
+        const surname2 = staff.surname2 || '';
         
         return `${name} ${surname1} ${surname2}`.trim();
     }
@@ -291,17 +291,17 @@ class AuthService {
      * @returns {string|null} - La URL de la imagen o null si no existe
      */
     static getProfilePictureUrl() {
-        const user = this.getUserSession();
-        if (!user) {
+        const staff = this.getStaffSession();
+        if (!staff) {
             return null;
         }
         
         // Si no tiene foto, devolver null (el frontend decide qué mostrar)
-        if (!user.profileImg || String(user.profileImg).trim() === '') {
+        if (!staff.profileImg || String(staff.profileImg).trim() === '') {
             return null;
         }
         
-        let imgPath = String(user.profileImg).trim();
+        let imgPath = String(staff.profileImg).trim();
         
         // Limpiar ruta: remover "images/" si existe (para compatibilidad)
         if (imgPath.startsWith('images/')) {
@@ -322,8 +322,8 @@ class AuthService {
      * @returns {string}
      */
     static getNick() {
-        const user = this.getUserSession();
-        return user ? user.nick : '';
+        const staff = this.getStaffSession();
+        return staff ? staff.nick : '';
     }
 
     /**
@@ -331,8 +331,8 @@ class AuthService {
      * @returns {string}
      */
     static getEmail() {
-        const user = this.getUserSession();
-        return user ? user.email : '';
+        const staff = this.getStaffSession();
+        return staff ? staff.email : '';
     }
 
     /**
@@ -340,8 +340,8 @@ class AuthService {
      * @returns {string}
      */
     static getRole() {
-        const user = this.getUserSession();
-        const rawRole = user?.role || user?.data?.role || user?.user?.role || null;
+        const staff = this.getStaffSession();
+        const rawRole = staff?.role || staff?.data?.role || staff?.staff?.role || null;
         if (!rawRole) {
             return 'USER';
         }
@@ -398,9 +398,9 @@ class AuthService {
      * Cierra la sesión del usuario (logout) - Actualizado para limpiar también el JWT
      */
     static logoutWithJwt() {
-        this.userSession = null;
+        this.staffSession = null;
         this.jwtToken = null;
-        sessionStorage.removeItem('user_session');
+        sessionStorage.removeItem('staff_session');
         sessionStorage.removeItem('jwt_token');
 }
 }

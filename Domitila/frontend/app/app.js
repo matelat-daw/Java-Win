@@ -10,7 +10,7 @@ class App {
         this.routes = {
             'home': this.loadHome,
             'register': this.loadRegister,
-            'users': this.loadUsers,
+            'staff': this.loadStaff,
             'projects': this.loadProjects,
             'login': this.loadLogin,
             'dashboard': this.loadDashboard,
@@ -21,7 +21,7 @@ class App {
         this.dashboardComponent = null;
         this.registerComponent = null;
         this.profileComponent = null;
-        this.usersComponent = null;
+        this.staffComponent = null;
         this.projectsComponent = null;
     }
 
@@ -86,7 +86,7 @@ class App {
         this.dashboardComponent = null;
         this.registerComponent = null;
         this.profileComponent = null;
-        this.usersComponent = null;
+        this.staffComponent = null;
         this.projectsComponent = null;
     }
 
@@ -285,10 +285,10 @@ class App {
                             <div class="col-md-8">
                                 <div class="card shadow">
                                     <div class="card-body text-center py-5">
-                                        <i class="fas fa-users display-1 text-primary mb-3"></i>
+                                        <i class="fas fa-user display-1 text-primary mb-3"></i>
                                         <h1 class="card-title mb-3">Welcome to Clients API</h1>
                                         <p class="lead text-muted mb-4">
-                                            Manage your users easily and efficiently
+                                            Manage your staff easily and efficiently
                                         </p>
                                         <p class="text-muted">
                                             Use the navigation menu to access the dashboard or manage your account.
@@ -307,10 +307,10 @@ class App {
                             <div class="col-md-8">
                                 <div class="card shadow">
                                     <div class="card-body text-center py-5">
-                                        <i class="fas fa-users display-1 text-primary mb-3"></i>
+                                        <i class="fas fa-user display-1 text-primary mb-3"></i>
                                         <h1 class="card-title mb-3">Welcome to Clients API</h1>
                                         <p class="lead text-muted mb-4">
-                                            Manage your users easily and efficiently
+                                            Manage your staff easily and efficiently
                                         </p>
                                         <div class="d-flex justify-content-center gap-3">
                                             <a href="/register" class="btn btn-primary btn-lg d-flex align-items-center">
@@ -603,42 +603,42 @@ outlet.innerHTML = `
         this.profileComponent.init();
     }
 
-    /**     * Carga la lista de usuarios (placeholder)
+    /**     * Carga la lista de staff (placeholder)
      */
-    loadUsers(userId) {
-// Si hay un userId, cargar detalles
-        if (userId) {
-            return this.loadUserDetails(userId);
+    loadStaff(staffId) {
+// Si hay un staffId, cargar detalles
+        if (staffId) {
+            return this.loadStaffDetails(staffId);
         }
         
         // Mostrar HTML de usuarios inline mientras se carga
         const outlet = document.getElementById('router-outlet');
         if (outlet) {
             outlet.innerHTML = `
-                <div class="users-container">
+                <div class="staff-container">
                     <div class="text-center">
                         <div class="spinner-border text-primary" role="status" style="margin-top: 50px;">
-                            <span class="visually-hidden">Cargando usuarios...</span>
+                            <span class="visually-hidden">Cargando staff...</span>
                         </div>
-                        <p class="mt-3">Cargando lista de usuarios...</p>
+                        <p class="mt-3">Cargando lista de staff...</p>
                     </div>
                 </div>
             `;
         }
 
         // Crear instancia bajo demanda si no existe
-        if (!this.usersComponent) {
-            // Verificar si UsersComponent está disponible
-            if (typeof UsersComponent === 'undefined') {
+        if (!this.staffComponent) {
+            // Verificar si StaffComponent está disponible
+            if (typeof StaffComponent === 'undefined') {
 setTimeout(() => {
-if (typeof UsersComponent !== 'undefined') {
-this.usersComponent = new UsersComponent();
-                        window.UsersComponentInstance = this.usersComponent;
-                        this.usersComponent.init();
+if (typeof StaffComponent !== 'undefined') {
+this.staffComponent = new StaffComponent();
+                        window.StaffComponentInstance = this.staffComponent;
+                        this.staffComponent.init();
                     } else {
 outlet.innerHTML = `
                             <div class="alert alert-danger m-5">
-                                <h4>Error al cargar la lista de usuarios</h4>
+                                <h4>Error al cargar la lista de staff</h4>
                                 <p>No se pudo cargar el componente de usuarios. Por favor, recarga la página.</p>
                                 <button class="btn btn-primary" onclick="window.location.reload()">Recargar página</button>
                             </div>
@@ -647,10 +647,10 @@ outlet.innerHTML = `
                 }, 100);
                 return;
             }
-            this.usersComponent = new UsersComponent();
-            window.UsersComponentInstance = this.usersComponent;
+            this.staffComponent = new StaffComponent();
+            window.StaffComponentInstance = this.staffComponent;
         }
-        this.usersComponent.init();
+        this.staffComponent.init();
     }
 
     loadProjects() {
@@ -698,22 +698,22 @@ outlet.innerHTML = `
     /**
      * Carga los detalles de un usuario específico
      */
-    loadUserDetails(userId) {
+    loadStaffDetails(staffId) {
 // DEBUGGING: Verificar qué está disponible en window
 // Listar todas los objetos en AppScripts si existen
         if (typeof AppScripts !== 'undefined') {
 }
 
         try {
-            if (typeof UserDetailsComponent === 'undefined') {
-throw new Error('UserDetailsComponent no esta disponible. Intenta recargar la pagina (Ctrl+Shift+R)');
+            if (typeof StaffDetailsComponent === 'undefined') {
+throw new Error('StaffDetailsComponent no esta disponible. Intenta recargar la pagina (Ctrl+Shift+R)');
             }
-const component = new UserDetailsComponent();
-component.init(userId);
+const component = new StaffDetailsComponent();
+component.init(staffId);
         } catch (error) {
 const outlet = document.getElementById('router-outlet');
             if (outlet) {
-                outlet.innerHTML = '<div class="alert alert-danger m-5"><h5>Error</h5><p>' + error.message + '</p><a href="/users" class="btn btn-primary">Volver</a></div>';
+                outlet.innerHTML = '<div class="alert alert-danger m-5"><h5>Error</h5><p>' + error.message + '</p><a href="/staff" class="btn btn-primary">Volver</a></div>';
             }
         }
     }

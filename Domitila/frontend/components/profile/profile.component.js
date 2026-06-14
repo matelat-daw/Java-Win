@@ -34,7 +34,7 @@ class ProfileComponent {
             await this.waitForBootstrap();
 
             // Cargar datos del usuario (sin forzar refresh desde API)
-            await this.loadUserData(false);
+            await this.loadStaffData(false);
 
             // Adjuntar eventos
             this.attachEventListeners();
@@ -65,11 +65,11 @@ class ProfileComponent {
      * Carga los datos del usuario desde la sesión o API
      * @param {boolean} forceRefresh - Si true, recarga desde la API
      */
-    async loadUserData(forceRefresh = false) {
+    async loadStaffData(forceRefresh = false) {
         try {
-            let user = AuthService.getUserSession();
+            let staff = AuthService.getStaffSession();
 
-            if (!user) {
+            if (!staff) {
                 return;
             }
 
@@ -80,8 +80,8 @@ class ProfileComponent {
                     const response = await Utils.makeRequest('GET', url);
                     
                     if (response.success && response.data) {
-                        AuthService.setUserSession(response.data);
-                        user = response.data;
+                        AuthService.setStaffSession(response.data);
+                        staff = response.data;
                     }
                 } catch (error) {
                 }
@@ -108,29 +108,29 @@ class ProfileComponent {
             }
 
             // Actualizar nickname
-            const nickDisplay = document.getElementById('userNickDisplay');
+            const nickDisplay = document.getElementById('staffNickDisplay');
             if (nickDisplay) {
-                nickDisplay.textContent = user.nick || 'Usuario';
+                nickDisplay.textContent = staff.nick || 'Usuario';
             }
 
             // Actualizar email
             const emailDisplay = document.getElementById('userEmailDisplay');
             if (emailDisplay) {
-                emailDisplay.textContent = user.email || '';
+                emailDisplay.textContent = staff.email || '';
             }
 
             // Llenar formulario de datos personales
             const nameInput = document.getElementById('nameInput');
-            if (nameInput) nameInput.value = user.name || '';
+            if (nameInput) nameInput.value = staff.name || '';
 
             const surname1Input = document.getElementById('surname1Input');
-            if (surname1Input) surname1Input.value = user.surname1 || '';
+            if (surname1Input) surname1Input.value = staff.surname1 || '';
 
             const surname2Input = document.getElementById('surname2Input');
-            if (surname2Input) surname2Input.value = user.surname2 || '';
+            if (surname2Input) surname2Input.value = staff.surname2 || '';
 
             const phoneInput = document.getElementById('phoneInput');
-            if (phoneInput) phoneInput.value = user.phone || '';
+            if (phoneInput) phoneInput.value = staff.phone || '';
         } catch (error) {
         }
     }
@@ -203,8 +203,8 @@ class ProfileComponent {
             const result = await Utils.makeRequest('PUT', url, requestBody);
 
             if (result?.data) {
-                AuthService.setUserSession(result.data);
-                this.loadUserData();
+                AuthService.setStaffSession(result.data);
+                this.loadStaffData();
             }
 
             this.showSuccessModal('Perfil actualizado', 'Tus datos se han modificado correctamente.');
@@ -266,7 +266,7 @@ class ProfileComponent {
             }
 
             window.__profileImageVersion = Date.now();
-            AuthService.setUserSession(result.data);
+            AuthService.setStaffSession(result.data);
 
             // Limpiar input y ocultar botón
             picInput.value = '';
@@ -276,8 +276,8 @@ class ProfileComponent {
             // Actualizar foto en perfil
             this.updateProfilePicture();
 
-            if (window.NavBar && typeof window.NavBar.loadUserData === 'function') {
-                window.NavBar.loadUserData();
+            if (window.NavBar && typeof window.NavBar.loadStaffData === 'function') {
+                window.NavBar.loadStaffData();
             }
             
             this.showSuccessModal('Foto actualizada', 'Tu foto de perfil se ha actualizado correctamente.');

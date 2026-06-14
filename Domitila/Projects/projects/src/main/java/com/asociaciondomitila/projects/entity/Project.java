@@ -38,16 +38,16 @@ public class Project {
     // Relación con el líder del proyecto
     @ManyToOne
     @JoinColumn(name = "project_manager_id")
-    private User projectManager;
+    private Staff projectManager;
 
     // CORRECCIÓN: Relación de muchos a muchos para los miembros del equipo
     @ManyToMany
     @JoinTable(
         name = "project_team",
         joinColumns = @JoinColumn(name = "project_id"),
-        inverseJoinColumns = @JoinColumn(name = "user_id")
+        inverseJoinColumns = @JoinColumn(name = "staff_id")
     )
-    private List<User> teamMembers;
+    private List<Staff> teamMembers;
 
     // Relación con las tareas
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true) 

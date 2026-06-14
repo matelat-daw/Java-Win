@@ -19,7 +19,7 @@ public class ChangeRoleRequest {
 
     @NotNull(message = "El ID del usuario es requerido")
     @Positive(message = "El ID del usuario debe ser positivo")
-    private Long userId;
+    private Long staffId;
 
     @NotBlank(message = "El nuevo rol es requerido")
     private String newRole;

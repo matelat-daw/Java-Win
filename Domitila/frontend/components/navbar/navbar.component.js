@@ -15,7 +15,7 @@ class NavbarComponent {
         try {
             // No recargar el HTML, solo actualizar el estado de autenticación
             this.updateAuthStatus();
-            this.loadUserData();
+            this.loadStaffData();
         } catch (error) {
         }
     }
@@ -57,9 +57,9 @@ this.showUnauthenticatedView();
         const registerLink = document.getElementById('registerLink');
         const loginLink = document.getElementById('loginLink');
         const authenticatedLinks = document.getElementById('authenticatedLinks');
-        const usersLink = document.getElementById('usersLink');
+        const staffLink = document.getElementById('staffLink');
         const projectsLink = document.getElementById('projectsLink');
-        const userDropdown = document.getElementById('userDropdown');
+        const staffDropdown = document.getElementById('staffDropdown');
 
         if (isAuthenticated) {
             // Usuario autenticado - mostrar panel de usuario
@@ -67,28 +67,28 @@ this.showUnauthenticatedView();
             if (registerLink) registerLink.style.display = 'none';
             if (loginLink) loginLink.style.display = 'none';
             if (authenticatedLinks) authenticatedLinks.style.display = 'block';
-            if (userDropdown) userDropdown.style.display = 'block';
+            if (staffDropdown) staffDropdown.style.display = 'block';
 
-            // Mostrar users link si es ADMIN
-            const userRole = AuthService.getRole();
-            if (usersLink) {
-                usersLink.style.display = (userRole === 'ADMIN') ? 'block' : 'none';
+            // Mostrar staff link si es ADMIN
+            const staffRole = AuthService.getRole();
+            if (staffLink) {
+                staffLink.style.display = (staffRole === 'ADMIN') ? 'block' : 'none';
             }
             if (projectsLink) {
                 projectsLink.style.display = 'block';
             }
 
             // Cargar datos del usuario
-            this.loadUserData();
+            this.loadStaffData();
         } else {
             // Usuario no autenticado - mostrar links de login/register
             if (guestLinks) guestLinks.style.display = 'block';
             if (registerLink) registerLink.style.display = 'block';
             if (loginLink) loginLink.style.display = 'block';
             if (authenticatedLinks) authenticatedLinks.style.display = 'none';
-            if (usersLink) usersLink.style.display = 'none';
+            if (staffLink) staffLink.style.display = 'none';
             if (projectsLink) projectsLink.style.display = 'none';
-            if (userDropdown) userDropdown.style.display = 'none';
+            if (staffDropdown) staffDropdown.style.display = 'none';
         }
     }
 
@@ -100,29 +100,29 @@ this.showUnauthenticatedView();
         const registerLink = document.getElementById('registerLink');
         const loginLink = document.getElementById('loginLink');
         const authenticatedLinks = document.getElementById('authenticatedLinks');
-        const usersLink = document.getElementById('usersLink');
+        const staffLink = document.getElementById('staffLink');
         const projectsLink = document.getElementById('projectsLink');
-        const userDropdown = document.getElementById('userDropdown');
+        const staffDropdown = document.getElementById('staffDropdown');
         const profilePic = document.getElementById('navbarProfilePic');
-        const userNick = document.getElementById('navbarUserNick');
+        const staffNick = document.getElementById('navbarUserNick');
         const fullName = document.getElementById('dropdownFullName');
 
         if (guestLinks) guestLinks.style.display = 'block';
         if (registerLink) registerLink.style.display = 'block';
         if (loginLink) loginLink.style.display = 'block';
         if (authenticatedLinks) authenticatedLinks.style.display = 'none';
-        if (usersLink) usersLink.style.display = 'none';
+        if (staffLink) staffLink.style.display = 'none';
         if (projectsLink) projectsLink.style.display = 'none';
-        if (userDropdown) userDropdown.style.display = 'none';
+        if (staffDropdown) staffDropdown.style.display = 'none';
         if (profilePic) profilePic.src = '';
-        if (userNick) userNick.textContent = '';
+        if (staffNick) staffNick.textContent = '';
         if (fullName) fullName.textContent = '';
     }
 
     /**
      * Carga los datos del usuario en el navbar
      */
-    loadUserData() {
+    loadStaffData() {
         try {
             
             // Validar que AuthService esté definido
@@ -130,8 +130,8 @@ this.showUnauthenticatedView();
                 return;
             }
 
-            const user = AuthService.getUserSession();
-            if (!user) {
+            const staff = AuthService.getStaffSession();
+            if (!staff) {
                 return;
             }
 
@@ -155,9 +155,9 @@ this.showUnauthenticatedView();
             }
 
             // Actualizar nickname
-            const userNick = document.getElementById('navbarUserNick');
-            if (userNick) {
-                userNick.textContent = user.nick || 'User';
+            const staffNick = document.getElementById('navbarUserNick');
+            if (staffNick) {
+                staffNick.textContent = staff.nick || 'Staff';
             }
 
             // Actualizar nombre completo en dropdown
@@ -300,7 +300,7 @@ return;
             'register': '.nav-link-register',
             'login': '.nav-link-login',
             'dashboard': '.nav-link-dashboard',
-            'users': '.nav-link-users'
+            'staff': '.nav-link-staff'
         };
 
         const selector = routeMap[route] || '.nav-link-home';

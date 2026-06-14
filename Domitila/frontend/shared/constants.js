@@ -8,7 +8,7 @@ const APP_BASE_PATH = window.APP_BASE_PATH || (() => {
         return path;
     }
 
-    const knownRoutes = ['login', 'register', 'dashboard', 'users', 'projects', 'profile'];
+    const knownRoutes = ['login', 'register', 'dashboard', 'staff', 'projects', 'profile'];
     const parts = path.split('/').filter(Boolean);
     
     // Si estamos en una subruta conocida, el base path es el anterior
@@ -35,12 +35,15 @@ const API_CONFIG = {
         PROFILE_PICTURE: '/profile/picture',
         PROFILE_DELETE: '/profile/delete',
         PROFILE_VALIDATE_PASSWORD: '/profile/validate-password',
-        USERS: '/user',
-        USER_BY_ID: '/user/:id',
-        UPDATE_USER: '/user/:id',
-        DELETE_USER: '/user/:id',
+        STAFF: '/staff',
+        STAFF_BY_ID: '/staff/:id',
+        UPDATE_STAFF: '/staff/:id',
+        DELETE_STAFF: '/staff/:id',
         PROJECTS: '/projects',
         PROJECT_BY_ID: '/projects/:id',
+        PROJECT_TEAM: '/projects/:id/team',
+        PROJECT_TASKS: '/projects/:id/tasks',
+        PROJECT_TASK_STATUS: '/projects/:projectId/tasks/:taskId/status',
         IMAGES: '/images'
     }
 };
@@ -49,17 +52,17 @@ const ROUTES = {
     HOME: APP_BASE_PATH,
     REGISTER: `${APP_BASE_PATH}register`,
     LOGIN: `${APP_BASE_PATH}login`,
-    USERS: `${APP_BASE_PATH}users`,
+    STAFF: `${APP_BASE_PATH}staff`,
     PROJECTS: `${APP_BASE_PATH}projects`,
     DASHBOARD: `${APP_BASE_PATH}dashboard`
 };
 
 const MESSAGES = {
     SUCCESS: {
-        REGISTER: '¡User registration successful! Your account has been created.',
+        REGISTER: '¡Staff registration successful! Your account has been created.',
         LOGIN: '¡Welcome! You have logged in successfully.',
-        UPDATE: 'The user has been updated correctly.',
-        DELETE: 'The user has been deleted correctly.'
+        UPDATE: 'The staff has been updated correctly.',
+        DELETE: 'The staff has been deleted correctly.'
     },
     ERROR: {
         REGISTER_FAILED: 'Error registering the account. Please try again.',

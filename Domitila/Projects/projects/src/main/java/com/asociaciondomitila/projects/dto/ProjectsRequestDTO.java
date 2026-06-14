@@ -15,6 +15,9 @@ import com.asociaciondomitila.projects.util.ApiConstants;
 @AllArgsConstructor
 public class ProjectsRequestDTO {
 
+    @Size(max = 50, message = "El codigo del proyecto no puede superar los 50 caracteres")
+    private String code;
+
     @NotBlank(message = ApiConstants.ERR_PROJECT_NAME_REQUIRED)
     @Size(max = 100, message = ApiConstants.ERR_PROJECT_NAME_MAX_LENGTH)
     private String name;

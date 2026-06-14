@@ -11,10 +11,13 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class ProjectsResponseDTO {
     private Long id;
+    private String code;
     private String name;
     private String description;
     private LocalDate startDate;
     private LocalDate endDate;
     private ProjectStatus status;
     private String type;
+    private Integer teamMemberCount;
+    private Integer taskCount;
 }

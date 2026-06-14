@@ -336,7 +336,7 @@ App.getInstance().navigateTo('/dashboard');
         const form = document.getElementById(this.formId);
         const formDataObj = new FormData(form);
         
-        const userData = {
+        const staffData = {
             nick: formDataObj.get('nick').trim(),
             name: formDataObj.get('name').trim(),
             surname1: formDataObj.get('surname1').trim(),
@@ -348,8 +348,8 @@ App.getInstance().navigateTo('/dashboard');
             bday: formDataObj.get('bday') ? formDataObj.get('bday') : null
         };
 
-        // Crear objeto User
-        const user = new User(userData);
+        // Crear objeto Staff
+        const staff = new Staff(staffData);
 
         // Obtener archivo de imagen si existe
         const profilePictureFile = formDataObj.get('profilePicture');
@@ -362,7 +362,7 @@ App.getInstance().navigateTo('/dashboard');
 
         try {
             // Llamar al servicio de registro (con imagen si existe)
-            const response = await UserService.register(user, profilePictureFile);
+            const response = await StaffService.register(staff, profilePictureFile);
 // Mostrar mensaje de éxito
             Utils.showMessage(
                 'Registration Successful',
