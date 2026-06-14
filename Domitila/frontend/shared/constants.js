@@ -42,6 +42,7 @@ const API_CONFIG = {
         PROJECTS: '/projects',
         PROJECT_BY_ID: '/projects/:id',
         PROJECT_TEAM: '/projects/:id/team',
+        PROJECT_BENEFICIARIES: '/projects/:id/beneficiaries',
         PROJECT_TASKS: '/projects/:id/tasks',
         PROJECT_TASK_STATUS: '/projects/:projectId/tasks/:taskId/status',
         PROJECT_TASK_INCIDENTS: '/projects/:projectId/tasks/:taskId/incidents',

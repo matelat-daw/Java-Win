@@ -56,4 +56,7 @@ public class Project {
     // CORRECCIÓN: Se añade mappedBy apuntando al campo de la entidad Incident
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Incident> incidents;
+
+    @ManyToMany(mappedBy = "projects")
+    private List<BeneficiaryUser> beneficiaries;
 }

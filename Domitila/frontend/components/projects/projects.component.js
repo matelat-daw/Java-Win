@@ -5,6 +5,10 @@
 class ProjectsComponent {
     constructor() {
         this.selector = '#router-outlet';
+        this.currentPage = 0;
+        this.pageSize = 8;
+        this.totalItems = 0;
+        this.totalPages = 0;
         this.projects = [];
         this.isAdmin = false;
         this.currentStaffRole = null;
@@ -14,7 +18,9 @@ class ProjectsComponent {
         this.kanbanState = {
             project: null,
             team: [],
-            tasks: []
+            tasks: [],
+            beneficiaries: [],
+            beneficiariesTotal: 0
         };
     }
 
@@ -57,7 +63,11 @@ class ProjectsComponent {
     }
 
     async loadProjects() {
-        this.projects = await ProjectService.getProjects();
+        const pageData = await ProjectService.getProjects(this.currentPage, this.pageSize);
+        this.projects = Array.isArray(pageData?.items) ? pageData.items : [];
+        this.currentPage = pageData?.currentPage ?? this.currentPage;
+        this.totalItems = pageData?.totalItems ?? this.projects.length;
+        this.totalPages = pageData?.totalPages ?? (this.totalItems > 0 ? 1 : 0);
     }
 
     render() {
@@ -81,7 +91,7 @@ class ProjectsComponent {
                             <h1 class="display-5 fw-bold mb-2">
                                 <i class="fas fa-diagram-project me-3"></i>Lista de Proyectos
                             </h1>
-                            <p class="text-muted mb-0">Total de proyectos: <strong>${this.projects.length}</strong></p>
+                            <p class="text-muted mb-0">Total de proyectos: <strong>${this.totalItems}</strong></p>
                         </div>
                         ${this.isAdmin ? `
                             <button type="button" class="btn btn-primary" id="addProjectBtn">
@@ -100,6 +110,7 @@ class ProjectsComponent {
                         </div>
                     </div>
                 </div>
+                ${this.totalPages > 1 ? this.renderProjectsPagination() : ''}
             </div>
         `;
 
@@ -108,6 +119,48 @@ class ProjectsComponent {
             container.innerHTML = html;
             this.attachEventListeners();
         }
+    }
+
+    renderProjectsPagination() {
+        const pages = [];
+
+        pages.push(`
+            <li class="page-item ${this.currentPage === 0 ? 'disabled' : ''}">
+                <button type="button" class="page-link project-page-btn" data-page="${this.currentPage - 1}">
+                    Anterior
+                </button>
+            </li>
+        `);
+
+        for (let i = 0; i < this.totalPages; i++) {
+            pages.push(`
+                <li class="page-item ${i === this.currentPage ? 'active' : ''}">
+                    <button type="button" class="page-link project-page-btn" data-page="${i}">
+                        ${i + 1}
+                    </button>
+                </li>
+            `);
+        }
+
+        pages.push(`
+            <li class="page-item ${this.currentPage >= this.totalPages - 1 ? 'disabled' : ''}">
+                <button type="button" class="page-link project-page-btn" data-page="${this.currentPage + 1}">
+                    Siguiente
+                </button>
+            </li>
+        `);
+
+        return `
+            <div class="row mt-4">
+                <div class="col-12 d-flex justify-content-center">
+                    <nav aria-label="Paginación de proyectos">
+                        <ul class="pagination mb-0">
+                            ${pages.join('')}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        `;
     }
 
     renderTable() {
@@ -200,6 +253,19 @@ class ProjectsComponent {
         if (addProjectBtn) {
             addProjectBtn.addEventListener('click', () => this.showCreateProjectModal());
         }
+
+        document.querySelectorAll('.project-page-btn').forEach(button => {
+            button.addEventListener('click', async () => {
+                const nextPage = Number.parseInt(button.dataset.page, 10);
+                if (!Number.isInteger(nextPage) || nextPage < 0 || nextPage >= this.totalPages || nextPage === this.currentPage) {
+                    return;
+                }
+
+                this.currentPage = nextPage;
+                await this.loadProjects();
+                this.render();
+            });
+        });
 
         document.querySelectorAll('.view-team-btn').forEach(button => {
             button.addEventListener('click', () => {
@@ -662,15 +728,20 @@ class ProjectsComponent {
                             ? 'Organiza el trabajo por fases y asigna cada tarea a un miembro del proyecto.'
                             : 'Solo ves las tareas que te han sido asignadas dentro de este proyecto.'}
                     </div>
-                    ${this.isAdmin ? `
-                        <button type="button" class="btn btn-primary" id="openCreateTaskBtn">
-                            <i class="fas fa-plus me-2"></i>Nueva tarea
+                    <div class="d-flex align-items-center flex-wrap gap-2">
+                        <button type="button" class="btn btn-outline-primary" id="openProjectBeneficiariesBtn">
+                            <i class="fas fa-people-group me-2"></i>Beneficiarios
                         </button>
-                    ` : `
-                        <span class="badge bg-light text-dark border px-3 py-2">
-                            <i class="fas fa-user-lock me-2"></i>Solo ADMIN puede crear tareas
-                        </span>
-                    `}
+                        ${this.isAdmin ? `
+                            <button type="button" class="btn btn-primary" id="openCreateTaskBtn">
+                                <i class="fas fa-plus me-2"></i>Nueva tarea
+                            </button>
+                        ` : `
+                            <span class="badge bg-light text-dark border px-3 py-2">
+                                <i class="fas fa-user-lock me-2"></i>Solo ADMIN puede crear tareas
+                            </span>
+                        `}
+                    </div>
                 </div>
                 <div id="projectKanbanContainer">
                     <div class="text-center py-4">
@@ -687,12 +758,19 @@ class ProjectsComponent {
         modal.show();
 
         const refreshBoard = async () => {
-            const [team, tasks] = await Promise.all([
+            const [team, tasks, beneficiariesPage] = await Promise.all([
                 ProjectService.getProjectTeam(project.id, { sortDir: 'asc' }),
-                ProjectService.getProjectTasks(project.id)
+                ProjectService.getProjectTasks(project.id),
+                ProjectService.getProjectBeneficiaries(project.id, 0, this.pageSize)
             ]);
 
-            this.kanbanState = { project, team, tasks };
+            this.kanbanState = {
+                project,
+                team,
+                tasks,
+                beneficiaries: Array.isArray(beneficiariesPage?.items) ? beneficiariesPage.items : [],
+                beneficiariesTotal: beneficiariesPage?.totalItems ?? 0
+            };
             this.renderKanban(modalElement.querySelector('#projectKanbanContainer'), project, team, tasks);
         };
 
@@ -701,6 +779,10 @@ class ProjectsComponent {
                 this.showCreateTaskModal(project, refreshBoard);
             });
         }
+
+        modalElement.querySelector('#openProjectBeneficiariesBtn')?.addEventListener('click', () => {
+            this.showProjectBeneficiariesModal(project, refreshBoard);
+        });
 
         await refreshBoard();
     }
@@ -1018,6 +1100,335 @@ class ProjectsComponent {
                 </div>
             </div>
         `).join('');
+    }
+
+    async showProjectBeneficiariesModal(project, refreshBoard) {
+        const modalId = 'projectBeneficiariesModal';
+        this.removeModal(modalId);
+
+        const modalElement = this.createModal({
+            id: modalId,
+            title: `Beneficiarios del proyecto: ${ProjectsComponent.escapeHtml(project.name)}`,
+            size: 'modal-xl',
+            body: `
+                <div id="projectBeneficiaryFeedback" class="mb-3"></div>
+                <div class="row g-4">
+                    <div class="col-lg-5">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-user-plus me-2"></i>Agregar beneficiario</h6>
+                            </div>
+                            <div class="card-body">
+                                <form id="createBeneficiaryForm">
+                                    <div class="mb-3">
+                                        <label class="form-label">Nombre</label>
+                                        <input type="text" class="form-control" id="beneficiaryName" maxlength="32" required>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Primer apellido</label>
+                                            <input type="text" class="form-control" id="beneficiarySurname1" maxlength="24" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Segundo apellido</label>
+                                            <input type="text" class="form-control" id="beneficiarySurname2" maxlength="24" required>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">DNI</label>
+                                            <input type="text" class="form-control" id="beneficiaryDni" maxlength="10" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Código postal</label>
+                                            <input type="number" class="form-control" id="beneficiaryPostalCode" min="0" step="1" required>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Dirección</label>
+                                        <input type="text" class="form-control" id="beneficiaryAddress" maxlength="128" required>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Teléfono</label>
+                                            <input type="tel" class="form-control" id="beneficiaryPhone" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Email</label>
+                                            <input type="email" class="form-control" id="beneficiaryEmail" maxlength="64" required>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-7">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0"><i class="fas fa-people-group me-2"></i>Lista de beneficiarios</h6>
+                                <span class="badge bg-dark" id="projectBeneficiariesCountBadge">0</span>
+                            </div>
+                            <div class="card-body">
+                                <div id="projectBeneficiariesListContainer">
+                                    <div class="text-center py-4">
+                                        <div class="spinner-border text-primary" role="status"></div>
+                                    </div>
+                                </div>
+                                <div id="projectBeneficiariesPaginationContainer" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            footer: `
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="confirmCreateBeneficiaryBtn">
+                    <i class="fas fa-save me-2"></i>Guardar beneficiario
+                </button>
+            `
+        });
+
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+
+        const listContainer = modalElement.querySelector('#projectBeneficiariesListContainer');
+        const paginationContainer = modalElement.querySelector('#projectBeneficiariesPaginationContainer');
+        const countBadge = modalElement.querySelector('#projectBeneficiariesCountBadge');
+        const feedbackContainer = modalElement.querySelector('#projectBeneficiaryFeedback');
+        const form = modalElement.querySelector('#createBeneficiaryForm');
+        const confirmBtn = modalElement.querySelector('#confirmCreateBeneficiaryBtn');
+        const beneficiaryPageState = {
+            currentPage: 0,
+            totalPages: 0,
+            totalItems: 0
+        };
+
+        const bindPagination = () => {
+            modalElement.querySelectorAll('.beneficiary-page-btn').forEach(button => {
+                button.addEventListener('click', async () => {
+                    const nextPage = Number.parseInt(button.dataset.page, 10);
+                    if (!Number.isInteger(nextPage)
+                            || nextPage < 0
+                            || nextPage >= beneficiaryPageState.totalPages
+                            || nextPage === beneficiaryPageState.currentPage) {
+                        return;
+                    }
+                    await reloadBeneficiaries(nextPage);
+                });
+            });
+        };
+
+        const reloadBeneficiaries = async (page = beneficiaryPageState.currentPage) => {
+            const beneficiariesPage = await ProjectService.getProjectBeneficiaries(project.id, page, this.pageSize);
+            const beneficiaries = Array.isArray(beneficiariesPage?.items) ? beneficiariesPage.items : [];
+
+            beneficiaryPageState.currentPage = beneficiariesPage?.currentPage ?? page;
+            beneficiaryPageState.totalPages = beneficiariesPage?.totalPages ?? 0;
+            beneficiaryPageState.totalItems = beneficiariesPage?.totalItems ?? beneficiaries.length;
+
+            this.kanbanState.beneficiaries = beneficiaries;
+            this.kanbanState.beneficiariesTotal = beneficiaryPageState.totalItems;
+            if (countBadge) {
+                countBadge.textContent = String(beneficiaryPageState.totalItems);
+            }
+            if (listContainer) {
+                listContainer.innerHTML = this.renderBeneficiariesTable(beneficiaries);
+            }
+            if (paginationContainer) {
+                paginationContainer.innerHTML = this.renderInlinePagination(
+                    beneficiaryPageState.currentPage,
+                    beneficiaryPageState.totalPages,
+                    'beneficiary-page-btn',
+                    'Paginación de beneficiarios'
+                );
+            }
+            bindPagination();
+        };
+
+        await reloadBeneficiaries();
+
+        const getBeneficiaryPayload = () => ({
+            name: modalElement.querySelector('#beneficiaryName')?.value?.trim() || '',
+            surname1: modalElement.querySelector('#beneficiarySurname1')?.value?.trim() || '',
+            surname2: modalElement.querySelector('#beneficiarySurname2')?.value?.trim() || '',
+            dni: modalElement.querySelector('#beneficiaryDni')?.value?.trim() || '',
+            address: modalElement.querySelector('#beneficiaryAddress')?.value?.trim() || '',
+            postalCode: ProjectsComponent.parseNullableInt(modalElement.querySelector('#beneficiaryPostalCode')?.value),
+            phone: ProjectsComponent.parseNullableInt(modalElement.querySelector('#beneficiaryPhone')?.value),
+            email: modalElement.querySelector('#beneficiaryEmail')?.value?.trim() || ''
+        });
+
+        const submit = async () => {
+            if (!form.reportValidity()) {
+                return;
+            }
+
+            const originalHtml = confirmBtn.innerHTML;
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+
+            try {
+                const payload = getBeneficiaryPayload();
+                const result = await ProjectService.createProjectBeneficiary(project.id, payload);
+
+                if (result?.action === 'ALREADY_IN_PROJECT') {
+                    if (feedbackContainer) {
+                        feedbackContainer.innerHTML = `
+                            <div class="alert alert-warning mb-0">
+                                El usuario ya esta vinculado a este proyecto.
+                            </div>
+                        `;
+                    }
+                    return;
+                }
+
+                if (result?.action === 'EXISTS_IN_DATABASE' && result?.requiresConfirmation) {
+                    const confirmed = await this.showConfirmModal({
+                        title: 'Usuario existente',
+                        body: `El usuario <strong>${ProjectsComponent.escapeHtml(ProjectsComponent.getBeneficiaryFullName(result.beneficiary || payload))}</strong> ya existe en la base de datos. ¿Quieres agregarlo a este proyecto?`,
+                        confirmText: 'Sí, agregar al proyecto',
+                        confirmClass: 'btn-primary'
+                    });
+
+                    if (!confirmed) {
+                        if (feedbackContainer) {
+                            feedbackContainer.innerHTML = `
+                                <div class="alert alert-info mb-0">
+                                    El usuario ya existe en la base de datos, pero no se ha agregado al proyecto.
+                                </div>
+                            `;
+                        }
+                        return;
+                    }
+
+                    const confirmedResult = await ProjectService.createProjectBeneficiary(project.id, payload, { confirmExisting: true });
+                    form.reset();
+                    await reloadBeneficiaries();
+                    if (typeof refreshBoard === 'function') {
+                        await refreshBoard();
+                    }
+                    if (feedbackContainer) {
+                        feedbackContainer.innerHTML = `
+                            <div class="alert alert-success mb-0">
+                                ${ProjectsComponent.escapeHtml(confirmedResult?.message || 'El usuario se ha agregado al proyecto.')}
+                            </div>
+                        `;
+                    }
+                    return;
+                }
+
+                form.reset();
+                await reloadBeneficiaries();
+                if (typeof refreshBoard === 'function') {
+                    await refreshBoard();
+                }
+                if (feedbackContainer) {
+                    feedbackContainer.innerHTML = `
+                        <div class="alert alert-success mb-0">
+                            ${ProjectsComponent.escapeHtml(result?.message || 'El beneficiario se ha vinculado correctamente al proyecto.')}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                if (feedbackContainer) {
+                    feedbackContainer.innerHTML = `
+                        <div class="alert alert-danger mb-0">
+                            ${ProjectsComponent.escapeHtml(error.backendMessage || error.message || 'No se pudo guardar el beneficiario.')}
+                        </div>
+                    `;
+                }
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = originalHtml;
+            }
+        };
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            await submit();
+        });
+        confirmBtn.addEventListener('click', submit);
+    }
+
+    renderBeneficiariesTable(beneficiaries) {
+        if (!Array.isArray(beneficiaries) || !beneficiaries.length) {
+            return `
+                <div class="text-center text-muted py-5 border rounded bg-body-tertiary">
+                    <i class="fas fa-people-group mb-2 d-block fs-2"></i>
+                    <span>Todavía no hay beneficiarios registrados en este proyecto.</span>
+                </div>
+            `;
+        }
+
+        const rows = beneficiaries.map(beneficiary => `
+            <tr>
+                <td><strong>${ProjectsComponent.escapeHtml(ProjectsComponent.getBeneficiaryFullName(beneficiary))}</strong></td>
+                <td>${ProjectsComponent.escapeHtml(beneficiary.dni || '-')}</td>
+                <td>${ProjectsComponent.escapeHtml(beneficiary.address || '-')}</td>
+                <td>${ProjectsComponent.escapeHtml(beneficiary.postalCode || '-')}</td>
+                <td>${ProjectsComponent.renderPhoneCell(beneficiary.phone)}</td>
+                <td>${ProjectsComponent.renderEmailCell(beneficiary.email)}</td>
+            </tr>
+        `).join('');
+
+        return `
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nombre completo</th>
+                            <th>DNI</th>
+                            <th>Dirección</th>
+                            <th>CP</th>
+                            <th>Teléfono</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    renderInlinePagination(currentPage, totalPages, buttonClass, ariaLabel) {
+        if (!totalPages || totalPages <= 1) {
+            return '';
+        }
+
+        const pages = [];
+        pages.push(`
+            <li class="page-item ${currentPage === 0 ? 'disabled' : ''}">
+                <button type="button" class="page-link ${buttonClass}" data-page="${currentPage - 1}">
+                    Anterior
+                </button>
+            </li>
+        `);
+
+        for (let i = 0; i < totalPages; i++) {
+            pages.push(`
+                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <button type="button" class="page-link ${buttonClass}" data-page="${i}">
+                        ${i + 1}
+                    </button>
+                </li>
+            `);
+        }
+
+        pages.push(`
+            <li class="page-item ${currentPage >= totalPages - 1 ? 'disabled' : ''}">
+                <button type="button" class="page-link ${buttonClass}" data-page="${currentPage + 1}">
+                    Siguiente
+                </button>
+            </li>
+        `);
+
+        return `
+            <nav aria-label="${ProjectsComponent.escapeHtml(ariaLabel)}">
+                <ul class="pagination pagination-sm justify-content-center mb-0">
+                    ${pages.join('')}
+                </ul>
+            </nav>
+        `;
     }
 
     showCreateTaskModal(project, refreshBoard) {
@@ -1384,6 +1795,10 @@ class ProjectsComponent {
 
     static getStaffFullName(staff) {
         return [staff?.name, staff?.surname1, staff?.surname2].filter(Boolean).join(' ').trim() || staff?.nick || 'Usuario';
+    }
+
+    static getBeneficiaryFullName(beneficiary) {
+        return [beneficiary?.name, beneficiary?.surname1, beneficiary?.surname2].filter(Boolean).join(' ').trim() || 'Sin nombre';
     }
 
     static getStatusBadgeClass(status) {

@@ -6,7 +6,7 @@ class StaffComponent {
     constructor() {
         this.selector = '#router-outlet';
         this.currentPage = 0;
-        this.pageSize = 10;
+        this.pageSize = 8;
         this.staff = [];
         this.totalItems = 0;
         this.totalPages = 0;
@@ -670,7 +670,11 @@ throw error;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creando...';
 
         try {
-            const staff = new Staff(staffData);
+            const StaffModel = window.Staff;
+            if (typeof StaffModel !== 'function') {
+                throw new Error('No se pudo inicializar el modelo de staff');
+            }
+            const staff = new StaffModel(staffData);
             const profilePicture = fd.get('profilePicture');
             const response = await StaffService.register(staff, profilePicture);
             if (!response?.success) {
@@ -958,5 +962,3 @@ window.StaffComponent = StaffComponent;
 if (typeof AppScripts !== 'undefined') {
     AppScripts.register('staff');
 }
-
-

@@ -42,11 +42,11 @@ class StaffService {
     /**
      * Obtiene todos los usuarios con paginación
      * @param {number} page - Número de página (default 0)
-     * @param {number} size - Tamaño de página (default 10)
+     * @param {number} size - Tamaño de página (default 8)
      * @param {{surname?: string, sortBy?: string, sortDir?: 'asc'|'desc'}} options
      * @returns {Promise<Object>}
      */
-    static async getStaff(page = 0, size = 10, options = {}) {
+    static async getStaff(page = 0, size = 8, options = {}) {
         try {
             const params = new URLSearchParams();
             params.set('page', String(page));
@@ -141,5 +141,4 @@ window.StaffService = StaffService;
 
 // Registrar que este script se ha cargado
 if (typeof AppScripts !== 'undefined') AppScripts.register('staff.service');
-
 

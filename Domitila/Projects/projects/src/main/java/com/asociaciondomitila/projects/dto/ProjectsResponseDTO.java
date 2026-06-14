@@ -18,6 +18,6 @@ public class ProjectsResponseDTO {
     private LocalDate endDate;
     private ProjectStatus status;
     private String type;
-    private Integer teamMemberCount;
-    private Integer taskCount;
+    private Long teamMemberCount;
+    private Long taskCount;
 }

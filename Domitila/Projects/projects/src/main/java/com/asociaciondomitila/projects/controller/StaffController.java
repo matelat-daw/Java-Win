@@ -44,7 +44,7 @@ public class StaffController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<PageResponse<StaffDto>>> getAllStaff(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "8") int size,
             @RequestParam(required = false) String surname,
             @RequestParam(defaultValue = "surname1") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir

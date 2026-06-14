@@ -2,16 +2,22 @@ package com.asociaciondomitila.projects.controller;
 
 import com.asociaciondomitila.projects.dto.ProjectsRequestDTO;
 import com.asociaciondomitila.projects.dto.ProjectsResponseDTO;
+import com.asociaciondomitila.projects.dto.BeneficiaryAssignmentResultDTO;
+import com.asociaciondomitila.projects.dto.BeneficiaryUserRequestDTO;
+import com.asociaciondomitila.projects.dto.BeneficiaryUserResponseDTO;
 import com.asociaciondomitila.projects.dto.IncidentRequestDTO;
 import com.asociaciondomitila.projects.dto.IncidentResponseDTO;
 import com.asociaciondomitila.projects.dto.UpdateIncidentStatusRequest;
 import com.asociaciondomitila.projects.dto.TaskRequestDTO;
 import com.asociaciondomitila.projects.dto.TaskResponseDTO;
 import com.asociaciondomitila.projects.dto.UpdateTaskStatusRequest;
+import com.asociaciondomitila.projects.dto.PageResponse;
 import com.asociaciondomitila.projects.dto.StaffDto;
 import com.asociaciondomitila.projects.entity.Staff;
 import com.asociaciondomitila.projects.service.ProjectsService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,10 +51,20 @@ public class ProjectsController {
 
     // 2. LEER TODOS (GET)
     @GetMapping
-    public ResponseEntity<List<ProjectsResponseDTO>> getAllProjects(Authentication authentication) {
+    public ResponseEntity<ApiResponse<PageResponse<ProjectsResponseDTO>>> getAllProjects(
+            Authentication authentication,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "8") int size
+    ) {
         Staff currentStaff = authenticationHelper.requireAuthenticatedStaff(authentication);
-        List<ProjectsResponseDTO> projects = projectsService.getAllProjects(currentStaff);
-        return ResponseEntity.ok(projects);
+        Pageable pageable = PageRequest.of(
+                Math.max(0, page),
+                Math.min(Math.max(1, size), 100)
+        );
+        return ApiResponseBuilder.success(
+                "Proyectos obtenidos exitosamente",
+                projectsService.getAllProjects(currentStaff, pageable)
+        );
     }
 
     @GetMapping("/{id}/team")
@@ -89,6 +105,39 @@ public class ProjectsController {
         return ApiResponseBuilder.success(
                 "Tareas del proyecto obtenidas exitosamente",
                 projectsService.getProjectTasks(id, currentStaff)
+        );
+    }
+
+    @GetMapping("/{id}/beneficiaries")
+    public ResponseEntity<ApiResponse<PageResponse<BeneficiaryUserResponseDTO>>> getProjectBeneficiaries(
+            Authentication authentication,
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "8") int size
+    ) {
+        Staff currentStaff = authenticationHelper.requireAuthenticatedStaff(authentication);
+        Pageable pageable = PageRequest.of(
+                Math.max(0, page),
+                Math.min(Math.max(1, size), 100)
+        );
+        return ApiResponseBuilder.success(
+                "Beneficiarios del proyecto obtenidos exitosamente",
+                projectsService.getProjectBeneficiaries(id, currentStaff, pageable)
+        );
+    }
+
+    @PostMapping("/{id}/beneficiaries")
+    public ResponseEntity<ApiResponse<BeneficiaryAssignmentResultDTO>> createProjectBeneficiary(
+            Authentication authentication,
+            @PathVariable Long id,
+            @Valid @RequestBody BeneficiaryUserRequestDTO request,
+            @RequestParam(defaultValue = "false") boolean confirmExisting
+    ) {
+        Staff currentStaff = authenticationHelper.requireAuthenticatedStaff(authentication);
+        BeneficiaryAssignmentResultDTO result = projectsService.createProjectBeneficiary(id, request, currentStaff, confirmExisting);
+        return ApiResponseBuilder.success(
+                result.getMessage(),
+                result
         );
     }
 

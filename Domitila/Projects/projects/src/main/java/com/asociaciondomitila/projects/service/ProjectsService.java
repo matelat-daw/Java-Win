@@ -2,23 +2,30 @@ package com.asociaciondomitila.projects.service;
 
 import com.asociaciondomitila.projects.dto.ProjectsRequestDTO;
 import com.asociaciondomitila.projects.dto.ProjectsResponseDTO;
+import com.asociaciondomitila.projects.dto.BeneficiaryAssignmentResultDTO;
+import com.asociaciondomitila.projects.dto.BeneficiaryUserRequestDTO;
+import com.asociaciondomitila.projects.dto.BeneficiaryUserResponseDTO;
 import com.asociaciondomitila.projects.dto.IncidentRequestDTO;
 import com.asociaciondomitila.projects.dto.IncidentResponseDTO;
+import com.asociaciondomitila.projects.dto.PageResponse;
 import com.asociaciondomitila.projects.dto.UpdateIncidentStatusRequest;
 import com.asociaciondomitila.projects.dto.TaskRequestDTO;
 import com.asociaciondomitila.projects.dto.TaskResponseDTO;
 import com.asociaciondomitila.projects.dto.UpdateTaskStatusRequest;
 import com.asociaciondomitila.projects.dto.StaffDto;
+import com.asociaciondomitila.projects.entity.BeneficiaryUser;
 import com.asociaciondomitila.projects.entity.Incident;
 import com.asociaciondomitila.projects.entity.Project;
 import com.asociaciondomitila.projects.entity.Task;
 import com.asociaciondomitila.projects.entity.Staff;
 import com.asociaciondomitila.projects.enums.IncidentStatus;
+import com.asociaciondomitila.projects.repository.BeneficiaryUserRepository;
 import com.asociaciondomitila.projects.repository.IncidentRepository;
 import com.asociaciondomitila.projects.repository.ProjectsRepository;
 import com.asociaciondomitila.projects.repository.TaskRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,17 +40,20 @@ public class ProjectsService {
     private final ProjectsRepository projectsRepository;
     private final TaskRepository taskRepository;
     private final IncidentRepository incidentRepository;
+    private final BeneficiaryUserRepository beneficiaryUserRepository;
     private final StaffService staffService;
 
     public ProjectsService(
             ProjectsRepository projectsRepository,
             TaskRepository taskRepository,
             IncidentRepository incidentRepository,
+            BeneficiaryUserRepository beneficiaryUserRepository,
             StaffService staffService
     ) {
         this.projectsRepository = projectsRepository;
         this.taskRepository = taskRepository;
         this.incidentRepository = incidentRepository;
+        this.beneficiaryUserRepository = beneficiaryUserRepository;
         this.staffService = staffService;
     }
 
@@ -57,15 +67,11 @@ public class ProjectsService {
 
     // Obtener todos los proyectos
     @Transactional(readOnly = true)
-    public List<ProjectsResponseDTO> getAllProjects(Staff currentStaff) {
-        Sort sort = Sort.by(Sort.Direction.ASC, "id");
-        List<Project> projects = isAdmin(currentStaff)
-                ? projectsRepository.findAll(sort)
-                : projectsRepository.findAccessibleProjectsByStaffId(currentStaff.getId(), sort);
-
-        return projects.stream()
-                .map(project -> toResponse(project, currentStaff))
-                .toList();
+    public PageResponse<ProjectsResponseDTO> getAllProjects(Staff currentStaff, Pageable pageable) {
+        Page<ProjectsResponseDTO> page = isAdmin(currentStaff)
+                ? projectsRepository.findProjectSummaries(pageable)
+                : projectsRepository.findAccessibleProjectSummariesByStaffId(currentStaff.getId(), pageable);
+        return PageResponse.from(page);
     }
 
     // Buscar proyecto por ID
@@ -142,10 +148,161 @@ public class ProjectsService {
     @Transactional(readOnly = true)
     public List<TaskResponseDTO> getProjectTasks(Long projectId, Staff currentStaff) {
         Project project = getAccessibleProject(projectId, currentStaff);
-        return taskRepository.findByProjectIdOrderByDueDateAscIdAsc(projectId).stream()
+        List<Task> tasks = isAdmin(currentStaff)
+                ? taskRepository.findDetailedByProjectIdOrderByDueDateAscIdAsc(projectId)
+                : taskRepository.findDetailedByProjectIdAndAssignedStaffIdOrderByDueDateAscIdAsc(projectId, currentStaff.getId());
+
+        return tasks.stream()
                 .filter(task -> canViewTask(task, currentStaff, project))
                 .map(TaskResponseDTO::fromEntity)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<BeneficiaryUserResponseDTO> getProjectBeneficiaries(Long projectId, Staff currentStaff, Pageable pageable) {
+        Project project = getAccessibleProject(projectId, currentStaff);
+        Page<BeneficiaryUserResponseDTO> page = beneficiaryUserRepository
+                .findByProjectIdOrderBySurname1AscSurname2AscNameAsc(project.getId(), pageable)
+                .map(beneficiary -> BeneficiaryUserResponseDTO.fromEntity(beneficiary, project.getId()));
+        return PageResponse.from(page);
+    }
+
+    @Transactional
+    public BeneficiaryAssignmentResultDTO createProjectBeneficiary(
+            Long projectId,
+            BeneficiaryUserRequestDTO request,
+            Staff currentStaff,
+            boolean confirmExisting
+    ) {
+        Project project = getAccessibleProject(projectId, currentStaff);
+        String normalizedDni = request.getDni().trim().toUpperCase();
+        String normalizedEmail = request.getEmail().trim().toLowerCase();
+        Long normalizedPhone = request.getPhone();
+
+        BeneficiaryUser existingByDni = beneficiaryUserRepository.findByDniIgnoreCase(normalizedDni).orElse(null);
+        BeneficiaryUser existingByEmail = beneficiaryUserRepository.findByEmailIgnoreCase(normalizedEmail).orElse(null);
+        BeneficiaryUser existingByPhone = beneficiaryUserRepository.findByPhone(normalizedPhone).orElse(null);
+
+        BeneficiaryUser existingBeneficiary = resolveUniqueBeneficiary(existingByDni, existingByEmail, existingByPhone);
+
+        if (existingBeneficiary != null) {
+            ensureUniqueFieldBelongsToSameBeneficiary(existingBeneficiary, normalizedDni, normalizedEmail, normalizedPhone);
+
+            if (existingBeneficiary.getProjects() != null
+                    && existingBeneficiary.getProjects().stream().anyMatch(assignedProject -> project.getId().equals(assignedProject.getId()))) {
+                return new BeneficiaryAssignmentResultDTO(
+                        "ALREADY_IN_PROJECT",
+                        "El usuario ya forma parte de este proyecto.",
+                        true,
+                        true,
+                        false,
+                        BeneficiaryUserResponseDTO.fromEntity(existingBeneficiary, project.getId())
+                );
+            }
+
+            if (!confirmExisting) {
+                return new BeneficiaryAssignmentResultDTO(
+                        "EXISTS_IN_DATABASE",
+                        "El usuario ya existe en la base de datos. Confirma si quieres agregarlo a este proyecto.",
+                        true,
+                        false,
+                        true,
+                        BeneficiaryUserResponseDTO.fromEntity(existingBeneficiary, project.getId())
+                );
+            }
+
+            if (existingBeneficiary.getProjects() == null) {
+                existingBeneficiary.setProjects(new java.util.LinkedHashSet<>());
+            }
+            existingBeneficiary.getProjects().add(project);
+
+            BeneficiaryUser savedBeneficiary = beneficiaryUserRepository.save(existingBeneficiary);
+            return new BeneficiaryAssignmentResultDTO(
+                    "LINKED_TO_PROJECT",
+                    "El usuario ya existia en la base de datos y se ha agregado al proyecto.",
+                    true,
+                    false,
+                    false,
+                    BeneficiaryUserResponseDTO.fromEntity(savedBeneficiary, project.getId())
+            );
+        }
+
+        BeneficiaryUser beneficiary = new BeneficiaryUser();
+        beneficiary.setName(request.getName().trim());
+        beneficiary.setSurname1(request.getSurname1().trim());
+        beneficiary.setSurname2(request.getSurname2().trim());
+        beneficiary.setDni(normalizedDni);
+        beneficiary.setAddress(request.getAddress().trim());
+        beneficiary.setPostalCode(request.getPostalCode());
+        beneficiary.setPhone(normalizedPhone);
+        beneficiary.setEmail(normalizedEmail);
+
+        if (beneficiary.getProjects() == null) {
+            beneficiary.setProjects(new java.util.LinkedHashSet<>());
+        }
+        beneficiary.getProjects().add(project);
+
+        BeneficiaryUser savedBeneficiary = beneficiaryUserRepository.save(beneficiary);
+        return new BeneficiaryAssignmentResultDTO(
+                "CREATED_AND_LINKED",
+                "El usuario no existia en la base de datos y se ha creado dentro del proyecto.",
+                false,
+                false,
+                false,
+                BeneficiaryUserResponseDTO.fromEntity(savedBeneficiary, project.getId())
+        );
+    }
+
+    private BeneficiaryUser resolveUniqueBeneficiary(
+            BeneficiaryUser existingByDni,
+            BeneficiaryUser existingByEmail,
+            BeneficiaryUser existingByPhone
+    ) {
+        BeneficiaryUser resolved = null;
+
+        for (BeneficiaryUser candidate : java.util.List.of(existingByDni, existingByEmail, existingByPhone)) {
+            if (candidate == null) {
+                continue;
+            }
+            if (resolved == null) {
+                resolved = candidate;
+                continue;
+            }
+            if (!resolved.getId().equals(candidate.getId())) {
+                throw new IllegalArgumentException(
+                        "Los datos proporcionados ya pertenecen a beneficiarios distintos. Verifica DNI, email y telefono."
+                );
+            }
+        }
+
+        return resolved;
+    }
+
+    private void ensureUniqueFieldBelongsToSameBeneficiary(
+            BeneficiaryUser beneficiary,
+            String dni,
+            String email,
+            Long phone
+    ) {
+        if (!safeEqualsIgnoreCase(beneficiary.getDni(), dni)) {
+            throw new IllegalArgumentException("El DNI indicado ya esta asociado a otro beneficiario.");
+        }
+        if (!safeEqualsIgnoreCase(beneficiary.getEmail(), email)) {
+            throw new IllegalArgumentException("El email indicado ya esta asociado a otro beneficiario.");
+        }
+        if (beneficiary.getPhone() != null && !beneficiary.getPhone().equals(phone)) {
+            throw new IllegalArgumentException("El telefono indicado ya esta asociado a otro beneficiario.");
+        }
+    }
+
+    private boolean safeEqualsIgnoreCase(String left, String right) {
+        if (left == null && right == null) {
+            return true;
+        }
+        if (left == null || right == null) {
+            return false;
+        }
+        return left.equalsIgnoreCase(right);
     }
 
     @Transactional

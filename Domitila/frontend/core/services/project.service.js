@@ -3,6 +3,19 @@
  */
 
 class ProjectService {
+    static _normalizePageResponse(response) {
+        const page = response?.data || response || {};
+        return {
+            items: Array.isArray(page?.items) ? page.items : [],
+            currentPage: Number.isFinite(page?.currentPage) ? page.currentPage : 0,
+            totalItems: Number.isFinite(page?.totalItems) ? page.totalItems : 0,
+            totalPages: Number.isFinite(page?.totalPages) ? page.totalPages : 0,
+            pageSize: Number.isFinite(page?.pageSize) ? page.pageSize : 8,
+            hasNext: Boolean(page?.hasNext),
+            hasPrevious: Boolean(page?.hasPrevious)
+        };
+    }
+
     static _normalizeListResponse(response) {
         if (Array.isArray(response)) {
             return response;
@@ -21,12 +34,15 @@ class ProjectService {
 
     /**
      * Obtiene todos los proyectos.
-     * @returns {Promise<Array>}
+     * @returns {Promise<Object>}
      */
-    static async getProjects() {
-        const url = API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.PROJECTS;
+    static async getProjects(page = 0, size = 8) {
+        const params = new URLSearchParams();
+        params.set('page', String(page));
+        params.set('size', String(size));
+        const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PROJECTS}?${params.toString()}`;
         const response = await Utils.makeRequest('GET', url, null, true);
-        return ProjectService._normalizeListResponse(response);
+        return ProjectService._normalizePageResponse(response);
     }
 
     /**
@@ -103,6 +119,37 @@ class ProjectService {
         const url = API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.PROJECT_TASKS.replace(':id', projectId);
         const response = await Utils.makeRequest('GET', url, null, true);
         return ProjectService._normalizeListResponse(response);
+    }
+
+    static async getProjectBeneficiaries(projectId, page = 0, size = 8) {
+        const params = new URLSearchParams();
+        params.set('page', String(page));
+        params.set('size', String(size));
+        const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PROJECT_BENEFICIARIES.replace(':id', projectId)}?${params.toString()}`;
+        const response = await Utils.makeRequest('GET', url, null, true);
+        return ProjectService._normalizePageResponse(response);
+    }
+
+    static async createProjectBeneficiary(projectId, beneficiary, options = {}) {
+        const params = new URLSearchParams();
+        if (options?.confirmExisting) {
+            params.set('confirmExisting', 'true');
+        }
+
+        const urlBase = API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.PROJECT_BENEFICIARIES.replace(':id', projectId);
+        const url = params.toString() ? `${urlBase}?${params.toString()}` : urlBase;
+        const response = await Utils.makeRequest('POST', url, {
+            name: beneficiary?.name ?? '',
+            surname1: beneficiary?.surname1 ?? '',
+            surname2: beneficiary?.surname2 ?? '',
+            dni: beneficiary?.dni ?? '',
+            address: beneficiary?.address ?? '',
+            postalCode: beneficiary?.postalCode ?? null,
+            phone: beneficiary?.phone ?? null,
+            email: beneficiary?.email ?? ''
+        });
+        Utils.clearCache();
+        return response?.data || response;
     }
 
     static async createTask(projectId, task) {

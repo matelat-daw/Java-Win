@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
 @Table(name = "`staff`")
@@ -45,12 +46,13 @@ public class Staff {
     @Column(nullable = true)
     private LocalDate bday;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "staff_role",
         joinColumns = @JoinColumn(name = "staff_id"),
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
+    @BatchSize(size = 32)
     @Builder.Default
     private Set<com.asociaciondomitila.projects.entity.Role> roles = new HashSet<>();
 
