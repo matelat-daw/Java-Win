@@ -3,8 +3,8 @@ package com.asociaciondomitila.projects.service;
 import com.asociaciondomitila.projects.dto.ProjectsRequestDTO;
 import com.asociaciondomitila.projects.dto.ProjectsResponseDTO;
 import com.asociaciondomitila.projects.entity.Project;
-import com.asociaciondomitila.projects.enums.ProjectStatus;
 import com.asociaciondomitila.projects.repository.ProjectsRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -28,7 +28,7 @@ public class ProjectsService {
 
     // Obtener todos los proyectos
     public List<ProjectsResponseDTO> getAllProjects() {
-        return projectsRepository.findByStatus(ProjectStatus.ACTIVO).stream()
+        return projectsRepository.findAll(Sort.by(Sort.Direction.ASC, "id")).stream()
                 .map(this::toResponse)
                 .toList();
     }
