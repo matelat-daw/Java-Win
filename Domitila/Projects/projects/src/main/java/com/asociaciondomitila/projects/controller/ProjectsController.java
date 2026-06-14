@@ -2,6 +2,9 @@ package com.asociaciondomitila.projects.controller;
 
 import com.asociaciondomitila.projects.dto.ProjectsRequestDTO;
 import com.asociaciondomitila.projects.dto.ProjectsResponseDTO;
+import com.asociaciondomitila.projects.dto.IncidentRequestDTO;
+import com.asociaciondomitila.projects.dto.IncidentResponseDTO;
+import com.asociaciondomitila.projects.dto.UpdateIncidentStatusRequest;
 import com.asociaciondomitila.projects.dto.TaskRequestDTO;
 import com.asociaciondomitila.projects.dto.TaskResponseDTO;
 import com.asociaciondomitila.projects.dto.UpdateTaskStatusRequest;
@@ -113,6 +116,35 @@ public class ProjectsController {
         return ApiResponseBuilder.success(
                 "Estado de la tarea actualizado exitosamente",
                 projectsService.updateTaskStatus(projectId, taskId, request, currentStaff)
+        );
+    }
+
+    @PostMapping("/{projectId}/tasks/{taskId}/incidents")
+    public ResponseEntity<ApiResponse<IncidentResponseDTO>> createTaskIncident(
+            Authentication authentication,
+            @PathVariable Long projectId,
+            @PathVariable Long taskId,
+            @Valid @RequestBody IncidentRequestDTO request
+    ) {
+        Staff currentStaff = authenticationHelper.requireAuthenticatedStaff(authentication);
+        return ApiResponseBuilder.created(
+                "Incidencia registrada exitosamente",
+                projectsService.createTaskIncident(projectId, taskId, request, currentStaff)
+        );
+    }
+
+    @PutMapping("/{projectId}/tasks/{taskId}/incidents/{incidentId}/status")
+    public ResponseEntity<ApiResponse<IncidentResponseDTO>> updateTaskIncidentStatus(
+            Authentication authentication,
+            @PathVariable Long projectId,
+            @PathVariable Long taskId,
+            @PathVariable Long incidentId,
+            @Valid @RequestBody UpdateIncidentStatusRequest request
+    ) {
+        Staff currentStaff = authenticationHelper.requireAuthenticatedStaff(authentication);
+        return ApiResponseBuilder.success(
+                "Estado de la incidencia actualizado exitosamente",
+                projectsService.updateTaskIncidentStatus(projectId, taskId, incidentId, request, currentStaff)
         );
     }
 

@@ -17,7 +17,6 @@ import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.bind.annotation.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Controlador para servir imágenes subidas por usuarios
@@ -60,8 +59,7 @@ public class ImageController {
         try {
             // Buscar en el directorio de uploads configurado
             // Todas las imágenes (de usuario y por defecto) están centralizadas ahí
-            String uploadDirProperty = imageService.getUploadDir();
-            Path uploadPath = Paths.get(uploadDirProperty).toAbsolutePath().normalize();
+            Path uploadPath = imageService.resolveUploadBasePath();
             Path filePath = uploadPath.resolve(fileName).normalize();
 
             if (!filePath.startsWith(uploadPath)) {

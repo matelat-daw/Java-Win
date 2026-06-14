@@ -44,6 +44,8 @@ const API_CONFIG = {
         PROJECT_TEAM: '/projects/:id/team',
         PROJECT_TASKS: '/projects/:id/tasks',
         PROJECT_TASK_STATUS: '/projects/:projectId/tasks/:taskId/status',
+        PROJECT_TASK_INCIDENTS: '/projects/:projectId/tasks/:taskId/incidents',
+        PROJECT_TASK_INCIDENT_STATUS: '/projects/:projectId/tasks/:taskId/incidents/:incidentId/status',
         IMAGES: '/images'
     }
 };
@@ -92,4 +94,3 @@ window.VALIDATION_PATTERNS = VALIDATION_PATTERNS;
 
 // Registrar que este script se ha cargado
 if (typeof AppScripts !== 'undefined') AppScripts.register('constants');
-

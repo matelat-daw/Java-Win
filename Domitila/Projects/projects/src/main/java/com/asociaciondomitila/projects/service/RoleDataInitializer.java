@@ -1,7 +1,6 @@
 package com.asociaciondomitila.projects.service;
 
 import com.asociaciondomitila.projects.enums.Role;
-import com.asociaciondomitila.projects.util.ApiConstants;
 import com.asociaciondomitila.projects.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

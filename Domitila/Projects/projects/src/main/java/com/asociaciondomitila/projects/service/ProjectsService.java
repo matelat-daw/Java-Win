@@ -2,13 +2,19 @@ package com.asociaciondomitila.projects.service;
 
 import com.asociaciondomitila.projects.dto.ProjectsRequestDTO;
 import com.asociaciondomitila.projects.dto.ProjectsResponseDTO;
+import com.asociaciondomitila.projects.dto.IncidentRequestDTO;
+import com.asociaciondomitila.projects.dto.IncidentResponseDTO;
+import com.asociaciondomitila.projects.dto.UpdateIncidentStatusRequest;
 import com.asociaciondomitila.projects.dto.TaskRequestDTO;
 import com.asociaciondomitila.projects.dto.TaskResponseDTO;
 import com.asociaciondomitila.projects.dto.UpdateTaskStatusRequest;
 import com.asociaciondomitila.projects.dto.StaffDto;
+import com.asociaciondomitila.projects.entity.Incident;
 import com.asociaciondomitila.projects.entity.Project;
 import com.asociaciondomitila.projects.entity.Task;
 import com.asociaciondomitila.projects.entity.Staff;
+import com.asociaciondomitila.projects.enums.IncidentStatus;
+import com.asociaciondomitila.projects.repository.IncidentRepository;
 import com.asociaciondomitila.projects.repository.ProjectsRepository;
 import com.asociaciondomitila.projects.repository.TaskRepository;
 import org.springframework.security.access.AccessDeniedException;
@@ -26,15 +32,18 @@ public class ProjectsService {
 
     private final ProjectsRepository projectsRepository;
     private final TaskRepository taskRepository;
+    private final IncidentRepository incidentRepository;
     private final StaffService staffService;
 
     public ProjectsService(
             ProjectsRepository projectsRepository,
             TaskRepository taskRepository,
+            IncidentRepository incidentRepository,
             StaffService staffService
     ) {
         this.projectsRepository = projectsRepository;
         this.taskRepository = taskRepository;
+        this.incidentRepository = incidentRepository;
         this.staffService = staffService;
     }
 
@@ -173,6 +182,57 @@ public class ProjectsService {
         return TaskResponseDTO.fromEntity(taskRepository.save(task));
     }
 
+    @Transactional
+    public IncidentResponseDTO createTaskIncident(Long projectId, Long taskId, IncidentRequestDTO request, Staff currentStaff) {
+        Project project = getAccessibleProject(projectId, currentStaff);
+        Task task = getRequiredTask(taskId);
+        if (task.getProject() == null || !task.getProject().getId().equals(projectId)) {
+            throw new IllegalArgumentException("La tarea no pertenece al proyecto indicado");
+        }
+        if (!canReportIncident(task, currentStaff, project)) {
+            throw new AccessDeniedException("No tienes permisos para registrar incidencias en esta tarea");
+        }
+
+        Incident incident = new Incident();
+        incident.setProject(project);
+        incident.setTask(task);
+        incident.setTitle(request.getTitle().trim());
+        incident.setDescription(request.getDescription().trim());
+        incident.setSeverity(normalizeIncidentSeverity(request.getSeverity()));
+
+        return IncidentResponseDTO.fromEntity(incidentRepository.save(incident));
+    }
+
+    @Transactional
+    public IncidentResponseDTO updateTaskIncidentStatus(
+            Long projectId,
+            Long taskId,
+            Long incidentId,
+            UpdateIncidentStatusRequest request,
+            Staff currentStaff
+    ) {
+        Project project = getAccessibleProject(projectId, currentStaff);
+        Task task = getRequiredTask(taskId);
+        if (task.getProject() == null || !task.getProject().getId().equals(projectId)) {
+            throw new IllegalArgumentException("La tarea no pertenece al proyecto indicado");
+        }
+
+        Incident incident = getRequiredIncident(incidentId);
+        if (incident.getTask() == null || incident.getTask().getId() == null || !incident.getTask().getId().equals(taskId)) {
+            throw new IllegalArgumentException("La incidencia no pertenece a la tarea indicada");
+        }
+        if (incident.getProject() == null || incident.getProject().getId() == null || !incident.getProject().getId().equals(projectId)) {
+            throw new IllegalArgumentException("La incidencia no pertenece al proyecto indicado");
+        }
+
+        if (!canUpdateIncident(task, currentStaff, project)) {
+            throw new AccessDeniedException("No tienes permisos para actualizar incidencias en esta tarea");
+        }
+
+        incident.setStatus(normalizeIncidentStatus(request.getStatus()));
+        return IncidentResponseDTO.fromEntity(incidentRepository.save(incident));
+    }
+
     // Actualizar un proyecto existente
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
@@ -231,6 +291,11 @@ public class ProjectsService {
     private Task getRequiredTask(Long taskId) {
         return taskRepository.findById(taskId)
                 .orElseThrow(() -> new IllegalArgumentException("Tarea no encontrada"));
+    }
+
+    private Incident getRequiredIncident(Long incidentId) {
+        return incidentRepository.findById(incidentId)
+                .orElseThrow(() -> new IllegalArgumentException("Incidencia no encontrada"));
     }
 
     private Project getAccessibleProject(Long projectId, Staff currentStaff) {
@@ -311,6 +376,46 @@ public class ProjectsService {
 
     private boolean canUpdateTask(Task task, Staff currentStaff, Project project) {
         return canViewTask(task, currentStaff, project);
+    }
+
+    private boolean canReportIncident(Task task, Staff currentStaff, Project project) {
+        return canViewTask(task, currentStaff, project) && isIncidentReportableStatus(task.getStatus());
+    }
+
+    private boolean canUpdateIncident(Task task, Staff currentStaff, Project project) {
+        return canViewTask(task, currentStaff, project);
+    }
+
+    private boolean isIncidentReportableStatus(String status) {
+        String normalized = normalizeTaskStatus(status);
+        return "POR_HACER".equals(normalized) || "EN_PROGRESO".equals(normalized);
+    }
+
+    private String normalizeIncidentSeverity(String severity) {
+        if (severity == null || severity.isBlank()) {
+            return "MEDIA";
+        }
+
+        return switch (severity.trim().toUpperCase()) {
+            case "LOW", "BAJA" -> "BAJA";
+            case "HIGH", "ALTA" -> "ALTA";
+            case "CRITICAL", "CRITICA", "CRÍTICA" -> "CRITICA";
+            default -> "MEDIA";
+        };
+    }
+
+    private IncidentStatus normalizeIncidentStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return IncidentStatus.ABIERTA;
+        }
+
+        String normalized = status.trim().toUpperCase();
+        return switch (normalized) {
+            case "OPEN", "ABIERTA" -> IncidentStatus.ABIERTA;
+            case "IN_REVIEW", "EN_REVISION", "EN_REVISIÓN" -> IncidentStatus.EN_REVISION;
+            case "RESOLVED", "RESUELTA" -> IncidentStatus.RESUELTA;
+            default -> IncidentStatus.ABIERTA;
+        };
     }
 
     private int countVisibleTasks(Project project, Staff currentStaff) {

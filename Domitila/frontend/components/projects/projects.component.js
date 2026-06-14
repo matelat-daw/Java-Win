@@ -468,8 +468,8 @@ class ProjectsComponent {
                     <strong>${ProjectsComponent.escapeHtml(staff.nick || '-')}</strong><br>
                     <small class="text-muted">${ProjectsComponent.escapeHtml(ProjectsComponent.getStaffFullName(staff))}</small>
                 </td>
-                <td>${ProjectsComponent.escapeHtml(staff.email || '-')}</td>
-                <td>${ProjectsComponent.escapeHtml(staff.phone || '-')}</td>
+                <td>${ProjectsComponent.renderEmailCell(staff.email)}</td>
+                <td>${ProjectsComponent.renderPhoneCell(staff.phone)}</td>
                 <td>${ProjectsComponent.escapeHtml(staff.role || 'USER')}</td>
                 <td class="text-end">
                     ${this.isAdmin ? `
@@ -623,8 +623,8 @@ class ProjectsComponent {
                                     <strong>${ProjectsComponent.escapeHtml(staff.nick || '-')}</strong><br>
                                     <small class="text-muted">${ProjectsComponent.escapeHtml(ProjectsComponent.getStaffFullName(staff))}</small>
                                 </td>
-                                <td>${ProjectsComponent.escapeHtml(staff.email || '-')}</td>
-                                <td>${ProjectsComponent.escapeHtml(staff.phone || '-')}</td>
+                                <td>${ProjectsComponent.renderEmailCell(staff.email)}</td>
+                                <td>${ProjectsComponent.renderPhoneCell(staff.phone)}</td>
                                 <td class="text-end">
                                     <button class="btn btn-outline-primary btn-sm assign-member-btn" data-project-id="${project.id}" data-staff-id="${staff.id}">
                                         <i class="fas fa-user-plus"></i> Agregar
@@ -752,10 +752,25 @@ class ProjectsComponent {
                 this.render();
             });
         });
+
+        container.querySelectorAll('.task-incidents-btn').forEach(button => {
+            button.addEventListener('click', async () => {
+                const selectedTask = (this.kanbanState.tasks || []).find(task => String(task.id) === String(button.dataset.taskId));
+                if (!selectedTask) {
+                    Utils.showMessage('Error', 'No se pudo localizar la tarea seleccionada.', 'error');
+                    return;
+                }
+
+                this.showTaskIncidentsModal(project, selectedTask);
+            });
+        });
     }
 
     renderTaskCard(project, task) {
         const assignee = task.assignedStaff;
+        const incidents = Array.isArray(task.incidents) ? task.incidents : [];
+        const incidentCount = Number.isFinite(task.incidentCount) ? task.incidentCount : incidents.length;
+        const canCreateIncident = ProjectsComponent.canCreateIncident(task.status);
         return `
             <div class="card shadow-sm mb-3">
                 <div class="card-body">
@@ -781,9 +796,228 @@ class ProjectsComponent {
                             ` : '<span class="text-muted">Sin asignar</span>'}
                         </div>
                     </div>
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3 pt-3 border-top">
+                        <span class="badge text-bg-light border">
+                            <i class="fas fa-triangle-exclamation me-1 text-danger"></i>${incidentCount} incidencia${incidentCount === 1 ? '' : 's'}
+                        </span>
+                        <button
+                            type="button"
+                            class="btn btn-outline-danger btn-sm task-incidents-btn"
+                            data-project-id="${project.id}"
+                            data-task-id="${task.id}"
+                        >
+                            <i class="fas fa-triangle-exclamation me-1"></i>${canCreateIncident ? 'Registrar incidencia' : 'Ver incidencias'}
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
+    }
+
+    showTaskIncidentsModal(project, task) {
+        const modalId = 'taskIncidentsModal';
+        this.removeModal(modalId);
+
+        const incidents = Array.isArray(task.incidents) ? task.incidents : [];
+        const canCreateIncident = ProjectsComponent.canCreateIncident(task.status);
+        const modalElement = this.createModal({
+            id: modalId,
+            title: `Incidencias de ${ProjectsComponent.escapeHtml(task.title || 'la tarea')}`,
+            size: 'modal-lg',
+            body: `
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                        <div>
+                            <div class="small text-muted mb-1">Proyecto</div>
+                            <div class="fw-semibold">${ProjectsComponent.escapeHtml(project.name || 'Sin nombre')}</div>
+                        </div>
+                        <div>
+                            <div class="small text-muted mb-1">Estado actual</div>
+                            <span class="badge ${ProjectsComponent.getTaskStatusBadgeClass(task.status)}">
+                                ${ProjectsComponent.escapeHtml(ProjectsComponent.getTaskStatusLabel(task.status))}
+                            </span>
+                        </div>
+                    </div>
+                    <p class="text-muted small mt-3 mb-0">${ProjectsComponent.escapeHtml(task.description || 'Sin descripción')}</p>
+                </div>
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">Historial de incidencias</h6>
+                        <span class="badge text-bg-light border">${incidents.length}</span>
+                    </div>
+                    <div id="taskIncidentListContainer">
+                        ${this.renderIncidentList(incidents)}
+                    </div>
+                </div>
+                ${canCreateIncident ? `
+                    <form id="createIncidentForm">
+                        <h6 class="mb-3">Registrar nueva incidencia</h6>
+                        <div class="mb-3">
+                            <label class="form-label">Título</label>
+                            <input type="text" class="form-control" id="incidentTitle" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Severidad</label>
+                                <select class="form-select" id="incidentSeverity">
+                                    <option value="BAJA">Baja</option>
+                                    <option value="MEDIA" selected>Media</option>
+                                    <option value="ALTA">Alta</option>
+                                    <option value="CRITICA">Crítica</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label">Descripción</label>
+                                <textarea class="form-control" id="incidentDescription" rows="4" required></textarea>
+                            </div>
+                        </div>
+                    </form>
+                ` : `
+                    <div class="alert alert-light border mb-0">
+                        Solo se pueden registrar incidencias cuando la tarea está en <strong>Por hacer</strong> o <strong>En progreso</strong>.
+                    </div>
+                `}
+            `,
+            footer: `
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                ${canCreateIncident ? `
+                    <button type="button" class="btn btn-danger" id="confirmCreateIncidentBtn">
+                        <i class="fas fa-triangle-exclamation me-2"></i>Registrar incidencia
+                    </button>
+                ` : ''}
+            `
+        });
+
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+
+        const attachIncidentStatusListeners = () => {
+            modalElement.querySelectorAll('.incident-status-select').forEach(select => {
+                select.addEventListener('change', async () => {
+                    const incidentId = select.dataset.incidentId;
+                    const nextStatus = select.value;
+                    const originalStatus = select.dataset.originalStatus || '';
+
+                    select.disabled = true;
+                    try {
+                        await ProjectService.updateTaskIncidentStatus(project.id, task.id, incidentId, nextStatus);
+                        const refreshedTasks = await ProjectService.getProjectTasks(project.id);
+                        this.kanbanState.tasks = refreshedTasks;
+
+                        const refreshedTask = refreshedTasks.find(t => String(t.id) === String(task.id));
+                        const refreshedIncidents = Array.isArray(refreshedTask?.incidents) ? refreshedTask.incidents : [];
+                        const container = modalElement.querySelector('#taskIncidentListContainer');
+                        if (container) {
+                            container.innerHTML = this.renderIncidentList(refreshedIncidents);
+                        }
+                        attachIncidentStatusListeners();
+                        Utils.showMessage('Incidencia actualizada', 'El estado de la incidencia se ha actualizado correctamente.', 'success');
+                    } catch (error) {
+                        select.value = originalStatus;
+                        Utils.showMessage(
+                            'Error',
+                            ProjectsComponent.escapeHtml(error.backendMessage || error.message || 'No se pudo actualizar el estado de la incidencia.'),
+                            'error'
+                        );
+                    } finally {
+                        select.disabled = false;
+                    }
+                });
+            });
+        };
+
+        attachIncidentStatusListeners();
+
+        if (!canCreateIncident) {
+            return;
+        }
+
+        const form = modalElement.querySelector('#createIncidentForm');
+        const confirmBtn = modalElement.querySelector('#confirmCreateIncidentBtn');
+
+        const submit = async () => {
+            if (!form.reportValidity()) {
+                return;
+            }
+
+            const originalHtml = confirmBtn.innerHTML;
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Registrando...';
+
+            try {
+                await ProjectService.createTaskIncident(project.id, task.id, {
+                    title: modalElement.querySelector('#incidentTitle')?.value?.trim() || '',
+                    description: modalElement.querySelector('#incidentDescription')?.value?.trim() || '',
+                    severity: modalElement.querySelector('#incidentSeverity')?.value || 'MEDIA'
+                });
+
+                modal.hide();
+                const refreshedTasks = await ProjectService.getProjectTasks(project.id);
+                this.kanbanState.tasks = refreshedTasks;
+                this.renderKanban(document.querySelector('#projectKanbanContainer'), project, this.kanbanState.team || [], refreshedTasks);
+                await this.loadProjects();
+                this.render();
+                Utils.showMessage('Incidencia registrada', 'La incidencia se ha guardado correctamente.', 'success');
+            } catch (error) {
+                Utils.showMessage(
+                    'Error',
+                    ProjectsComponent.escapeHtml(error.backendMessage || error.message || 'No se pudo registrar la incidencia.'),
+                    'error'
+                );
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = originalHtml;
+            }
+        };
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            await submit();
+        });
+        confirmBtn.addEventListener('click', submit);
+    }
+
+    renderIncidentList(incidents) {
+        if (!Array.isArray(incidents) || !incidents.length) {
+            return `
+                <div class="text-center text-muted py-4 border rounded bg-body-tertiary">
+                    <i class="fas fa-shield-heart mb-2 d-block fs-3"></i>
+                    <span>No hay incidencias registradas en esta tarea.</span>
+                </div>
+            `;
+        }
+
+        return incidents.map(incident => `
+            <div class="border rounded p-3 mb-3 bg-body-tertiary">
+                <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-2">
+                    <div>
+                        <h6 class="mb-1">${ProjectsComponent.escapeHtml(incident.title || 'Sin título')}</h6>
+                        <div class="small text-muted">${ProjectsComponent.formatDateTime(incident.createdAt)}</div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge ${ProjectsComponent.getIncidentSeverityBadgeClass(incident.severity)}">
+                            ${ProjectsComponent.escapeHtml(incident.severity || 'MEDIA')}
+                        </span>
+                        <span class="badge ${ProjectsComponent.getIncidentStatusBadgeClass(incident.status)}">
+                            ${ProjectsComponent.escapeHtml(ProjectsComponent.getIncidentStatusLabel(incident.status))}
+                        </span>
+                    </div>
+                </div>
+                <p class="mb-0 small">${ProjectsComponent.escapeHtml(incident.description || 'Sin descripción')}</p>
+                <div class="mt-3">
+                    <label class="form-label small text-muted mb-1">Estado</label>
+                    <select
+                        class="form-select form-select-sm incident-status-select"
+                        data-incident-id="${incident.id}"
+                        data-original-status="${ProjectsComponent.escapeHtml(incident.status || 'ABIERTA')}"
+                    >
+                        <option value="ABIERTA" ${(incident.status || 'ABIERTA') === 'ABIERTA' ? 'selected' : ''}>ABIERTA</option>
+                        <option value="EN_REVISION" ${incident.status === 'EN_REVISION' ? 'selected' : ''}>EN REVISIÓN</option>
+                        <option value="RESUELTA" ${incident.status === 'RESUELTA' ? 'selected' : ''}>RESUELTA</option>
+                    </select>
+                </div>
+            </div>
+        `).join('');
     }
 
     showCreateTaskModal(project, refreshBoard) {
@@ -1018,6 +1252,118 @@ class ProjectsComponent {
         }
 
         return date.toLocaleDateString();
+    }
+
+    static formatDateTime(value) {
+        if (!value) return '-';
+
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return ProjectsComponent.escapeHtml(String(value));
+
+        return date.toLocaleString();
+    }
+
+    static canCreateIncident(status) {
+        const normalized = ProjectsComponent.normalizeTaskStatus(status);
+        return normalized === 'POR_HACER' || normalized === 'EN_PROGRESO';
+    }
+
+    static getTaskStatusLabel(status) {
+        switch (ProjectsComponent.normalizeTaskStatus(status)) {
+            case 'POR_HACER':
+                return 'Por hacer';
+            case 'EN_PROGRESO':
+                return 'En progreso';
+            case 'TERMINADO':
+                return 'Terminado';
+            default:
+                return status || 'Sin estado';
+        }
+    }
+
+    static getTaskStatusBadgeClass(status) {
+        switch (ProjectsComponent.normalizeTaskStatus(status)) {
+            case 'POR_HACER':
+                return 'text-bg-secondary';
+            case 'EN_PROGRESO':
+                return 'text-bg-warning';
+            case 'TERMINADO':
+                return 'text-bg-success';
+            default:
+                return 'text-bg-light';
+        }
+    }
+
+    static getIncidentSeverityBadgeClass(severity) {
+        switch ((severity || '').toUpperCase()) {
+            case 'BAJA':
+                return 'text-bg-info';
+            case 'ALTA':
+                return 'text-bg-danger';
+            case 'CRITICA':
+                return 'bg-dark text-white';
+            case 'MEDIA':
+            default:
+                return 'text-bg-warning';
+        }
+    }
+
+    static getIncidentStatusLabel(status) {
+        switch ((status || 'ABIERTA').toUpperCase()) {
+            case 'EN_REVISION':
+                return 'EN REVISIÓN';
+            case 'RESUELTA':
+                return 'RESUELTA';
+            case 'ABIERTA':
+            default:
+                return 'ABIERTA';
+        }
+    }
+
+    static getIncidentStatusBadgeClass(status) {
+        switch ((status || 'ABIERTA').toUpperCase()) {
+            case 'RESUELTA':
+                return 'text-bg-success';
+            case 'EN_REVISION':
+                return 'text-bg-primary';
+            case 'ABIERTA':
+            default:
+                return 'text-bg-secondary';
+        }
+    }
+
+    static normalizePhoneForWhatsApp(phone) {
+        const raw = String(phone ?? '').trim();
+        if (!raw) return null;
+
+        let digits = raw.replace(/[^\d+]/g, '');
+        if (digits.startsWith('+')) digits = digits.substring(1);
+        if (digits.startsWith('00')) digits = digits.substring(2);
+        digits = digits.replace(/\D/g, '');
+
+        if (!digits) return null;
+        if (digits.length === 9) return `34${digits}`;
+        return digits;
+    }
+
+    static renderEmailCell(email) {
+        const safeEmail = ProjectsComponent.escapeHtml(email);
+        if (!safeEmail) return '-';
+        return `<a href="mailto:${safeEmail}" class="text-decoration-none">${safeEmail}</a>`;
+    }
+
+    static renderPhoneCell(phone) {
+        const safePhone = ProjectsComponent.escapeHtml(phone);
+        if (!safePhone) return '-';
+
+        const normalized = ProjectsComponent.normalizePhoneForWhatsApp(phone);
+        if (!normalized) return safePhone;
+
+        return `
+            <a href="https://wa.me/${normalized}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                <i class="fab fa-whatsapp me-1 text-success"></i>${safePhone}
+            </a>
+        `.trim();
     }
 
     static renderStaffAvatar(staff, size = 40) {

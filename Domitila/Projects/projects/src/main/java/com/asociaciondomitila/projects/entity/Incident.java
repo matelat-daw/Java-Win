@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import java.time.LocalDateTime;
+import com.asociaciondomitila.projects.enums.IncidentStatus;
 
 @Data
 @NoArgsConstructor
@@ -20,8 +22,28 @@ public class Incident {
     private String description;
     private String severity;
 
-    // ESTA ES LA LÍNEA QUE FALTA Y RESUELVE EL ERROR
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private IncidentStatus status;
+
     @ManyToOne
-    @JoinColumn(name = "project_id") // Apunta a la columna de tu base de datos
+    @JoinColumn(name = "project_id")
     private Project project;
+
+    @ManyToOne
+    @JoinColumn(name = "task_id")
+    private Task task;
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (status == null) {
+            status = IncidentStatus.ABIERTA;
+        }
+    }
 }

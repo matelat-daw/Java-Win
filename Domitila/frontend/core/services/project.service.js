@@ -126,6 +126,29 @@ class ProjectService {
         Utils.clearCache();
         return response?.data || response;
     }
+
+    static async createTaskIncident(projectId, taskId, incident) {
+        const url = API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.PROJECT_TASK_INCIDENTS
+            .replace(':projectId', projectId)
+            .replace(':taskId', taskId);
+        const response = await Utils.makeRequest('POST', url, {
+            title: incident?.title ?? '',
+            description: incident?.description ?? '',
+            severity: incident?.severity ?? 'MEDIA'
+        });
+        Utils.clearCache();
+        return response?.data || response;
+    }
+
+    static async updateTaskIncidentStatus(projectId, taskId, incidentId, status) {
+        const url = API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.PROJECT_TASK_INCIDENT_STATUS
+            .replace(':projectId', projectId)
+            .replace(':taskId', taskId)
+            .replace(':incidentId', incidentId);
+        const response = await Utils.makeRequest('PUT', url, { status });
+        Utils.clearCache();
+        return response?.data || response;
+    }
 }
 
 window.ProjectService = ProjectService;

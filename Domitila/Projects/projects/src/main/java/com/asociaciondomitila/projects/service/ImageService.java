@@ -30,10 +30,10 @@ public class ImageService {
      * Resuelve el directorio base real donde se guardan las imágenes.
      * Si la ruta configurada es relativa, se ancla al directorio de ejecución.
      */
-    private Path resolveUploadBasePath() {
+    public Path resolveUploadBasePath() {
         Path basePath = Paths.get(uploadDir);
         if (!basePath.isAbsolute()) {
-            basePath = Paths.get(System.getProperty("staff.dir")).resolve(basePath);
+            basePath = Paths.get(System.getProperty("user.dir")).resolve(basePath);
         }
         return basePath.normalize();
     }
