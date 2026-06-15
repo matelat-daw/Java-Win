@@ -14,7 +14,7 @@
 	<name>projects</name>
 	<properties>
 		<java.version>25</java.version>
-        <maven.version>4.0.7</maven.version>
+        <maven.version>4.1.0</maven.version>
         <jjwt.version>0.13.0</jjwt.version>
         <lombok.version>1.18.38</lombok.version>
         <tomcat.version>11.0.22</tomcat.version>
