@@ -22,7 +22,6 @@ public class BeneficiaryUserRequestDTO {
     @Size(max = 24, message = "El primer apellido no puede superar los 24 caracteres")
     private String surname1;
 
-    @NotBlank(message = "El segundo apellido es obligatorio")
     @Size(max = 24, message = "El segundo apellido no puede superar los 24 caracteres")
     private String surname2;
 

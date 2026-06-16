@@ -230,7 +230,7 @@ public class ProjectsService {
         BeneficiaryUser beneficiary = new BeneficiaryUser();
         beneficiary.setName(request.getName().trim());
         beneficiary.setSurname1(request.getSurname1().trim());
-        beneficiary.setSurname2(request.getSurname2().trim());
+        beneficiary.setSurname2(blankToNull(request.getSurname2()));
         beneficiary.setDni(normalizedDni);
         beneficiary.setAddress(request.getAddress().trim());
         beneficiary.setPostalCode(request.getPostalCode());
@@ -260,7 +260,7 @@ public class ProjectsService {
     ) {
         BeneficiaryUser resolved = null;
 
-        for (BeneficiaryUser candidate : java.util.List.of(existingByDni, existingByEmail, existingByPhone)) {
+        for (BeneficiaryUser candidate : new BeneficiaryUser[]{existingByDni, existingByEmail, existingByPhone}) {
             if (candidate == null) {
                 continue;
             }

@@ -24,7 +24,7 @@ public class BeneficiaryUser {
     @Column(nullable = false, length = 24)
     private String surname1;
 
-    @Column(nullable = false, length = 24)
+    @Column(nullable = true, length = 24)
     private String surname2;
 
     @Column(nullable = false, length = 10, unique = true)
