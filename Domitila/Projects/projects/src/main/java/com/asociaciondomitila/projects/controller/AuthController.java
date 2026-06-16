@@ -1,0 +1,146 @@
+package com.asociaciondomitila.projects.controller;
+
+import com.asociaciondomitila.projects.dto.AuthSessionDto;
+import com.asociaciondomitila.projects.dto.LoginRequest;
+import com.asociaciondomitila.projects.dto.RegisterRequest;
+import com.asociaciondomitila.projects.entity.Staff;
+import com.asociaciondomitila.projects.service.AuthCookieService;
+import com.asociaciondomitila.projects.service.AuthSessionService;
+import com.asociaciondomitila.projects.service.ImageService;
+import com.asociaciondomitila.projects.service.StaffService;
+import com.asociaciondomitila.projects.util.ApiConstants;
+import com.asociaciondomitila.projects.util.ApiResponse;
+import com.asociaciondomitila.projects.util.ApiResponseBuilder;
+import com.asociaciondomitila.projects.util.AuthenticationHelper;
+import com.asociaciondomitila.projects.util.ValidationHelper;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
+
+@RestController
+@RequestMapping(ApiConstants.AUTH_ENDPOINT)
+@Slf4j
+@RequiredArgsConstructor
+public class AuthController {
+
+    private final StaffService userService;
+    private final AuthSessionService authSessionService;
+    private final AuthCookieService authCookieService;
+    private final AuthenticationHelper authenticationHelper;
+    private final ImageService imageService;
+
+    @Value("${app.frontend.login-url:http://localhost/login}")
+    private String frontendLoginUrl;
+
+    @Value("${app.frontend.register-url:http://localhost/register}")
+    private String frontendRegisterUrl;
+
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<AuthSessionDto>> login(
+            @Valid @RequestBody LoginRequest request,
+            HttpServletResponse response
+    ) {
+        Staff staff = userService.authenticate(request.getEmail(), request.getPassword());
+        AuthSessionDto session = authSessionService.createSession(staff);
+        authCookieService.writeAuthCookie(response, session.accessToken());
+        authenticationHelper.logAuthEvent(staff.getEmail(), "login_successful");
+        return ApiResponseBuilder.success(ApiConstants.MSG_LOGIN_SUCCESS, session);
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse<AuthSessionDto>> register(
+            @Valid @ModelAttribute RegisterRequest request,
+            @RequestParam(required = false) String bday,
+            @RequestParam(required = false) MultipartFile profilePicture,
+            HttpServletResponse response
+    ) {
+        log.info("Intento de registro para: {} ({})", request.getEmail(), request.getNick());
+        request.setBday(parseBirthDate(bday));
+
+        Staff staff = userService.registerStaff(request);
+
+        if (profilePicture != null && !profilePicture.isEmpty()) {
+            try {
+                ValidationHelper.validateImageFile(profilePicture);
+                imageService.ensureStaffImageDirectory(staff.getId());
+                String fileName = imageService.saveProfileImage(profilePicture, staff.getId());
+                staff = userService.updateProfileImage(staff.getId(), fileName);
+            } catch (Exception e) {
+                log.warn("No se pudo guardar imagen de perfil post-registro para {}: {}", staff.getEmail(), e.getMessage());
+            }
+        }
+
+        AuthSessionDto session = authSessionService.createSession(staff);
+        authCookieService.writeAuthCookie(response, session.accessToken());
+        return ApiResponseBuilder.created(ApiConstants.MSG_REGISTER_SUCCESS, session);
+    }
+
+    @GetMapping("/verify/{token}")
+    public void verifyEmail(@PathVariable String token, HttpServletResponse response) throws IOException {
+        try {
+            userService.verifyEmail(token);
+            response.sendRedirect(frontendLoginUrl + "?verified=1");
+        } catch (Exception e) {
+            log.error("Error en verificación: {}", e.getMessage());
+            response.sendRedirect(frontendRegisterUrl + "?verification=failed");
+        }
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<AuthSessionDto>> refreshToken(
+            Authentication authentication,
+            HttpServletResponse response
+    ) {
+        Staff staff = authenticationHelper.requireAuthenticatedStaff(authentication);
+        AuthSessionDto session = authSessionService.createSession(staff);
+        authCookieService.writeAuthCookie(response, session.accessToken());
+        authenticationHelper.logAuthEvent(staff.getEmail(), "token_refreshed");
+        return ApiResponseBuilder.success(ApiConstants.MSG_TOKEN_REFRESHED, session);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse response) {
+        authCookieService.clearAuthCookie(response);
+        log.info("Logout realizado");
+        return ApiResponseBuilder.success("Logout exitoso");
+    }
+
+    private static LocalDate parseBirthDate(String bday) {
+        if (bday == null) {
+            return null;
+        }
+        String trimmed = bday.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+
+        DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+                .appendOptional(DateTimeFormatter.ISO_LOCAL_DATE)
+                .appendOptional(DateTimeFormatter.ofPattern("dd/MM/uuuu"))
+                .toFormatter();
+
+        try {
+            return LocalDate.parse(trimmed, formatter);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException(ApiConstants.ERR_INVALID_DATE_FORMAT);
+        }
+    }
+}
