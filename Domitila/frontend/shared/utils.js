@@ -13,6 +13,37 @@ const Utils = {
         return pattern.test(value);
     },
 
+    normalizeIdentityDocument: (documento) => {
+        if (!documento) {
+            return '';
+        }
+        return documento.trim().toUpperCase().replace(/[-\s]/g, '');
+    },
+
+    validateDniNie: (documento) => {
+        if (!documento) return false;
+
+        const doc = Utils.normalizeIdentityDocument(documento);
+        const regex = /^[XYZ\d]\d{7}[A-Z]$/;
+        if (!regex.test(doc)) {
+            return false;
+        }
+
+        const letrasValidas = 'TRWAGMYFPDXBNJZSQVHLCKE';
+        let numeroFormateado = doc;
+
+        const primeraLetra = doc.charAt(0);
+        if (primeraLetra === 'X') numeroFormateado = '0' + doc.substring(1);
+        if (primeraLetra === 'Y') numeroFormateado = '1' + doc.substring(1);
+        if (primeraLetra === 'Z') numeroFormateado = '2' + doc.substring(1);
+
+        const numero = parseInt(numeroFormateado.substring(0, 8), 10);
+        const letraControl = doc.charAt(8);
+        const letraCalculada = letrasValidas.charAt(numero % 23);
+
+        return letraControl === letraCalculada;
+    },
+
     /**
      * Valida un formulario
      * @param {Object} data - Datos del formulario

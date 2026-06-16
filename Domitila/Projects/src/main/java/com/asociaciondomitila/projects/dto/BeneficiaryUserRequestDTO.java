@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import com.asociaciondomitila.projects.validation.ValidDniNie;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,6 +28,7 @@ public class BeneficiaryUserRequestDTO {
 
     @NotBlank(message = "El DNI es obligatorio")
     @Size(max = 10, message = "El DNI no puede superar los 10 caracteres")
+    @ValidDniNie
     private String dni;
 
     @NotBlank(message = "La direccion es obligatoria")

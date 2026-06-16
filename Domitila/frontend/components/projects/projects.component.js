@@ -1197,10 +1197,48 @@ class ProjectsComponent {
         const feedbackContainer = modalElement.querySelector('#projectBeneficiaryFeedback');
         const form = modalElement.querySelector('#createBeneficiaryForm');
         const confirmBtn = modalElement.querySelector('#confirmCreateBeneficiaryBtn');
+        const dniInput = modalElement.querySelector('#beneficiaryDni');
         const beneficiaryPageState = {
             currentPage: 0,
             totalPages: 0,
             totalItems: 0
+        };
+
+        const clearFieldError = (input) => {
+            if (!input) {
+                return;
+            }
+            input.classList.remove('is-invalid');
+            const feedback = input.parentNode?.querySelector('.invalid-feedback');
+            if (feedback) {
+                feedback.remove();
+            }
+        };
+
+        const showFieldError = (input, message) => {
+            if (!input) {
+                return;
+            }
+            clearFieldError(input);
+            input.classList.add('is-invalid');
+            const feedback = document.createElement('div');
+            feedback.className = 'invalid-feedback d-block';
+            feedback.textContent = message;
+            input.parentNode?.appendChild(feedback);
+        };
+
+        const validateBeneficiaryForm = () => {
+            const dniValue = dniInput?.value || '';
+            clearFieldError(dniInput);
+
+            if (!Utils.validateDniNie(dniValue)) {
+                showFieldError(dniInput, 'Introduce un DNI o NIE válido.');
+                dniInput?.focus();
+                return false;
+            }
+
+            dniInput.value = Utils.normalizeIdentityDocument(dniValue);
+            return true;
         };
 
         const bindPagination = () => {
@@ -1251,7 +1289,7 @@ class ProjectsComponent {
             name: modalElement.querySelector('#beneficiaryName')?.value?.trim() || '',
             surname1: modalElement.querySelector('#beneficiarySurname1')?.value?.trim() || '',
             surname2: modalElement.querySelector('#beneficiarySurname2')?.value?.trim() || '',
-            dni: modalElement.querySelector('#beneficiaryDni')?.value?.trim() || '',
+            dni: Utils.normalizeIdentityDocument(modalElement.querySelector('#beneficiaryDni')?.value || ''),
             address: modalElement.querySelector('#beneficiaryAddress')?.value?.trim() || '',
             postalCode: ProjectsComponent.parseNullableInt(modalElement.querySelector('#beneficiaryPostalCode')?.value),
             phone: ProjectsComponent.parseNullableInt(modalElement.querySelector('#beneficiaryPhone')?.value),
@@ -1260,6 +1298,9 @@ class ProjectsComponent {
 
         const submit = async () => {
             if (!form.reportValidity()) {
+                return;
+            }
+            if (!validateBeneficiaryForm()) {
                 return;
             }
 
@@ -1348,6 +1389,19 @@ class ProjectsComponent {
             await submit();
         });
         confirmBtn.addEventListener('click', submit);
+        dniInput?.addEventListener('input', () => clearFieldError(dniInput));
+        dniInput?.addEventListener('blur', () => {
+            if (!dniInput.value) {
+                clearFieldError(dniInput);
+                return;
+            }
+            dniInput.value = Utils.normalizeIdentityDocument(dniInput.value);
+            if (!Utils.validateDniNie(dniInput.value)) {
+                showFieldError(dniInput, 'Introduce un DNI o NIE válido.');
+                return;
+            }
+            clearFieldError(dniInput);
+        });
     }
 
     renderBeneficiariesTable(beneficiaries) {
