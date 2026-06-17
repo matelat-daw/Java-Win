@@ -59,7 +59,7 @@ public class CatalogoController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             Model model) {
         int pageSize = 8;
-        PageRequest pageable = PageRequest.of(Math.max(page, 0), pageSize, Sort.by(Sort.Direction.ASC, "id"));
+        PageRequest pageable = PageRequest.of(Math.max(page, 0), pageSize, Sort.by(Sort.Direction.ASC, catalogo(pageSize, model).equalsIgnoreCase("nombre") ? "nombre" : "id"));
         Page<Producto> productosPage = productoService.obtenerCatalogoPaginado(pageable);
 
         model.addAttribute("productosPage", productosPage);
@@ -73,7 +73,7 @@ public class CatalogoController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             Model model) {
         int pageSize = 8;
-        PageRequest pageable = PageRequest.of(Math.max(page, 0), pageSize, Sort.by(Sort.Direction.ASC, "id"));
+        PageRequest pageable = PageRequest.of(Math.max(page, 0), pageSize, Sort.by(Sort.Direction.ASC, category.equalsIgnoreCase("nombre") ? "nombre" : "id"));
         Page<Producto> productosPage = productoService.buscarPorCategoriaPaginado(category, pageable);
 
         model.addAttribute("productosPage", productosPage);

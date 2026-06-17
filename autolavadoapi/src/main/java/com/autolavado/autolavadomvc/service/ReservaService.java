@@ -120,9 +120,9 @@ public class ReservaService {
         }
         Sort.Direction direction = "desc".equalsIgnoreCase(dir) ? Sort.Direction.DESC : Sort.Direction.ASC;
         return switch (sortField) {
-            case "nombre" -> Sort.by(direction, "nombreCliente");
-            case "fecha" -> Sort.by(direction, "fecha");
-            case "estado" -> Sort.by(direction, "estado.estado");
+            case "nombre" -> Sort.by(direction,ReservaServicio::getNombreCliente);
+            case "fecha" -> Sort.by(direction, ReservaServicio::getFecha);
+            case "estado" -> Sort.by(direction, ReservaServicio::getEstado);
             default -> Sort.unsorted();
         };
     }
