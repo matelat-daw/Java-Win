@@ -24,21 +24,28 @@ const Utils = {
         if (!documento) return false;
 
         const doc = Utils.normalizeIdentityDocument(documento);
-        const regex = /^[XYZ\d]\d{7}[A-Z]$/;
-        if (!regex.test(doc)) {
+        const letrasValidas = 'TRWAGMYFPDXBNJZSQVHLCKE';
+        const dniRegex = /^\d{1,8}[A-Z]$/;
+        const nieRegex = /^[XYZ]\d{7}[A-Z]$/;
+
+        let numeroDocumento = '';
+        const letraControl = doc.charAt(doc.length - 1);
+
+        if (dniRegex.test(doc)) {
+            numeroDocumento = doc.slice(0, -1);
+        } else if (nieRegex.test(doc)) {
+            const primeraLetra = doc.charAt(0);
+            const prefijo = primeraLetra === 'X' ? '0' : primeraLetra === 'Y' ? '1' : '2';
+            numeroDocumento = prefijo + doc.slice(1, -1);
+        } else {
             return false;
         }
 
-        const letrasValidas = 'TRWAGMYFPDXBNJZSQVHLCKE';
-        let numeroFormateado = doc;
+        const numero = parseInt(numeroDocumento, 10);
+        if (Number.isNaN(numero)) {
+            return false;
+        }
 
-        const primeraLetra = doc.charAt(0);
-        if (primeraLetra === 'X') numeroFormateado = '0' + doc.substring(1);
-        if (primeraLetra === 'Y') numeroFormateado = '1' + doc.substring(1);
-        if (primeraLetra === 'Z') numeroFormateado = '2' + doc.substring(1);
-
-        const numero = parseInt(numeroFormateado.substring(0, 8), 10);
-        const letraControl = doc.charAt(8);
         const letraCalculada = letrasValidas.charAt(numero % 23);
 
         return letraControl === letraCalculada;

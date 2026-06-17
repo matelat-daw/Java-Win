@@ -19,6 +19,7 @@ import com.asociaciondomitila.projects.entity.Project;
 import com.asociaciondomitila.projects.entity.Task;
 import com.asociaciondomitila.projects.entity.Staff;
 import com.asociaciondomitila.projects.enums.IncidentStatus;
+import com.asociaciondomitila.projects.enums.ProjectStatus;
 import com.asociaciondomitila.projects.repository.BeneficiaryUserRepository;
 import com.asociaciondomitila.projects.repository.IncidentRepository;
 import com.asociaciondomitila.projects.repository.ProjectsRepository;
@@ -395,6 +396,7 @@ public class ProjectsService {
     @Transactional
     public ProjectsResponseDTO updateProject(Long id, ProjectsRequestDTO details) {
         return projectsRepository.findById(id).map(existingProject -> {
+            ensureProjectCanBeCompleted(id, details.getStatus());
             applyRequest(existingProject, details);
             return toResponse(projectsRepository.save(existingProject));
         }).orElseThrow(() -> new RuntimeException("Proyecto no encontrado con el id: " + id));
@@ -492,6 +494,19 @@ public class ProjectsService {
             case "DONE", "TERMINADO" -> "TERMINADO";
             default -> status.trim().toUpperCase();
         };
+    }
+
+    private void ensureProjectCanBeCompleted(Long projectId, ProjectStatus requestedStatus) {
+        if (requestedStatus != ProjectStatus.COMPLETADO) {
+            return;
+        }
+
+        boolean hasIncompleteTasks = taskRepository.findByProjectIdOrderByDueDateAscIdAsc(projectId).stream()
+                .anyMatch(task -> !"TERMINADO".equals(normalizeTaskStatus(task.getStatus())));
+
+        if (hasIncompleteTasks) {
+            throw new IllegalArgumentException("No se puede completar el proyecto mientras existan tareas pendientes.");
+        }
     }
 
     private String safeLower(String value) {

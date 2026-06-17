@@ -3,32 +3,40 @@ package com.asociaciondomitila.projects.util;
 public class DocumentoIdentidadUtil {
 
     private static final String LETRAS_VALIDAS = "TRWAGMYFPDXBNJZSQVHLCKE";
+    private static final String DNI_REGEX = "^\\d{1,8}[A-Z]$";
+    private static final String NIE_REGEX = "^[XYZ]\\d{7}[A-Z]$";
 
     public static boolean validarDniNie(String documento) {
         if (documento == null) {
             return false;
         }
 
-        String doc = documento.trim().toUpperCase();
+        String doc = documento.trim().toUpperCase().replaceAll("[-\\s]", "");
 
-        if (!doc.matches("^[XYZ\\d]\\d{7}[A-Z]$")) {
+        if (doc.isEmpty()) {
             return false;
         }
 
         try {
-            String numeroFormateado = doc;
-            char primeraLetra = doc.charAt(0);
+            String numeroDocumento;
+            char letraControl = doc.charAt(doc.length() - 1);
 
-            if (primeraLetra == 'X') {
-                numeroFormateado = "0" + doc.substring(1);
-            } else if (primeraLetra == 'Y') {
-                numeroFormateado = "1" + doc.substring(1);
-            } else if (primeraLetra == 'Z') {
-                numeroFormateado = "2" + doc.substring(1);
+            if (doc.matches(DNI_REGEX)) {
+                numeroDocumento = doc.substring(0, doc.length() - 1);
+            } else if (doc.matches(NIE_REGEX)) {
+                char primeraLetra = doc.charAt(0);
+                char prefijoNumerico = switch (primeraLetra) {
+                    case 'X' -> '0';
+                    case 'Y' -> '1';
+                    case 'Z' -> '2';
+                    default -> ' ';
+                };
+                numeroDocumento = prefijoNumerico + doc.substring(1, doc.length() - 1);
+            } else {
+                return false;
             }
 
-            int numero = Integer.parseInt(numeroFormateado.substring(0, 8));
-            char letraControl = doc.charAt(8);
+            int numero = Integer.parseInt(numeroDocumento);
 
             char letraCalculada = LETRAS_VALIDAS.charAt(numero % 23);
 
