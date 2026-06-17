@@ -17,7 +17,7 @@ public class CatalogoServiciosService {
 
     public List<Servicio> listarServicios() {
         // Use a concrete property name to avoid non type-safe property reference warnings
-        return servicioRepository.findAll(Sort.by(Sort.Direction.ASC, "servicio"));
+        return servicioRepository.findAll(Sort.by(Sort.Direction.ASC, Servicio::getServicio));
     }
 
     public Servicio buscarPorId(Integer id) {
