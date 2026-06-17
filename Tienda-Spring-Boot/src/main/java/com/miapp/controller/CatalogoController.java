@@ -2,7 +2,6 @@ package com.miapp.controller;
 
 import com.miapp.model.Producto;
 import com.miapp.service.ProductoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -15,7 +14,6 @@ import jakarta.validation.Valid;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
-
 import java.math.BigDecimal;
 import java.util.Optional;
 
@@ -23,8 +21,11 @@ import java.util.Optional;
 @RequestMapping("/store")
 public class CatalogoController {
     
-    @Autowired
-    private ProductoService productoService;
+    private final ProductoService productoService;
+    
+    public CatalogoController(ProductoService productoService) {
+        this.productoService = productoService;
+    }
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {

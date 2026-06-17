@@ -2,7 +2,6 @@ package com.miapp.controller;
 
 import com.miapp.model.Contacto;
 import com.miapp.service.ContactoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -11,8 +10,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/store")
 public class ContactoController {
     
-    @Autowired
-    private ContactoService contactoService;
+    private final ContactoService contactoService;
+    
+    public ContactoController(ContactoService contactoService) {
+        this.contactoService = contactoService;
+    }
     
     @GetMapping("/contact")
     public String mostrarFormularioContacto(Model model) {

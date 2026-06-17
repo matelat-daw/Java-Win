@@ -2,7 +2,6 @@ package com.miapp.service;
 
 import com.miapp.model.Contacto;
 import com.miapp.repository.ContactoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,8 +10,11 @@ import java.util.Optional;
 @Service
 public class ContactoService {
     
-    @Autowired
-    private ContactoRepository contactoRepository;
+    private final ContactoRepository contactoRepository;
+
+    public ContactoService(ContactoRepository contactoRepository) {
+        this.contactoRepository = contactoRepository;
+    }
     
     public Contacto guardarContacto(Contacto contacto) {
         return contactoRepository.save(contacto);

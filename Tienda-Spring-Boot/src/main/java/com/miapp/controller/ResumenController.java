@@ -1,7 +1,6 @@
 package com.miapp.controller;
 
 import com.miapp.service.ProductoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,8 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/store")
 public class ResumenController {
     
-    @Autowired
-    private ProductoService productoService;
+    private final ProductoService productoService;
+    
+    public ResumenController(ProductoService productoService) {
+        this.productoService = productoService;
+    }
     
     @GetMapping("/summary")
     public String resumen(Model model) {

@@ -5,7 +5,6 @@ import com.miapp.model.Categoria;
 import com.miapp.repository.ProductoRepository;
 import com.miapp.repository.CategoriaRepository;
 import com.miapp.util.ImagesUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,11 +16,14 @@ import java.util.stream.Collectors;
 @Service
 public class ProductoService {
     
-    @Autowired
-    private ProductoRepository productoRepository;
+    private final ProductoRepository productoRepository;
 
-    @Autowired
-    private CategoriaRepository categoriaRepository;
+    private final CategoriaRepository categoriaRepository;
+
+    public ProductoService(ProductoRepository productoRepository, CategoriaRepository categoriaRepository) {
+        this.productoRepository = productoRepository;
+        this.categoriaRepository = categoriaRepository;
+    }
     
     public List<Producto> obtenerCatalogo() {
         return productoRepository.findAll();

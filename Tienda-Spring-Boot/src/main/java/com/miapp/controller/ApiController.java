@@ -6,7 +6,6 @@ import com.miapp.model.Producto;
 import com.miapp.service.ContactoService;
 import com.miapp.service.ProductoService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.validation.BindingResult;
-
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
@@ -37,11 +35,13 @@ import java.util.Optional;
 @CrossOrigin(origins = "*")
 public class ApiController {
 
-    @Autowired
-    private ProductoService productoService;
+    private final ProductoService productoService;
+    private final ContactoService contactoService;
 
-    @Autowired
-    private ContactoService contactoService;
+    public ApiController(ProductoService productoService, ContactoService contactoService) {
+        this.productoService = productoService;
+        this.contactoService = contactoService;
+    }
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {

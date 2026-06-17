@@ -2,7 +2,6 @@ package com.asociaciondomitila.projects.service;
 
 import com.asociaciondomitila.projects.dto.ProjectsRequestDTO;
 import com.asociaciondomitila.projects.entity.Project;
-import com.asociaciondomitila.projects.entity.Staff;
 import com.asociaciondomitila.projects.entity.Task;
 import com.asociaciondomitila.projects.enums.ProjectStatus;
 import com.asociaciondomitila.projects.repository.BeneficiaryUserRepository;
@@ -17,7 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
